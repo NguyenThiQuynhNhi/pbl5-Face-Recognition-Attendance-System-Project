@@ -11,9 +11,6 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="#">Football Dashboard</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="index.html">Trang Chủ</a></li>
@@ -30,39 +27,38 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Tên</th>
-                    <th>Vị trí</th>
-                    <th>Đội</th>
-                    <th>Hành động</th>
+                    <th>Mã Cầu Thủ</th>
+                    <th>Tên Cầu Thủ</th>
+                    <th>Hình ảnh</th>
                 </tr>
             </thead>
             <tbody id="playerList">
+                <!-- Dữ liệu cầu thủ sẽ được thêm vào đây -->
             </tbody>
         </table>
     </div>
 
-    <div class="modal fade" id="playerModal" tabindex="-1" aria-labelledby="playerModalLabel" aria-hidden="true">
+    <!-- Modal Thêm Cầu Thủ -->
+    <div class="modal fade" id="playerModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="playerModalLabel">Thêm Cầu Thủ</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="playerForm">
-                        <input type="hidden" id="playerIndex">
+                        <div class="mb-3">
+                            <label class="form-label">Mã Cầu Thủ</label>
+                            <input type="text" class="form-control" id="playerId" required>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">Tên Cầu Thủ</label>
                             <input type="text" class="form-control" id="playerName" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Vị trí</label>
-                            <input type="text" class="form-control" id="playerPosition" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Đội</label>
-                            <input type="text" class="form-control" id="playerTeam" required>
+                            <label class="form-label">Hình ảnh (URL)</label>
+                            <input type="text" class="form-control" id="playerImage" required>
                         </div>
                         <button type="submit" class="btn btn-success">Lưu</button>
                     </form>
@@ -71,75 +67,62 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let players = [
-            { name: "Nguyễn Văn A", position: "Tiền đạo", team: "Team A" },
-            { name: "Trần Văn B", position: "Hậu vệ", team: "Team B" },
-            { name: "Đỗ Văn C", position: "Thủ môn", team: "Team C" }
-        ];
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchPlayers();
+        });
 
-        function renderPlayers() {
-            let tableBody = document.getElementById("playerList");
-            tableBody.innerHTML = "";
-            players.forEach((player, index) => {
-                let row = `<tr>
-                    <td>${index + 1}</td>
-                    <td>${player.name}</td>
-                    <td>${player.position}</td>
-                    <td>${player.team}</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm" onclick="editPlayer(${index})">Sửa</button>
-                        <button class="btn btn-danger btn-sm" onclick="deletePlayer(${index})">Xóa</button>
-                    </td>
-                </tr>`;
-                tableBody.innerHTML += row;
-            });
-        }
+        function fetchPlayers() {
+            fetch("http://localhost:5000/players")
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Dữ liệu nhận được:", data);
+                    let playersList = document.getElementById("playerList");
+                    playersList.innerHTML = "";
 
-        function resetForm() {
-            document.getElementById("playerForm").reset();
-            document.getElementById("playerIndex").value = "";
-            document.getElementById("playerModalLabel").innerText = "Thêm Cầu Thủ";
-        }
+                    if (!Array.isArray(data)) {
+                        console.error("Dữ liệu không phải mảng:", data);
+                        return;
+                    }
 
-        function editPlayer(index) {
-            let player = players[index];
-            document.getElementById("playerIndex").value = index;
-            document.getElementById("playerName").value = player.name;
-            document.getElementById("playerPosition").value = player.position;
-            document.getElementById("playerTeam").value = player.team;
-            document.getElementById("playerModalLabel").innerText = "Chỉnh Sửa Cầu Thủ";
-            new bootstrap.Modal(document.getElementById("playerModal")).show();
-        }
-
-        function deletePlayer(index) {
-            if (confirm("Bạn có chắc muốn xóa cầu thủ này?")) {
-                players.splice(index, 1);
-                renderPlayers();
-            }
+                    data.forEach(player => {
+                        let row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${player.MaCauThu}</td>
+                            <td>${player.TenCauThu}</td>
+                            <td><img src="${player.HinhAnh}" alt="${player.TenCauThu}" style="width:50px; height:50px; border-radius:50%;"></td>
+                        `;
+                        playersList.appendChild(row);
+                    });
+                })
+                .catch(error => console.error("Lỗi khi lấy danh sách cầu thủ:", error));
         }
 
         document.getElementById("playerForm").addEventListener("submit", function(event) {
             event.preventDefault();
-            let index = document.getElementById("playerIndex").value;
-            let name = document.getElementById("playerName").value;
-            let position = document.getElementById("playerPosition").value;
-            let team = document.getElementById("playerTeam").value;
+            const MaCauThu = document.getElementById("playerId").value;
+            const TenCauThu = document.getElementById("playerName").value;
+            const HinhAnh = document.getElementById("playerImage").value;
 
-            if (index) {
-                players[index] = { name, position, team };
-            } else {
-                players.push({ name, position, team });
-            }
-
-            renderPlayers();
-            new bootstrap.Modal(document.getElementById("playerModal")).hide();
+            fetch("http://localhost:5000/players", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ MaCauThu, TenCauThu, HinhAnh })
+            })
+            .then(response => response.json())
+            .then(() => {
+                fetchPlayers();
+                document.getElementById("playerForm").reset();
+                let modal = bootstrap.Modal.getInstance(document.getElementById("playerModal"));
+                modal.hide();
+            })
+            .catch(error => console.error("Lỗi khi thêm cầu thủ:", error));
         });
 
-        document.addEventListener("DOMContentLoaded", renderPlayers);
+        function resetForm() {
+            document.getElementById("playerForm").reset();
+        }
     </script>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
