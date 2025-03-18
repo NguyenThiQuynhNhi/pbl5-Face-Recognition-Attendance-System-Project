@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Danh Sách Cầu Thủ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Football Dashboard</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="players.html">Danh Sách Cầu Thủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance.html">Lịch Chấm Công</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Đăng Xuất</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Danh Sách Cầu Thủ</h2>
+        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#playerModal" onclick="resetForm()">Thêm Cầu Thủ</button>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Mã Cầu Thủ</th>
+                    <th>Tên Cầu Thủ</th>
+                    <th>Hình ảnh</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="playerList">
+                <!-- Dữ liệu cầu thủ sẽ được thêm vào đây -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Thêm/Sửa Cầu Thủ -->
+    <div class="modal fade" id="playerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="playerModalLabel">Thêm Cầu Thủ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="playerForm">
+                        <div class="mb-3">
+                            <label class="form-label">Mã Cầu Thủ</label>
+                            <input type="text" class="form-control" id="playerId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tên Cầu Thủ</label>
+                            <input type="text" class="form-control" id="playerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hình ảnh (URL)</label>
+                            <input type="text" class="form-control" id="playerImage" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Lưu</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchPlayers();
+        });
+
+        function fetchPlayers() {
+            fetch("http://localhost:5000/players")
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Dữ liệu nhận được:", data);
+                    let playersList = document.getElementById("playerList");
+                    playersList.innerHTML = "";
+
+                    if (!Array.isArray(data)) {
+                        console.error("Dữ liệu không phải mảng:", data);
+                        return;
+                    }
+
+                    data.forEach(player => {
+                        let row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${player.MaCauThu}</td>
+                            <td>${player.TenCauThu}</td>
+                            <td><img src="${player.HinhAnh}" alt="${player.TenCauThu}" style="width:50px; height:50px; border-radius:50%;"></td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editPlayer('${player.MaCauThu}', '${player.TenCauThu}', '${player.HinhAnh}')">Sửa</button>
+                                <button class="btn btn-danger btn-sm" onclick="deletePlayer('${player.MaCauThu}')">Xóa</button>
+                            </td>
+                        `;
+                        playersList.appendChild(row);
+                    });
+                })
+                .catch(error => console.error("Lỗi khi lấy danh sách cầu thủ:", error));
+        }
+
+        document.getElementById("playerForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const MaCauThu = document.getElementById("playerId").value;
+            const TenCauThu = document.getElementById("playerName").value;
+            const HinhAnh = document.getElementById("playerImage").value;
+
+            const method = document.getElementById("playerId").disabled ? "PUT" : "POST";
+            const url = method === "POST" ? "http://localhost:5000/players" : `http://localhost:5000/players/${MaCauThu}`;
+
+            fetch(url, {
+                method: method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ MaCauThu, TenCauThu, HinhAnh })
+            })
+            .then(response => response.json())
+            .then(() => {
+                fetchPlayers();
+                document.getElementById("playerForm").reset();
+                document.getElementById("playerId").disabled = false;
+                document.getElementById("playerModalLabel").innerText = "Thêm Cầu Thủ";
+                let modal = bootstrap.Modal.getInstance(document.getElementById("playerModal"));
+                modal.hide();
+            })
+            .catch(error => console.error(`Lỗi khi ${method === "POST" ? "thêm" : "sửa"} cầu thủ:`, error));
+        });
+
+        function resetForm() {
+            document.getElementById("playerForm").reset();
+            document.getElementById("playerId").disabled = false;
+            document.getElementById("playerModalLabel").innerText = "Thêm Cầu Thủ";
+        }
+
+        function editPlayer(MaCauThu, TenCauThu, HinhAnh) {
+            document.getElementById("playerId").value = MaCauThu;
+            document.getElementById("playerName").value = TenCauThu;
+            document.getElementById("playerImage").value = HinhAnh;
+            document.getElementById("playerId").disabled = true; // Không cho sửa MaCauThu
+            document.getElementById("playerModalLabel").innerText = "Sửa Cầu Thủ";
+            new bootstrap.Modal(document.getElementById("playerModal")).show();
+        }
+
+        function deletePlayer(MaCauThu) {
+            if (confirm("Bạn có chắc muốn xóa cầu thủ này?")) {
+                fetch(`http://localhost:5000/players/${MaCauThu}`, {
+                    method: "DELETE"
+                })
+                .then(response => response.json())
+                .then(() => fetchPlayers())
+                .catch(error => console.error("Lỗi khi xóa cầu thủ:", error));
+            }
+        }
+    </script>
+</body>
+</html>

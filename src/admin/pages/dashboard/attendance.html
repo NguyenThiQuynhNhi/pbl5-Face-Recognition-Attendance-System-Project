@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lịch Chấm Công</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Football Dashboard</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="players.html">Danh Sách Cầu Thủ</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="attendance.html">Lịch Chấm Công</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Đăng Xuất</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Lịch Chấm Công</h2>
+        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#attendanceModal"
+            onclick="resetForm()">Thêm Bản Ghi Chấm Công</button>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Mã Chấm Công</th>
+                    <th>Mã Cầu Thủ</th>
+                    <th>Ngày Chấm Công</th>
+                    <th>In/Out</th>
+                    <th>Trạng Thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="attendanceList">
+                <!-- Dữ liệu chấm công sẽ được thêm vào đây -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Thêm/Sửa Chấm Công -->
+    <div class="modal fade" id="attendanceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="attendanceModalLabel">Thêm Bản Ghi Chấm Công</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="attendanceForm">
+                        <div class="mb-3">
+                            <label class="form-label">Mã Chấm Công</label>
+                            <input type="text" class="form-control" id="attendanceId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mã Cầu Thủ</label>
+                            <input type="text" class="form-control" id="playerId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ngày Chấm Công</label>
+                            <input type="date" class="form-control" id="attendanceDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">In/Out</label>
+                            <input type="text" class="form-control" id="inOut" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Trạng Thái</label>
+                            <input type="text" class="form-control" id="status" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Lưu</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchAttendance();
+        });
+
+        function fetchAttendance() {
+            fetch("http://localhost:5001/attendance")
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Dữ liệu nhận được:", data);
+                    let attendanceList = document.getElementById("attendanceList");
+                    attendanceList.innerHTML = "";
+
+                    if (!Array.isArray(data)) {
+                        console.error("Dữ liệu không phải mảng:", data);
+                        return;
+                    }
+
+                    data.forEach(record => {
+                        let row = document.createElement("tr");
+                        row.innerHTML = `
+                    <td>${record.MaChamCong}</td>
+                    <td>${record.MaCauThu}</td>
+                    <td>${record.NgayChamCong}</td>
+                    <td>${record.InOut}</td>
+                    <td>${record.TrangThai}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editAttendance('${record.MaChamCong}', '${record.MaCauThu}', '${record.NgayChamCong}', '${record.InOut}', '${record.TrangThai}')">Sửa</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteAttendance('${record.MaChamCong}')">Xóa</button>
+                    </td>
+                `;
+                        attendanceList.appendChild(row);
+                    });
+                })
+                .catch(error => console.error("Lỗi khi lấy danh sách chấm công:", error));
+        }
+
+        document.getElementById("attendanceForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            const MaChamCong = document.getElementById("attendanceId").value;
+            const MaCauThu = document.getElementById("playerId").value;
+            const NgayChamCong = document.getElementById("attendanceDate").value;
+            const InOut = document.getElementById("inOut").value;
+            const TrangThai = document.getElementById("status").value;
+
+            const method = document.getElementById("attendanceId").disabled ? "PUT" : "POST";
+            const url = method === "POST" ? "http://localhost:5001/attendance" : `http://localhost:5001/attendance/${MaChamCong}`;
+
+            fetch(url, {
+                method: method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ MaChamCong, MaCauThu, NgayChamCong, InOut, TrangThai })
+            })
+                .then(response => response.json())
+                .then(() => {
+                    fetchAttendance();
+                    document.getElementById("attendanceForm").reset();
+                    document.getElementById("attendanceId").disabled = false;
+                    document.getElementById("attendanceModalLabel").innerText = "Thêm Bản Ghi Chấm Công";
+                    let modal = bootstrap.Modal.getInstance(document.getElementById("attendanceModal"));
+                    modal.hide();
+                })
+                .catch(error => console.error(`Lỗi khi ${method === "POST" ? "thêm" : "sửa"} bản ghi chấm công:`, error));
+        });
+
+        function resetForm() {
+            document.getElementById("attendanceForm").reset();
+            document.getElementById("attendanceId").disabled = false;
+            document.getElementById("attendanceModalLabel").innerText = "Thêm Bản Ghi Chấm Công";
+        }
+
+        function editAttendance(MaChamCong, MaCauThu, NgayChamCong, InOut, TrangThai) {
+            document.getElementById("attendanceId").value = MaChamCong;
+            document.getElementById("playerId").value = MaCauThu;
+            document.getElementById("attendanceDate").value = NgayChamCong;
+            document.getElementById("inOut").value = InOut;
+            document.getElementById("status").value = TrangThai;
+            document.getElementById("attendanceId").disabled = true;
+            document.getElementById("attendanceModalLabel").innerText = "Sửa Bản Ghi Chấm Công";
+            new bootstrap.Modal(document.getElementById("attendanceModal")).show();
+        }
+
+        function deleteAttendance(MaChamCong) {
+            if (confirm("Bạn có chắc muốn xóa bản ghi chấm công này?")) {
+                fetch(`http://localhost:5001/attendance/${MaChamCong}`, {
+                    method: "DELETE"
+                })
+                    .then(response => response.json())
+                    .then(() => fetchAttendance())
+                    .catch(error => console.error("Lỗi khi xóa bản ghi chấm công:", error));
+            }
+        }
+    </script>
+</body>
+
+</html>
