@@ -3,8 +3,9 @@ import cv2
 from PIL import Image, ImageTk
 import tkinter.messagebox
 import datetime
-import mysql.connector  # Thay pyodbc bằng mysql-connector-python
-import face_recognition
+import mysql.connector  
+from face_recognition import face_recognition
+print("face_recognition loaded successfully")
 import os
 
 class MyVideoCapture:
@@ -100,8 +101,8 @@ class loadimg:
         cursor.execute("SELECT * FROM CauThu")
         player_rows = cursor.fetchall()
         for row in player_rows:
-            self.imgsrclist.append(row[2])  # Cột HinhAnh
-            self.namect.append(row[1])      # Cột TenCauThu
+            self.imgsrclist.append(row[2])  
+            self.namect.append(row[1])      
         for cl in self.imgsrclist:
             curimg = cv2.imread(f"{self.path}/{cl}")
             self.images.append(curimg)
@@ -141,17 +142,17 @@ class DialogBox(tkinter.Toplevel):
             database="quanlychamcong"
         )
         cursor = connection.cursor()
-        cursor.execute(f"SELECT * FROM ChamCong WHERE MaCauThu='{self.codect}' AND YEAR(SaveTime) = {now.year} AND MONTH(SaveTime) = {now.month} AND DAY(SaveTime) = {now.day}")
+        cursor.execute(f"SELECT * FROM ChamCong WHERE MaCauThu='{self.codect}' AND YEAR(NgayChamCong) = {now.year} AND MONTH(NgayChamCong) = {now.month} AND DAY(NgayChamCong) = {now.day}")
         ChamCong_rows = cursor.fetchall()
         count = len(ChamCong_rows)
         if count == 0:
             state = "tập trung đúng giờ" if now.hour < 9 else "tập trung muộn"
-            cursor.execute("INSERT INTO ChamCong (MaCauThu, SaveTime, inout, TrangThai) VALUES (%s, %s, %s, %s)",
+            cursor.execute("INSERT INTO ChamCong (MaCauThu, NgayChamCong, `InOut`, TrangThai) VALUES (%s, %s, %s, %s)",
                            (self.codect, sql_datetime, 'in', state))
             tkinter.messagebox.showinfo(title="Notification", message=f"Đã chấm công thành công. {state} checkin: {sql_datetime}")
         elif count == 1:
             state = "về đúng giờ" if now.hour >= 15 else "về sớm"
-            cursor.execute("INSERT INTO ChamCong (MaCauThu, SaveTime, inout, TrangThai) VALUES (%s, %s, %s, %s)",
+            cursor.execute("INSERT INTO ChamCong (MaCauThu, NgayChamCong, `InOut`, TrangThai) VALUES (%s, %s, %s, %s)",
                            (self.codect, sql_datetime, 'out', state))
             tkinter.messagebox.showinfo(title="Notification", message=f"Đã chấm công thành công. {state} checkout: {sql_datetime}")
         elif count == 2:
