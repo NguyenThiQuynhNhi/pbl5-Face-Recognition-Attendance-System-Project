@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản Lý Chấm Công</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Employee Management</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="departments.html">Phòng Ban</a></li>
+                    <li class="nav-item"><a class="nav-link" href="employees.html">Nhân Viên</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="attendance.html">Chấm Công</a></li>
+                    <li class="nav-item"><a class="nav-link" href="admins.html">Tài Khoản Admin</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Đăng Xuất</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <h1 class="text-center">Quản Lý Chấm Công</h1>
+
+        <!-- Button to open Add Attendance Modal -->
+        <div class="text-end mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAttendanceModal">Thêm Bản Ghi Chấm Công</button>
+        </div>
+
+        <!-- Attendance Table -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>ID Nhân Viên</th>
+                    <th>Thời Gian</th>
+                    <th>Trạng Thái</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody id="attendanceTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Add Attendance Modal -->
+    <div class="modal fade" id="addAttendanceModal" tabindex="-1" aria-labelledby="addAttendanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAttendanceModalLabel">Thêm Bản Ghi Chấm Công</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addAttendanceForm">
+                        <div class="mb-3">
+                            <label class="form-label">ID Nhân Viên:</label>
+                            <input type="number" id="addEmployeeId" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Thời Gian (YYYY-MM-DD HH:MM:SS):</label>
+                            <input type="text" id="addDateTime" class="form-control" placeholder="2023-10-01 08:00:00" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Trạng Thái:</label>
+                            <select id="addInOut" class="form-control" required>
+                                <option value="IN">Vào</option>
+                                <option value="OUT">Ra</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Attendance Modal -->
+    <div class="modal fade" id="editAttendanceModal" tabindex="-1" aria-labelledby="editAttendanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAttendanceModalLabel">Sửa Bản Ghi Chấm Công</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAttendanceForm">
+                        <input type="hidden" id="editAttendanceId">
+                        <div class="mb-3">
+                            <label class="form-label">ID Nhân Viên:</label>
+                            <input type="number" id="editEmployeeId" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Thời Gian (YYYY-MM-DD HH:MM:SS):</label>
+                            <input type="text" id="editDateTime" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Trạng Thái:</label>
+                            <select id="editInOut" class="form-control" required>
+                                <option value="IN">Vào</option>
+                                <option value="OUT">Ra</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Lưu</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const secretKey = localStorage.getItem('secretKey');
+        if (!secretKey) {
+            window.location.href = "../auth/login.html";
+        }
+
+        // Load attendance records
+        function loadAttendance() {
+            $.ajax({
+                url: 'http://localhost:5000/attendance',
+                method: 'GET',
+                headers: {
+                    'secret-key': secretKey
+                },
+                success: function(response) {
+                    const attendance = response.data;
+                    const tableBody = $('#attendanceTableBody');
+                    tableBody.empty();
+                    attendance.forEach(record => {
+                        tableBody.append(`
+                            <tr>
+                                <td>${record.attendance_id}</td>
+                                <td>${record.employee_id}</td>
+                                <td>${record.date_n_time}</td>
+                                <td>${record.in_out}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${record.attendance_id}">Sửa</button>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${record.attendance_id}">Xóa</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    } else {
+                        alert("❌ Lỗi khi lấy danh sách chấm công!");
+                    }
+                }
+            });
+        }
+
+        // Add attendance record
+        $('#addAttendanceForm').on('submit', function(event) {
+            event.preventDefault();
+            const employee_id = $('#addEmployeeId').val();
+            const date_n_time = $('#addDateTime').val();
+            const in_out = $('#addInOut').val();
+
+            $.ajax({
+                url: 'http://localhost:5000/attendance',
+                method: 'POST',
+                headers: {
+                    'secret-key': secretKey
+                },
+                contentType: 'application/json',
+                data: JSON.stringify({ employee_id, date_n_time, in_out }),
+                success: function() {
+                    $('#addAttendanceModal').modal('hide');
+                    loadAttendance();
+                },
+                error: function(xhr) {
+                    alert("❌ Lỗi khi thêm bản ghi chấm công!");
+                }
+            });
+        });
+
+        // Edit attendance record
+        $(document).on('click', '.edit-btn', function() {
+            const attendance_id = $(this).data('id');
+            $.ajax({
+                url: `http://localhost:5000/attendance`,
+                method: 'GET',
+                headers: {
+                    'secret-key': secretKey
+                },
+                success: function(response) {
+                    const record = response.data.find(rec => rec.attendance_id == attendance_id);
+                    if (record) {
+                        $('#editAttendanceId').val(record.attendance_id);
+                        $('#editEmployeeId').val(record.employee_id);
+                        $('#editDateTime').val(record.date_n_time);
+                        $('#editInOut').val(record.in_out);
+                        $('#editAttendanceModal').modal('show');
+                    }
+                }
+            });
+        });
+
+        $('#editAttendanceForm').on('submit', function(event) {
+            event.preventDefault();
+            const attendance_id = $('#editAttendanceId').val();
+            const employee_id = $('#editEmployeeId').val();
+            const date_n_time = $('#editDateTime').val();
+            const in_out = $('#editInOut').val();
+
+            $.ajax({
+                url: `http://localhost:5000/attendance/${attendance_id}`,
+                method: 'PUT',
+                headers: {
+                    'secret-key': secretKey
+                },
+                contentType: 'application/json',
+                data: JSON.stringify({ employee_id, date_n_time, in_out }),
+                success: function() {
+                    $('#editAttendanceModal').modal('hide');
+                    loadAttendance();
+                },
+                error: function(xhr) {
+                    alert("❌ Lỗi khi sửa bản ghi chấm công!");
+                }
+            });
+        });
+
+        // Delete attendance record
+        $(document).on('click', '.delete-btn', function() {
+            if (confirm("Bạn có chắc muốn xóa bản ghi chấm công này?")) {
+                const attendance_id = $(this).data('id');
+                $.ajax({
+                    url: `http://localhost:5000/attendance/${attendance_id}`,
+                    method: 'DELETE',
+                    headers: {
+                        'secret-key': secretKey
+                    },
+                    success: function() {
+                        loadAttendance();
+                    },
+                    error: function(xhr) {
+                        alert("❌ Lỗi khi xóa bản ghi chấm công!");
+                    }
+                });
+            }
+        });
+
+        // Load attendance on page load
+        loadAttendance();
+
+        // Logout
+        document.getElementById("logoutBtn").addEventListener("click", function(event) {
+            event.preventDefault();
+            localStorage.removeItem("secretKey");
+            window.location.href = "../auth/login.html";
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

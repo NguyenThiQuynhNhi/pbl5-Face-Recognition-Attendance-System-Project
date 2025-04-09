@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản Lý Nhân Viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Employee Management</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="departments.html">Phòng Ban</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="employees.html">Nhân Viên</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance.html">Chấm Công</a></li>
+                    <li class="nav-item"><a class="nav-link" href="admins.html">Tài Khoản Admin</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Đăng Xuất</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <h1 class="text-center">Quản Lý Nhân Viên</h1>
+
+        <!-- Button to open Add Employee Modal -->
+        <div class="text-end mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">Thêm Nhân Viên</button>
+        </div>
+
+        <!-- Employee Table -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên</th>
+                    <th>Phòng Ban</th>
+                    <th>Email</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody id="employeeTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addEmployeeModalLabel">Thêm Nhân Viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addEmployeeForm">
+                        <div class="mb-3">
+                            <label class="form-label">ID Nhân Viên:</label>
+                            <input type="number" id="addEmployeeId" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tên Nhân Viên:</label>
+                            <input type="text" id="addEmployeeName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ID Phòng Ban:</label>
+                            <input type="number" id="addDepartmentId" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email:</label>
+                            <input type="email" id="addEmail" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEmployeeModalLabel">Sửa Nhân Viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editEmployeeForm">
+                        <input type="hidden" id="editEmployeeId">
+                        <div class="mb-3">
+                            <label class="form-label">Tên Nhân Viên:</label>
+                            <input type="text" id="editEmployeeName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ID Phòng Ban:</label>
+                            <input type="number" id="editDepartmentId" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email:</label>
+                            <input type="email" id="editEmail" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Lưu</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const secretKey = localStorage.getItem('secretKey');
+        if (!secretKey) {
+            window.location.href = "../auth/login.html";
+        }
+
+        // Load employees
+        function loadEmployees() {
+            $.ajax({
+                url: 'http://localhost:5000/employees',
+                method: 'GET',
+                headers: {
+                    'secret-key': secretKey
+                },
+                success: function(response) {
+                    const employees = response.data;
+                    const tableBody = $('#employeeTableBody');
+                    tableBody.empty();
+                    employees.forEach(employee => {
+                        tableBody.append(`
+                            <tr>
+                                <td>${employee.employee_id}</td>
+                                <td>${employee.employee_name}</td>
+                                <td>${employee.department_id}</td>
+                                <td>${employee.email}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${employee.employee_id}">Sửa</button>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${employee.employee_id}">Xóa</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    } else {
+                        alert("❌ Lỗi khi lấy danh sách nhân viên!");
+                    }
+                }
+            });
+        }
+
+        // Add employee
+        $('#addEmployeeForm').on('submit', function(event) {
+            event.preventDefault();
+            const employee_id = $('#addEmployeeId').val();
+            const employee_name = $('#addEmployeeName').val();
+            const department_id = $('#addDepartmentId').val();
+            const email = $('#addEmail').val();
+
+            $.ajax({
+                url: 'http://localhost:5000/employees',
+                method: 'POST',
+                headers: {
+                    'secret-key': secretKey
+                },
+                contentType: 'application/json',
+                data: JSON.stringify({ employee_id, employee_name, department_id, email }),
+                success: function() {
+                    $('#addEmployeeModal').modal('hide');
+                    loadEmployees();
+                },
+                error: function(xhr) {
+                    alert("❌ Lỗi khi thêm nhân viên!");
+                }
+            });
+        });
+
+        // Edit employee
+        $(document).on('click', '.edit-btn', function() {
+            const employee_id = $(this).data('id');
+            $.ajax({
+                url: `http://localhost:5000/employees`,
+                method: 'GET',
+                headers: {
+                    'secret-key': secretKey
+                },
+                success: function(response) {
+                    const employee = response.data.find(emp => emp.employee_id == employee_id);
+                    if (employee) {
+                        $('#editEmployeeId').val(employee.employee_id);
+                        $('#editEmployeeName').val(employee.employee_name);
+                        $('#editDepartmentId').val(employee.department_id);
+                        $('#editEmail').val(employee.email);
+                        $('#editEmployeeModal').modal('show');
+                    }
+                }
+            });
+        });
+
+        $('#editEmployeeForm').on('submit', function(event) {
+            event.preventDefault();
+            const employee_id = $('#editEmployeeId').val();
+            const employee_name = $('#editEmployeeName').val();
+            const department_id = $('#editDepartmentId').val();
+            const email = $('#editEmail').val();
+
+            $.ajax({
+                url: `http://localhost:5000/employees/${employee_id}`,
+                method: 'PUT',
+                headers: {
+                    'secret-key': secretKey
+                },
+                contentType: 'application/json',
+                data: JSON.stringify({ employee_id, employee_name, department_id, email }),
+                success: function() {
+                    $('#editEmployeeModal').modal('hide');
+                    loadEmployees();
+                },
+                error: function(xhr) {
+                    alert("❌ Lỗi khi sửa nhân viên!");
+                }
+            });
+        });
+
+        // Delete employee
+        $(document).on('click', '.delete-btn', function() {
+            if (confirm("Bạn có chắc muốn xóa nhân viên này?")) {
+                const employee_id = $(this).data('id');
+                $.ajax({
+                    url: `http://localhost:5000/employees/${employee_id}`,
+                    method: 'DELETE',
+                    headers: {
+                        'secret-key': secretKey
+                    },
+                    success: function() {
+                        loadEmployees();
+                    },
+                    error: function(xhr) {
+                        alert("❌ Lỗi khi xóa nhân viên!");
+                    }
+                });
+            }
+        });
+
+        // Load employees on page load
+        loadEmployees();
+
+        // Logout
+        document.getElementById("logoutBtn").addEventListener("click", function(event) {
+            event.preventDefault();
+            localStorage.removeItem("secretKey");
+            window.location.href = "../auth/login.html";
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

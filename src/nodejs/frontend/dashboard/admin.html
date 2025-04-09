@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản Lý Tài Khoản Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Employee Management</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="departments.html">Phòng Ban</a></li>
+                    <li class="nav-item"><a class="nav-link" href="employees.html">Nhân Viên</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance.html">Chấm Công</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="admins.html">Tài Khoản Admin</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Đăng Xuất</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <h1 class="text-center">Quản Lý Tài Khoản Admin</h1>
+
+        <!-- Button to open Add Admin Modal -->
+        <div class="text-end mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAdminModal">Thêm Tài Khoản Admin</button>
+        </div>
+
+        <!-- Admin Table -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên Đăng Nhập</th>
+                    <th>Họ Tên</th>
+                    <th>Email</th>
+                    <th>Vai Trò</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody id="adminTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Add Admin Modal -->
+    <div class="modal fade" id="addAdminModal" tabindex="-1" aria-labelledby="addAdminModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAdminModalLabel">Thêm Tài Khoản Admin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addAdminForm">
+                        <div class="mb-3">
+                            <label class="form-label">Tên Đăng Nhập:</label>
+                            <input type="text" id="addUsername" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật Khẩu:</label>
+                            <input type="password" id="addPassword" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Họ Tên:</label>
+                            <input type="text" id="addFullName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email:</label>
+                            <input type="email" id="addEmail" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Vai Trò:</label>
+                            <select id="addRole" class="form-control" required>
+                                <option value="Admin">Admin</option>
+                                <option value="SuperAdmin">SuperAdmin</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Admin Modal -->
+    <div class="modal fade" id="editAdminModal" tabindex="-1" aria-labelledby="editAdminModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAdminModalLabel">Sửa Tài Khoản Admin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAdminForm">
+                        <input type="hidden" id="editAdminId">
+                        <div class="mb-3">
+                            <label class="form-label">Tên Đăng Nhập:</label>
+                            <input type="text" id="editUsername" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật Khẩu:</label>
+                            <input type="password" id="editPassword" class="form-control">
+                            <small class="form-text text-muted">Để trống nếu không muốn thay đổi mật khẩu.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Họ Tên:</label>
+                            <input type="text" id="editFullName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email:</label>
+                            <input type="email" id="editEmail" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Vai Trò:</label>
+                            <select id="editRole" class="form-control" required>
+                                <option value="Admin">Admin</option>
+                                <option value="SuperAdmin">SuperAdmin</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Lưu</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const secretKey = localStorage.getItem('secretKey');
+        if (!secretKey) {
+            window.location.href = "../auth/login.html";
+        }
+
+        // Load admins
+        function loadAdmins() {
+            $.ajax({
+                url: 'http://localhost:5000/admins',
+                method: 'GET',
+                headers: {
+                    'secret-key': secretKey
+                },
+                success: function(response) {
+                    const admins = response.data;
+                    const tableBody = $('#adminTableBody');
+                    tableBody.empty();
+                    admins.forEach(admin => {
+                        tableBody.append(`
+                            <tr>
+                                <td>${admin.admin_id}</td>
+                                <td>${admin.username}</td>
+                                <td>${admin.full_name}</td>
+                                <td>${admin.email}</td>
+                                <td>${admin.role}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${admin.admin_id}">Sửa</button>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${admin.admin_id}">Xóa</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    } else {
+                        alert("❌ Lỗi khi lấy danh sách admin!");
+                    }
+                }
+            });
+        }
+
+        // Add admin
+        $('#addAdminForm').on('submit', function(event) {
+            event.preventDefault();
+            const username = $('#addUsername').val();
+            const password = $('#addPassword').val();
+            const full_name = $('#addFullName').val();
+            const email = $('#addEmail').val();
+            const role = $('#addRole').val();
+
+            $.ajax({
+                url: 'http://localhost:5000/admins',
+                method: 'POST',
+                headers: {
+                    'secret-key': secretKey
+                },
+                contentType: 'application/json',
+                data: JSON.stringify({ username, password, full_name, email, role }),
+                success: function() {
+                    $('#addAdminModal').modal('hide');
+                    loadAdmins();
+                },
+                error: function(xhr) {
+                    alert("❌ Lỗi khi thêm admin!");
+                }
+            });
+        });
+
+        // Edit admin
+        $(document).on('click', '.edit-btn', function() {
+            const admin_id = $(this).data('id');
+            $.ajax({
+                url: `http://localhost:5000/admins`,
+                method: 'GET',
+                headers: {
+                    'secret-key': secretKey
+                },
+                success: function(response) {
+                    const admin = response.data.find(a => a.admin_id == admin_id);
+                    if (admin) {
+                        $('#editAdminId').val(admin.admin_id);
+                        $('#editUsername').val(admin.username);
+                        $('#editPassword').val('');
+                        $('#editFullName').val(admin.full_name);
+                        $('#editEmail').val(admin.email);
+                        $('#editRole').val(admin.role);
+                        $('#editAdminModal').modal('show');
+                    }
+                }
+            });
+        });
+
+        $('#editAdminForm').on('submit', function(event) {
+            event.preventDefault();
+            const admin_id = $('#editAdminId').val();
+            const username = $('#editUsername').val();
+            const password = $('#editPassword').val();
+            const full_name = $('#editFullName').val();
+            const email = $('#editEmail').val();
+            const role = $('#editRole').val();
+
+            const data = { username, full_name, email, role };
+            if (password) {
+                data.password = password;
+            }
+
+            $.ajax({
+                url: `http://localhost:5000/admins/${admin_id}`,
+                method: 'PUT',
+                headers: {
+                    'secret-key': secretKey
+                },
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function() {
+                    $('#editAdminModal').modal('hide');
+                    loadAdmins();
+                },
+                error: function(xhr) {
+                    alert("❌ Lỗi khi sửa admin!");
+                }
+            });
+        });
+
+        // Delete admin
+        $(document).on('click', '.delete-btn', function() {
+            if (confirm("Bạn có chắc muốn xóa tài khoản admin này?")) {
+                const admin_id = $(this).data('id');
+                $.ajax({
+                    url: `http://localhost:5000/admins/${admin_id}`,
+                    method: 'DELETE',
+                    headers: {
+                        'secret-key': secretKey
+                    },
+                    success: function() {
+                        loadAdmins();
+                    },
+                    error: function(xhr) {
+                        alert("❌ Lỗi khi xóa admin!");
+                    }
+                });
+            }
+        });
+
+        // Load admins on page load
+        loadAdmins();
+
+        // Logout
+        document.getElementById("logoutBtn").addEventListener("click", function(event) {
+            event.preventDefault();
+            localStorage.removeItem("secretKey");
+            window.location.href = "../auth/login.html";
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
