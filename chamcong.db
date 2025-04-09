@@ -1,0 +1,79 @@
+CREATE DATABASE employee_management;
+USE employee_management;
+
+-- Bảng phòng ban
+CREATE TABLE departments (
+    department_id VARCHAR(10) PRIMARY KEY,  -- Viết tắt, không dùng AUTO_INCREMENT
+    department_name VARCHAR(100) NOT NULL,
+    dept_description TEXT
+);
+
+-- Bảng nhân viên
+CREATE TABLE employees (
+    employee_id VARCHAR(20) PRIMARY KEY,    -- Viết tắt: phòng + tên, không dùng AUTO_INCREMENT
+    employee_name VARCHAR(100) NOT NULL,
+    department_id VARCHAR(10) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    phone VARCHAR(15),
+    face_image_dir VARCHAR(255), -- chứa đường dẫn THƯ MỤC, ví dụ: /images/employee_id
+    FOREIGN KEY (department_id) REFERENCES departments(department_id)
+);
+
+-- Bảng chấm công
+CREATE TABLE attendance (
+    attendance_id INT PRIMARY KEY AUTO_INCREMENT,
+    employee_id VARCHAR(20) NOT NULL,
+    date_n_time DATETIME NOT NULL,
+    in_out ENUM('In', 'Out') NOT NULL,
+    status ENUM('Enough', 'Lack', 'Late', 'Early') DEFAULT 'Enough',
+    photo_proof VARCHAR(255),
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+);
+
+-- Bảng tài khoản admin
+CREATE TABLE admins (
+    admin_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    role ENUM('SuperAdmin', 'HR') DEFAULT 'HR',
+    email VARCHAR(100) UNIQUE NOT NULL
+);
+
+-- Tạo chỉ mục để tối ưu truy vấn
+CREATE INDEX idx_date_n_time ON attendance(date_n_time);
+CREATE INDEX idx_employee_id ON attendance(employee_id);
+CREATE INDEX idx_status ON attendance(status);
+
+-- Thêm dữ liệu vào bảng departments
+INSERT INTO departments (department_id, department_name, dept_description) VALUES
+('NS', 'Phòng Nhân sự', 'Quản lý nhân sự và tuyển dụng'),
+('KT', 'Phòng Kỹ thuật', 'Phát triển và bảo trì hệ thống'),
+('KD', 'Phòng Kinh doanh', 'Phụ trách bán hàng và marketing'),
+('TC', 'Phòng Tài chính', 'Quản lý tài chính và kế toán'),
+('HC', 'Phòng Hành chính', 'Hỗ trợ vận hành và quản lý văn phòng');
+
+-- Thêm dữ liệu vào bảng employees
+INSERT INTO `employees` VALUES 
+('KTNTQN','Nguyễn Thị Quỳnh Nhi','KT','e.ht@example.com','0945678901','D:/SEM6/PBL5/Face-Recognition/src/python/data/image/KTNTQN/'),
+('KDLMC','Lê Minh Châu','KD','chau.lm@example.com','0923456789','D:/SEM6/PBL5/Face-Recognition/src/python/data/image/KDLMC/'),
+('KTTTB','Trần Thị Bình','KT','binh.tt@example.com','0912345678','D:/SEM6/PBL5/Face-Recognition/src/python/data/image/KTTTB/'),
+('NSNVA','Nguyễn Văn An','NS','an.nv@example.com','0901234567','D:/SEM6/PBL5/Face-Recognition/src/python/data/image/NSNVA/'),
+('TCPQD','Phạm Quốc Đạt','TC','dat.pq@example.com','0934567890','D:/SEM6/PBL5/Face-Recognition/src/python/data/image/TCPQD/');
+
+
+-- Thêm dữ liệu vào bảng attendance
+INSERT INTO attendance (employee_id, date_n_time, in_out, status, photo_proof) VALUES
+('NSNVA', '2025-04-01 08:00:00', 'In', 'Enough', 'D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/2025/04/01/NSNVA_1_20250401080000.jpg'),
+('NSNVA', '2025-04-01 17:00:00', 'Out', 'Enough', 'D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/2025/04/01/NSNVA_2_20250401170000.jpg'),
+('KTTTB', '2025-04-02 07:55:00', 'In', 'Early', 'D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/2025/04/02/KTTTB_3_20250402075500.jpg'),
+('KDLMC', '2025-04-02 08:15:00', 'In', 'Late', 'D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/2025/04/02/KDLMC_4_20250402081500.jpg'),
+('TCPQD', '2025-04-03 16:45:00', 'Out', 'Early', 'D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/2025/04/03/TCPQD_5_20250403164500.jpg');
+
+-- Thêm dữ liệu vào bảng admins
+INSERT INTO admins (username, password, full_name, role, email) VALUES
+('superadmin1', 'hashed_password_123', 'Nguyễn Super Admin', 'SuperAdmin', 'superadmin1@example.com'),
+('hr1', 'hashed_password_456', 'Trần Thị HR', 'HR', 'hr1@example.com'),
+('superadmin2', 'hashed_password_789', 'Lê Super Admin', 'SuperAdmin', 'superadmin2@example.com'),
+('hr2', 'hashed_password_101', 'Phạm Thị HR', 'HR', 'hr2@example.com'),
+('hr3', 'hashed_password_112', 'Hoàng Văn HR', 'HR', 'hr3@example.com');

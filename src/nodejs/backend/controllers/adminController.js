@@ -9,6 +9,19 @@ const getAdmins = async (req, res, next, db) => {
     }
 };
 
+const getAdminById = async (req, res, next, db) => {
+    try {
+        const admin_id = parseInt(req.params.admin_id);
+        const admin = await adminService.getAdminById(db, admin_id);
+        if (!admin) {
+            return res.status(404).json({ message: "Không tìm thấy tài khoản admin!" });
+        }
+        return res.status(200).json({ data: admin });
+    } catch (error) {
+        next(error);
+    }
+};
+
 const addAdmin = async (req, res, next, db) => {
     try {
         const body = req.body;
@@ -42,6 +55,7 @@ const deleteAdmin = async (req, res, next, db) => {
 
 export default {
     getAdmins,
+    getAdminById,
     addAdmin,
     updateAdmin,
     deleteAdmin,
