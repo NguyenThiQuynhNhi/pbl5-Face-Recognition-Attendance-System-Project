@@ -1,6 +1,6 @@
 const getDepartments = (db) => {
     return new Promise((resolve, reject) => {
-        const query = 'SELECT * FROM departments';
+        const query = 'SELECT * FROM departments ORDER BY department_id';
         db.query(query, (err, results) => {
             if (err) {
                 console.error('Database error:', err);
@@ -13,6 +13,10 @@ const getDepartments = (db) => {
 
 const getDepartmentById = (db, department_id) => {
     return new Promise((resolve, reject) => {
+        if (!department_id) {
+            return reject(new Error('Mã phòng ban không hợp lệ!'));
+        }
+
         const query = 'SELECT * FROM departments WHERE department_id = ?';
         db.query(query, [department_id], (err, results) => {
             if (err) {
@@ -25,11 +29,18 @@ const getDepartmentById = (db, department_id) => {
 };
 
 const addDepartment = (db, body) => {
-    const { department_id, department_name } = body;
+    const { department_id, department_name, dept_description } = body;
     return new Promise((resolve, reject) => {
+        if (!department_id || !department_name) {
+            return reject(new Error('Thiếu thông tin bắt buộc!'));
+        }
+
+        // Chuyển department_id thành chữ in hoa
+        const formattedDepartmentId = department_id.toUpperCase();
+
         // Kiểm tra department_id đã tồn tại chưa
         const checkQuery = 'SELECT department_id FROM departments WHERE department_id = ?';
-        db.query(checkQuery, [department_id], (err, results) => {
+        db.query(checkQuery, [formattedDepartmentId], (err, results) => {
             if (err) {
                 console.error('Database error:', err);
                 return reject(new Error('Lỗi truy vấn cơ sở dữ liệu!'));
@@ -39,8 +50,12 @@ const addDepartment = (db, body) => {
             }
 
             // Thêm phòng ban mới
-            const insertQuery = 'INSERT INTO departments (department_id, department_name) VALUES (?, ?)';
-            db.query(insertQuery, [department_id, department_name], (err) => {
+            const insertQuery = 'INSERT INTO departments (department_id, department_name, dept_description) VALUES (?, ?, ?)';
+            db.query(insertQuery, [
+                formattedDepartmentId, 
+                department_name.trim(), 
+                dept_description ? dept_description.trim() : null
+            ], (err) => {
                 if (err) {
                     console.error('Database error:', err);
                     return reject(new Error('Lỗi khi thêm phòng ban!'));
@@ -52,8 +67,12 @@ const addDepartment = (db, body) => {
 };
 
 const updateDepartment = (db, department_id, body) => {
-    const { department_name } = body;
+    const { department_name, dept_description } = body;
     return new Promise((resolve, reject) => {
+        if (!department_id || !department_name) {
+            return reject(new Error('Thiếu thông tin bắt buộc!'));
+        }
+
         // Kiểm tra phòng ban tồn tại
         const checkQuery = 'SELECT department_id FROM departments WHERE department_id = ?';
         db.query(checkQuery, [department_id], (err, results) => {
@@ -66,8 +85,12 @@ const updateDepartment = (db, department_id, body) => {
             }
 
             // Cập nhật thông tin phòng ban
-            const updateQuery = 'UPDATE departments SET department_name = ? WHERE department_id = ?';
-            db.query(updateQuery, [department_name, department_id], (err) => {
+            const updateQuery = 'UPDATE departments SET department_name = ?, dept_description = ? WHERE department_id = ?';
+            db.query(updateQuery, [
+                department_name.trim(), 
+                dept_description ? dept_description.trim() : null, 
+                department_id
+            ], (err) => {
                 if (err) {
                     console.error('Database error:', err);
                     return reject(new Error('Lỗi khi cập nhật phòng ban!'));
@@ -80,6 +103,10 @@ const updateDepartment = (db, department_id, body) => {
 
 const deleteDepartment = (db, department_id) => {
     return new Promise((resolve, reject) => {
+        if (!department_id) {
+            return reject(new Error('Mã phòng ban không hợp lệ!'));
+        }
+
         // Kiểm tra phòng ban tồn tại
         const checkQuery = 'SELECT department_id FROM departments WHERE department_id = ?';
         db.query(checkQuery, [department_id], (err, results) => {

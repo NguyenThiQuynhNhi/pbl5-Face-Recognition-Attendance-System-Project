@@ -11,7 +11,7 @@ const getDepartments = async (req, res, next, db) => {
 
 const getDepartmentById = async (req, res, next, db) => {
     try {
-        const department_id = parseInt(req.params.department_id);
+        const department_id = req.params.department_id;
         const department = await departmentService.getDepartmentById(db, department_id);
         if (!department) {
             return res.status(404).json({ message: "Không tìm thấy phòng ban!" });
@@ -24,31 +24,38 @@ const getDepartmentById = async (req, res, next, db) => {
 
 const addDepartment = async (req, res, next, db) => {
     try {
-        const body = req.body;
-        const result = await departmentService.addDepartment(db, body);
+        const result = await departmentService.addDepartment(db, req.body);
         return res.status(201).json({ data: result });
     } catch (error) {
+        if (error.message) {
+            return res.status(400).json({ message: error.message });
+        }
         next(error);
     }
 };
 
 const updateDepartment = async (req, res, next, db) => {
     try {
-        const department_id = parseInt(req.params.department_id);
-        const body = req.body;
-        const result = await departmentService.updateDepartment(db, department_id, body);
+        const department_id = req.params.department_id;
+        const result = await departmentService.updateDepartment(db, department_id, req.body);
         return res.status(200).json({ data: result });
     } catch (error) {
+        if (error.message) {
+            return res.status(400).json({ message: error.message });
+        }
         next(error);
     }
 };
 
 const deleteDepartment = async (req, res, next, db) => {
     try {
-        const department_id = parseInt(req.params.department_id);
+        const department_id = req.params.department_id;
         const result = await departmentService.deleteDepartment(db, department_id);
         return res.status(200).json({ data: result });
     } catch (error) {
+        if (error.message) {
+            return res.status(400).json({ message: error.message });
+        }
         next(error);
     }
 };

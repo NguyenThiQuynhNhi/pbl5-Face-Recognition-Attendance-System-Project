@@ -11,10 +11,10 @@ import serial
 import time
 
 # Đường dẫn đến thư mục chứa ảnh nhân viên
-DATA_PATH = "D:/SEM6/PBL5/Face-Recognition/src/python/data/image"
+DATA_PATH = "D:/Workspace/PBL5/pbl5-Face-Recognition-Attendance-System-Project/src/python/data/image"
 
 # Đường dẫn để lưu ảnh chấm công
-PROOF_PATH = "D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/"
+PROOF_PATH = "D:/Workspace/PBL5/pbl5-Face-Recognition-Attendance-System-Project/src/python/data/proofs/"
 
 # Đảm bảo thư mục lưu ảnh chấm công tồn tại
 if not os.path.exists(PROOF_PATH):

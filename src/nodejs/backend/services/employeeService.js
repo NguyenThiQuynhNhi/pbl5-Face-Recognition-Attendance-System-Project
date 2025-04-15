@@ -25,8 +25,12 @@ const getEmployeeById = (db, employee_id) => {
 };
 
 const addEmployee = (db, body) => {
-    const { employee_id, employee_name, department_id, email, phone, face_image_dir } = body;
+    const { employee_id, employee_name, department_id, email, phone } = body;
     return new Promise((resolve, reject) => {
+        if (!employee_id || !employee_name || !department_id || !email) {
+            return reject(new Error('Thiếu thông tin bắt buộc!'));
+        }
+
         // Kiểm tra employee_id đã tồn tại chưa
         const checkQuery = 'SELECT employee_id FROM employees WHERE employee_id = ?';
         db.query(checkQuery, [employee_id], (err, results) => {
@@ -50,8 +54,8 @@ const addEmployee = (db, body) => {
                 }
 
                 // Thêm nhân viên mới
-                const insertQuery = 'INSERT INTO employees (employee_id, employee_name, department_id, email, phone, face_image_dir) VALUES (?, ?, ?, ?, ?, ?)';
-                db.query(insertQuery, [employee_id, employee_name, department_id, email, phone, face_image_dir], (err) => {
+                const insertQuery = 'INSERT INTO employees (employee_id, employee_name, department_id, email, phone) VALUES (?, ?, ?, ?, ?)';
+                db.query(insertQuery, [employee_id, employee_name, department_id, email, phone || null], (err) => {
                     if (err) {
                         console.error('Database error:', err);
                         return reject(new Error('Lỗi khi thêm nhân viên!'));
@@ -64,8 +68,12 @@ const addEmployee = (db, body) => {
 };
 
 const updateEmployee = (db, employee_id, body) => {
-    const { employee_name, department_id, email, phone, face_image_dir } = body;
+    const { employee_name, department_id, email, phone } = body;
     return new Promise((resolve, reject) => {
+        if (!employee_name || !department_id || !email) {
+            return reject(new Error('Thiếu thông tin bắt buộc!'));
+        }
+
         // Kiểm tra nhân viên tồn tại
         const checkQuery = 'SELECT employee_id FROM employees WHERE employee_id = ?';
         db.query(checkQuery, [employee_id], (err, results) => {
@@ -89,8 +97,8 @@ const updateEmployee = (db, employee_id, body) => {
                 }
 
                 // Cập nhật thông tin nhân viên
-                const updateQuery = 'UPDATE employees SET employee_name = ?, department_id = ?, email = ?, phone = ?, face_image_dir = ? WHERE employee_id = ?';
-                db.query(updateQuery, [employee_name, department_id, email, phone, face_image_dir, employee_id], (err) => {
+                const updateQuery = 'UPDATE employees SET employee_name = ?, department_id = ?, email = ?, phone = ? WHERE employee_id = ?';
+                db.query(updateQuery, [employee_name, department_id, email, phone || null, employee_id], (err) => {
                     if (err) {
                         console.error('Database error:', err);
                         return reject(new Error('Lỗi khi cập nhật nhân viên!'));
