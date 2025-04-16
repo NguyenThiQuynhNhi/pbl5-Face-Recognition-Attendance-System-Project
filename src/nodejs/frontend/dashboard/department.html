@@ -276,6 +276,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Tên Phòng Ban</th>
+                                <th>Mô Tả</th>
                                 <th>Thao Tác</th>
                             </tr>
                         </thead>
@@ -308,12 +309,30 @@
                 <div class="modal-body">
                     <form id="addDepartmentForm">
                         <div class="mb-3">
-                            <label class="form-label">Tên Phòng Ban:</label>
-                            <input type="text" id="addDepartmentName" class="form-control" required>
+                            <label class="form-label">Mã Phòng Ban: <span class="text-danger">*</span></label>
+                            <input type="text" id="addDepartmentId" class="form-control" required 
+                                   placeholder="Ví dụ: HC, KT, NS..."
+                                   pattern="[A-Za-z]+"
+                                   title="Chỉ cho phép chữ cái, không dấu">
+                            <div class="form-text">Mã phòng ban phải là chữ cái không dấu</div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-save me-1"></i>Lưu
-                        </button>
+                        <div class="mb-3">
+                            <label class="form-label">Tên Phòng Ban: <span class="text-danger">*</span></label>
+                            <input type="text" id="addDepartmentName" class="form-control" required
+                                   placeholder="Nhập tên phòng ban">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mô Tả:</label>
+                            <textarea id="addDeptDescription" class="form-control" rows="3"
+                                    placeholder="Nhập mô tả phòng ban (không bắt buộc)"
+                                    maxlength="200"></textarea>
+                            <div class="form-text">Tối đa 200 ký tự</div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Lưu
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -332,12 +351,22 @@
                     <form id="editDepartmentForm">
                         <input type="hidden" id="editDepartmentId">
                         <div class="mb-3">
-                            <label class="form-label">Tên Phòng Ban:</label>
-                            <input type="text" id="editDepartmentName" class="form-control" required>
+                            <label class="form-label">Tên Phòng Ban: <span class="text-danger">*</span></label>
+                            <input type="text" id="editDepartmentName" class="form-control" required
+                                   placeholder="Nhập tên phòng ban mới">
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-save me-1"></i>Lưu Thay Đổi
-                        </button>
+                        <div class="mb-3">
+                            <label class="form-label">Mô Tả:</label>
+                            <textarea id="editDeptDescription" class="form-control" rows="3"
+                                    placeholder="Nhập mô tả phòng ban (không bắt buộc)"
+                                    maxlength="200"></textarea>
+                            <div class="form-text">Tối đa 200 ký tự</div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Lưu Thay Đổi
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -352,6 +381,7 @@
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const secretKey = localStorage.getItem('secretKey');
         if (!secretKey) {
@@ -373,13 +403,16 @@
                     
                     if (departments.length === 0) {
                         $('#emptyState').show();
+                        $('.table-responsive').hide();
                     } else {
                         $('#emptyState').hide();
+                        $('.table-responsive').show();
                         departments.forEach(department => {
                             tableBody.append(`
                                 <tr>
                                     <td>${department.department_id}</td>
                                     <td>${department.department_name}</td>
+                                    <td>${department.dept_description || ''}</td>
                                     <td class="action-buttons">
                                         <button class="btn btn-warning btn-sm edit-btn" data-id="${department.department_id}">
                                             <i class="fas fa-edit"></i> Sửa
@@ -398,7 +431,8 @@
                         localStorage.removeItem('secretKey');
                         window.location.href = "../auth/login.html";
                     } else {
-                        alert("❌ Lỗi khi lấy danh sách phòng ban!");
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi lấy danh sách phòng ban!";
+                        alert(`❌ ${errorMessage}`);
                     }
                 }
             });
@@ -407,7 +441,21 @@
         // Add department
         $('#addDepartmentForm').on('submit', function(event) {
             event.preventDefault();
-            const departmentName = $('#addDepartmentName').val();
+            const departmentId = $('#addDepartmentId').val().trim().toUpperCase();
+            const departmentName = $('#addDepartmentName').val().trim();
+            const deptDescription = $('#addDeptDescription').val().trim();
+            
+            if (!departmentId || !departmentName) {
+                alert("❌ Vui lòng nhập đầy đủ thông tin bắt buộc!");
+                return;
+            }
+            
+            // Create data object
+            const data = {
+                department_id: departmentId,
+                department_name: departmentName,
+                dept_description: deptDescription || null
+            };
             
             // Disable submit button and show loading state
             const submitBtn = $(this).find('button[type="submit"]');
@@ -419,25 +467,26 @@
                 url: 'http://localhost:5000/departments',
                 method: 'POST',
                 headers: {
-                    'secret-key': secretKey
+                    'secret-key': secretKey,
+                    'Content-Type': 'application/json'
                 },
-                contentType: 'application/json',
-                data: JSON.stringify({ department_name: departmentName }),
-                success: function() {
+                data: JSON.stringify(data),
+                success: function(response) {
                     $('#addDepartmentModal').modal('hide');
                     $('#addDepartmentForm')[0].reset();
                     loadDepartments();
+                    alert("✅ Thêm phòng ban thành công!");
                 },
                 error: function(xhr) {
                     if (xhr.status === 401) {
                         localStorage.removeItem('secretKey');
                         window.location.href = "../auth/login.html";
                     } else {
-                        alert("❌ Lỗi khi thêm phòng ban!");
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi thêm phòng ban!";
+                        alert(`❌ ${errorMessage}`);
                     }
                 },
                 complete: function() {
-                    // Re-enable the submit button and restore original text
                     submitBtn.prop('disabled', false);
                     submitBtn.html(originalBtnText);
                 }
@@ -446,8 +495,8 @@
 
         // Edit department
         $(document).on('click', '.edit-btn', function() {
-            const departmentId = parseInt($(this).data('id'));
-            if (isNaN(departmentId)) {
+            const departmentId = $(this).data('id');
+            if (!departmentId) {
                 alert("❌ ID phòng ban không hợp lệ!");
                 return;
             }
@@ -459,8 +508,13 @@
                 },
                 success: function(response) {
                     const department = response.data;
+                    if (!department) {
+                        alert("❌ Không tìm thấy thông tin phòng ban!");
+                        return;
+                    }
                     $('#editDepartmentId').val(department.department_id);
                     $('#editDepartmentName').val(department.department_name);
+                    $('#editDeptDescription').val(department.dept_description || '');
                     $('#editDepartmentModal').modal('show');
                 },
                 error: function(xhr) {
@@ -468,16 +522,31 @@
                         localStorage.removeItem('secretKey');
                         window.location.href = "../auth/login.html";
                     } else {
-                        alert("❌ Lỗi khi lấy thông tin phòng ban!");
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi lấy thông tin phòng ban!";
+                        alert(`❌ ${errorMessage}`);
                     }
                 }
             });
         });
 
+        // Edit department form submission
         $('#editDepartmentForm').on('submit', function(event) {
             event.preventDefault();
             const departmentId = $('#editDepartmentId').val();
-            const departmentName = $('#editDepartmentName').val();
+            const departmentName = $('#editDepartmentName').val().trim();
+            const deptDescription = $('#editDeptDescription').val().trim();
+            
+            if (!departmentId || !departmentName) {
+                alert("❌ Vui lòng nhập đầy đủ thông tin bắt buộc!");
+                return;
+            }
+            
+            // Create data object
+            const data = {
+                department_id: departmentId,
+                department_name: departmentName,
+                dept_description: deptDescription || null
+            };
             
             // Disable submit button and show loading state
             const submitBtn = $(this).find('button[type="submit"]');
@@ -489,24 +558,26 @@
                 url: `http://localhost:5000/departments/${departmentId}`,
                 method: 'PUT',
                 headers: {
-                    'secret-key': secretKey
+                    'secret-key': secretKey,
+                    'Content-Type': 'application/json'
                 },
-                contentType: 'application/json',
-                data: JSON.stringify({ department_name: departmentName }),
-                success: function() {
+                data: JSON.stringify(data),
+                success: function(response) {
                     $('#editDepartmentModal').modal('hide');
+                    $('#editDepartmentForm')[0].reset();
                     loadDepartments();
+                    alert("✅ Sửa thông tin phòng ban thành công!");
                 },
                 error: function(xhr) {
                     if (xhr.status === 401) {
                         localStorage.removeItem('secretKey');
                         window.location.href = "../auth/login.html";
                     } else {
-                        alert("❌ Lỗi khi cập nhật phòng ban!");
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi sửa thông tin phòng ban!";
+                        alert(`❌ ${errorMessage}`);
                     }
                 },
                 complete: function() {
-                    // Re-enable the submit button and restore original text
                     submitBtn.prop('disabled', false);
                     submitBtn.html(originalBtnText);
                 }
@@ -515,44 +586,46 @@
 
         // Delete department
         $(document).on('click', '.delete-btn', function() {
-            const departmentId = parseInt($(this).data('id'));
-            if (isNaN(departmentId)) {
+            const departmentId = $(this).data('id');
+            if (!departmentId) {
                 alert("❌ ID phòng ban không hợp lệ!");
                 return;
             }
-            if (confirm("Bạn có chắc muốn xóa phòng ban này?")) {
+            if (confirm("⚠️ Bạn có chắc muốn xóa phòng ban này?\nLưu ý: Không thể xóa phòng ban đã có nhân viên.")) {
                 $.ajax({
                     url: `http://localhost:5000/departments/${departmentId}`,
                     method: 'DELETE',
                     headers: {
                         'secret-key': secretKey
                     },
-                    success: function() {
+                    success: function(response) {
                         loadDepartments();
+                        alert("✅ Xóa phòng ban thành công!");
                     },
                     error: function(xhr) {
                         if (xhr.status === 401) {
                             localStorage.removeItem('secretKey');
                             window.location.href = "../auth/login.html";
                         } else {
-                            alert("❌ Lỗi khi xóa phòng ban!");
+                            const errorMessage = xhr.responseJSON?.message || "Lỗi khi xóa phòng ban!";
+                            alert(`❌ ${errorMessage}`);
                         }
                     }
                 });
             }
         });
 
-        // Load departments on page load
-        loadDepartments();
-
         // Logout
-        document.getElementById("logoutBtn").addEventListener("click", function(event) {
+        $('#logoutBtn').on('click', function(event) {
             event.preventDefault();
-            localStorage.removeItem("secretKey");
+            localStorage.removeItem('secretKey');
             window.location.href = "../auth/login.html";
         });
-    </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        // Load departments when page loads
+        $(document).ready(function() {
+            loadDepartments();
+        });
+    </script>
 </body>
 </html>

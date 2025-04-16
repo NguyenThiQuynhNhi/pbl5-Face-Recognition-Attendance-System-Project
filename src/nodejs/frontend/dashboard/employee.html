@@ -312,6 +312,10 @@
                 <div class="modal-body">
                     <form id="addEmployeeForm">
                         <div class="mb-3">
+                            <label class="form-label">Mã Nhân Viên:</label>
+                            <input type="text" id="addEmployeeId" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Tên Nhân Viên:</label>
                             <input type="text" id="addEmployeeName" class="form-control" required>
                         </div>
@@ -495,21 +499,21 @@
         // Add employee
         $('#addEmployeeForm').on('submit', function(event) {
             event.preventDefault();
+            const employeeId = $('#addEmployeeId').val();
             const employeeName = $('#addEmployeeName').val();
             const departmentId = $('#addDepartmentId').val();
             const email = $('#addEmail').val();
             const phone = $('#addPhone').val();
             const imageFile = $('#addImage')[0].files[0];
             
-            // Create FormData object for file upload
-            const formData = new FormData();
-            formData.append('employee_name', employeeName);
-            formData.append('department_id', departmentId);
-            formData.append('email', email);
-            formData.append('phone', phone);
-            if (imageFile) {
-                formData.append('image', imageFile);
-            }
+            // Create data object
+            const data = {
+                employee_id: employeeId,
+                employee_name: employeeName,
+                department_id: departmentId,
+                email: email,
+                phone: phone
+            };
             
             // Disable submit button and show loading state
             const submitBtn = $(this).find('button[type="submit"]');
@@ -521,22 +525,23 @@
                 url: 'http://localhost:5000/employees',
                 method: 'POST',
                 headers: {
-                    'secret-key': secretKey
+                    'secret-key': secretKey,
+                    'Content-Type': 'application/json'
                 },
-                contentType: false,
-                processData: false,
-                data: formData,
-                success: function() {
+                data: JSON.stringify(data),
+                success: function(response) {
                     $('#addEmployeeModal').modal('hide');
                     $('#addEmployeeForm')[0].reset();
                     loadEmployees();
+                    alert("✅ Thêm nhân viên thành công!");
                 },
                 error: function(xhr) {
                     if (xhr.status === 401) {
                         localStorage.removeItem('secretKey');
                         window.location.href = "../auth/login.html";
                     } else {
-                        alert("❌ Lỗi khi thêm nhân viên!");
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi thêm nhân viên!";
+                        alert(`❌ ${errorMessage}`);
                     }
                 },
                 complete: function() {
@@ -549,8 +554,8 @@
 
         // Edit employee
         $(document).on('click', '.edit-btn', function() {
-            const employeeId = parseInt($(this).data('id'));
-            if (isNaN(employeeId)) {
+            const employeeId = $(this).data('id');
+            if (!employeeId) {
                 alert("❌ ID nhân viên không hợp lệ!");
                 return;
             }
@@ -590,6 +595,7 @@
             });
         });
 
+        // Edit employee form submission
         $('#editEmployeeForm').on('submit', function(event) {
             event.preventDefault();
             const employeeId = $('#editEmployeeId').val();
@@ -597,17 +603,14 @@
             const departmentId = $('#editDepartmentId').val();
             const email = $('#editEmail').val();
             const phone = $('#editPhone').val();
-            const imageFile = $('#editImage')[0].files[0];
             
-            // Create FormData object for file upload
-            const formData = new FormData();
-            formData.append('employee_name', employeeName);
-            formData.append('department_id', departmentId);
-            formData.append('email', email);
-            formData.append('phone', phone);
-            if (imageFile) {
-                formData.append('image', imageFile);
-            }
+            // Create data object
+            const data = {
+                employee_name: employeeName,
+                department_id: departmentId,
+                email: email,
+                phone: phone
+            };
             
             // Disable submit button and show loading state
             const submitBtn = $(this).find('button[type="submit"]');
@@ -619,21 +622,22 @@
                 url: `http://localhost:5000/employees/${employeeId}`,
                 method: 'PUT',
                 headers: {
-                    'secret-key': secretKey
+                    'secret-key': secretKey,
+                    'Content-Type': 'application/json'
                 },
-                contentType: false,
-                processData: false,
-                data: formData,
-                success: function() {
+                data: JSON.stringify(data),
+                success: function(response) {
                     $('#editEmployeeModal').modal('hide');
                     loadEmployees();
+                    alert("✅ Cập nhật nhân viên thành công!");
                 },
                 error: function(xhr) {
                     if (xhr.status === 401) {
                         localStorage.removeItem('secretKey');
                         window.location.href = "../auth/login.html";
                     } else {
-                        alert("❌ Lỗi khi cập nhật nhân viên!");
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi cập nhật nhân viên!";
+                        alert(`❌ ${errorMessage}`);
                     }
                 },
                 complete: function() {
@@ -646,8 +650,8 @@
 
         // Delete employee
         $(document).on('click', '.delete-btn', function() {
-            const employeeId = parseInt($(this).data('id'));
-            if (isNaN(employeeId)) {
+            const employeeId = $(this).data('id');
+            if (!employeeId) {
                 alert("❌ ID nhân viên không hợp lệ!");
                 return;
             }

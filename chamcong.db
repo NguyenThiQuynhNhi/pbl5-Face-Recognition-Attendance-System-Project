@@ -55,20 +55,10 @@ INSERT INTO departments (department_id, department_name, dept_description) VALUE
 
 -- Thêm dữ liệu vào bảng employees
 INSERT INTO `employees` VALUES 
-('KTNTQN','Nguyễn Thị Quỳnh Nhi','KT','e.ht@example.com','0945678901','D:/SEM6/PBL5/Face-Recognition/src/python/data/image/KTNTQN/'),
-('KDLMC','Lê Minh Châu','KD','chau.lm@example.com','0923456789','D:/SEM6/PBL5/Face-Recognition/src/python/data/image/KDLMC/'),
-('KTTTB','Trần Thị Bình','KT','binh.tt@example.com','0912345678','D:/SEM6/PBL5/Face-Recognition/src/python/data/image/KTTTB/'),
-('NSNVA','Nguyễn Văn An','NS','an.nv@example.com','0901234567','D:/SEM6/PBL5/Face-Recognition/src/python/data/image/NSNVA/'),
-('TCPQD','Phạm Quốc Đạt','TC','dat.pq@example.com','0934567890','D:/SEM6/PBL5/Face-Recognition/src/python/data/image/TCPQD/');
+('KTNTQN','Nguyễn Thị Quỳnh Nhi','KT','e.ht@example.com','0945678901','D:/Workspace/PBL5/pbl5-Face-Recognition-Attendance-System-Project/src/python/data/image/KTNTQN/'),
+('HCNQB','Nguyễn Quang Bình','HC','chau.lm@example.com','0923456789','D:/Workspace/PBL5/pbl5-Face-Recognition-Attendance-System-Project/src/python/data/image/HCNQB/'),
+('NSNTK','Nguyễn Tấn Kiệt','NS','binh.tt@example.com','0912345678','D:/Workspace/PBL5/pbl5-Face-Recognition-Attendance-System-Project/src/python/data/image/NSNTK/');
 
-
--- Thêm dữ liệu vào bảng attendance
-INSERT INTO attendance (employee_id, date_n_time, in_out, status, photo_proof) VALUES
-('NSNVA', '2025-04-01 08:00:00', 'In', 'Enough', 'D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/2025/04/01/NSNVA_1_20250401080000.jpg'),
-('NSNVA', '2025-04-01 17:00:00', 'Out', 'Enough', 'D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/2025/04/01/NSNVA_2_20250401170000.jpg'),
-('KTTTB', '2025-04-02 07:55:00', 'In', 'Early', 'D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/2025/04/02/KTTTB_3_20250402075500.jpg'),
-('KDLMC', '2025-04-02 08:15:00', 'In', 'Late', 'D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/2025/04/02/KDLMC_4_20250402081500.jpg'),
-('TCPQD', '2025-04-03 16:45:00', 'Out', 'Early', 'D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/2025/04/03/TCPQD_5_20250403164500.jpg');
 
 -- Thêm dữ liệu vào bảng admins
 INSERT INTO admins (username, password, full_name, role, email) VALUES
