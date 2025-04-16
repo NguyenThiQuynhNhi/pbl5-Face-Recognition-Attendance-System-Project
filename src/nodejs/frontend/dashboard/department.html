@@ -3,51 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quản Lý Phòng Ban</title>
+    <title>Quản Lý Phòng Ban - Hệ Thống Chấm Công</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1A4185;
+            --secondary-color: #FFC470;
+            --accent-color: #BD2C13;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            margin: 0 0.2rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2a5ca5 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .page-header h1 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .table th {
+            font-weight: 600;
+            padding: 1rem;
+        }
+        
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+        }
+        
+        .btn-warning {
+            background-color: #ffc107;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            color: #212529;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+        }
+        
+        .modal-title {
+            font-weight: 700;
+        }
+        
+        .btn-close {
+            filter: brightness(0) invert(1);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ced4da;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(26, 65, 133, 0.25);
+        }
+        
+        .footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+        }
+        
+        .action-buttons .btn {
+            margin: 0 0.25rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 0;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">Employee Management</a>
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-user-clock me-2"></i>Employee Management
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Trang Chủ</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="departments.html">Phòng Ban</a></li>
-                    <li class="nav-item"><a class="nav-link" href="employees.html">Nhân Viên</a></li>
-                    <li class="nav-item"><a class="nav-link" href="attendance.html">Chấm Công</a></li>
-                    <li class="nav-item"><a class="nav-link" href="admins.html">Tài Khoản Admin</a></li>
-                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Đăng Xuất</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i>Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="department.html"><i class="fas fa-building me-1"></i>Phòng Ban</a></li>
+                    <li class="nav-item"><a class="nav-link" href="employee.html"><i class="fas fa-users me-1"></i>Nhân Viên</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance.html"><i class="fas fa-calendar-check me-1"></i>Chấm Công</a></li>
+                    <li class="nav-item"><a class="nav-link" href="admin.html"><i class="fas fa-user-shield me-1"></i>Tài Khoản Admin</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-1"></i>Đăng Xuất</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="container mt-4">
-        <h1 class="text-center">Quản Lý Phòng Ban</h1>
-
-        <!-- Button to open Add Department Modal -->
-        <div class="text-end mb-3">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">Thêm Phòng Ban</button>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1>Quản Lý Phòng Ban</h1>
+            <p>Thêm, sửa, xóa và quản lý thông tin phòng ban trong hệ thống.</p>
         </div>
+    </div>
 
-        <!-- Department Table -->
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên Phòng Ban</th>
-                    <th>Hành Động</th>
-                </tr>
-            </thead>
-            <tbody id="departmentTableBody"></tbody>
-        </table>
+    <!-- Main Content -->
+    <div class="container">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">Danh Sách Phòng Ban</h5>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+                        <i class="fas fa-plus me-1"></i>Thêm Phòng Ban
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên Phòng Ban</th>
+                                <th>Mô Tả</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="departmentTableBody">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <i class="fas fa-building"></i>
+                    <h3>Chưa có phòng ban nào</h3>
+                    <p>Bắt đầu bằng cách thêm phòng ban mới vào hệ thống.</p>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+                        <i class="fas fa-plus me-1"></i>Thêm Phòng Ban
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Add Department Modal -->
@@ -55,20 +303,36 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addDepartmentModalLabel">Thêm Phòng Ban</h5>
+                    <h5 class="modal-title" id="addDepartmentModalLabel">Thêm Phòng Ban Mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addDepartmentForm">
                         <div class="mb-3">
-                            <label class="form-label">ID Phòng Ban:</label>
-                            <input type="number" id="addDepartmentId" class="form-control" required>
+                            <label class="form-label">Mã Phòng Ban: <span class="text-danger">*</span></label>
+                            <input type="text" id="addDepartmentId" class="form-control" required 
+                                   placeholder="Ví dụ: HC, KT, NS..."
+                                   pattern="[A-Za-z]+"
+                                   title="Chỉ cho phép chữ cái, không dấu">
+                            <div class="form-text">Mã phòng ban phải là chữ cái không dấu</div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Tên Phòng Ban:</label>
-                            <input type="text" id="addDepartmentName" class="form-control" required>
+                            <label class="form-label">Tên Phòng Ban: <span class="text-danger">*</span></label>
+                            <input type="text" id="addDepartmentName" class="form-control" required
+                                   placeholder="Nhập tên phòng ban">
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                        <div class="mb-3">
+                            <label class="form-label">Mô Tả:</label>
+                            <textarea id="addDeptDescription" class="form-control" rows="3"
+                                    placeholder="Nhập mô tả phòng ban (không bắt buộc)"
+                                    maxlength="200"></textarea>
+                            <div class="form-text">Tối đa 200 ký tự</div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Lưu
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -80,24 +344,44 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editDepartmentModalLabel">Sửa Phòng Ban</h5>
+                    <h5 class="modal-title" id="editDepartmentModalLabel">Sửa Thông Tin Phòng Ban</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="editDepartmentForm">
                         <input type="hidden" id="editDepartmentId">
                         <div class="mb-3">
-                            <label class="form-label">Tên Phòng Ban:</label>
-                            <input type="text" id="editDepartmentName" class="form-control" required>
+                            <label class="form-label">Tên Phòng Ban: <span class="text-danger">*</span></label>
+                            <input type="text" id="editDepartmentName" class="form-control" required
+                                   placeholder="Nhập tên phòng ban mới">
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Lưu</button>
+                        <div class="mb-3">
+                            <label class="form-label">Mô Tả:</label>
+                            <textarea id="editDeptDescription" class="form-control" rows="3"
+                                    placeholder="Nhập mô tả phòng ban (không bắt buộc)"
+                                    maxlength="200"></textarea>
+                            <div class="form-text">Tối đa 200 ký tự</div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Lưu Thay Đổi
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-0">© 2023 Hệ Thống Quản Lý Nhân Viên. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const secretKey = localStorage.getItem('secretKey');
         if (!secretKey) {
@@ -116,25 +400,39 @@
                     const departments = response.data;
                     const tableBody = $('#departmentTableBody');
                     tableBody.empty();
-                    departments.forEach(department => {
-                        tableBody.append(`
-                            <tr>
-                                <td>${department.department_id}</td>
-                                <td>${department.department_name}</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${department.department_id}">Sửa</button>
-                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${department.department_id}">Xóa</button>
-                                </td>
-                            </tr>
-                        `);
-                    });
+                    
+                    if (departments.length === 0) {
+                        $('#emptyState').show();
+                        $('.table-responsive').hide();
+                    } else {
+                        $('#emptyState').hide();
+                        $('.table-responsive').show();
+                        departments.forEach(department => {
+                            tableBody.append(`
+                                <tr>
+                                    <td>${department.department_id}</td>
+                                    <td>${department.department_name}</td>
+                                    <td>${department.dept_description || ''}</td>
+                                    <td class="action-buttons">
+                                        <button class="btn btn-warning btn-sm edit-btn" data-id="${department.department_id}">
+                                            <i class="fas fa-edit"></i> Sửa
+                                        </button>
+                                        <button class="btn btn-danger btn-sm delete-btn" data-id="${department.department_id}">
+                                            <i class="fas fa-trash"></i> Xóa
+                                        </button>
+                                    </td>
+                                </tr>
+                            `);
+                        });
+                    }
                 },
                 error: function(xhr) {
                     if (xhr.status === 401) {
                         localStorage.removeItem('secretKey');
                         window.location.href = "../auth/login.html";
                     } else {
-                        alert("❌ Lỗi khi lấy danh sách phòng ban!");
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi lấy danh sách phòng ban!";
+                        alert(`❌ ${errorMessage}`);
                     }
                 }
             });
@@ -143,101 +441,191 @@
         // Add department
         $('#addDepartmentForm').on('submit', function(event) {
             event.preventDefault();
-            const department_id = $('#addDepartmentId').val();
-            const department_name = $('#addDepartmentName').val();
-
+            const departmentId = $('#addDepartmentId').val().trim().toUpperCase();
+            const departmentName = $('#addDepartmentName').val().trim();
+            const deptDescription = $('#addDeptDescription').val().trim();
+            
+            if (!departmentId || !departmentName) {
+                alert("❌ Vui lòng nhập đầy đủ thông tin bắt buộc!");
+                return;
+            }
+            
+            // Create data object
+            const data = {
+                department_id: departmentId,
+                department_name: departmentName,
+                dept_description: deptDescription || null
+            };
+            
+            // Disable submit button and show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalBtnText = submitBtn.html();
+            submitBtn.prop('disabled', true);
+            submitBtn.html('<span class="loading-spinner"></span>Đang xử lý...');
+            
             $.ajax({
                 url: 'http://localhost:5000/departments',
                 method: 'POST',
                 headers: {
-                    'secret-key': secretKey
+                    'secret-key': secretKey,
+                    'Content-Type': 'application/json'
                 },
-                contentType: 'application/json',
-                data: JSON.stringify({ department_id, department_name }),
-                success: function() {
+                data: JSON.stringify(data),
+                success: function(response) {
                     $('#addDepartmentModal').modal('hide');
+                    $('#addDepartmentForm')[0].reset();
                     loadDepartments();
+                    alert("✅ Thêm phòng ban thành công!");
                 },
                 error: function(xhr) {
-                    alert("❌ Lỗi khi thêm phòng ban!");
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    } else {
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi thêm phòng ban!";
+                        alert(`❌ ${errorMessage}`);
+                    }
+                },
+                complete: function() {
+                    submitBtn.prop('disabled', false);
+                    submitBtn.html(originalBtnText);
                 }
             });
         });
 
         // Edit department
         $(document).on('click', '.edit-btn', function() {
-            const department_id = $(this).data('id');
+            const departmentId = $(this).data('id');
+            if (!departmentId) {
+                alert("❌ ID phòng ban không hợp lệ!");
+                return;
+            }
             $.ajax({
-                url: `http://localhost:5000/departments`,
+                url: `http://localhost:5000/departments/${departmentId}`,
                 method: 'GET',
                 headers: {
                     'secret-key': secretKey
                 },
                 success: function(response) {
-                    const department = response.data.find(dep => dep.department_id == department_id);
-                    if (department) {
-                        $('#editDepartmentId').val(department.department_id);
-                        $('#editDepartmentName').val(department.department_name);
-                        $('#editDepartmentModal').modal('show');
+                    const department = response.data;
+                    if (!department) {
+                        alert("❌ Không tìm thấy thông tin phòng ban!");
+                        return;
+                    }
+                    $('#editDepartmentId').val(department.department_id);
+                    $('#editDepartmentName').val(department.department_name);
+                    $('#editDeptDescription').val(department.dept_description || '');
+                    $('#editDepartmentModal').modal('show');
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    } else {
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi lấy thông tin phòng ban!";
+                        alert(`❌ ${errorMessage}`);
                     }
                 }
             });
         });
 
+        // Edit department form submission
         $('#editDepartmentForm').on('submit', function(event) {
             event.preventDefault();
-            const department_id = $('#editDepartmentId').val();
-            const department_name = $('#editDepartmentName').val();
-
+            const departmentId = $('#editDepartmentId').val();
+            const departmentName = $('#editDepartmentName').val().trim();
+            const deptDescription = $('#editDeptDescription').val().trim();
+            
+            if (!departmentId || !departmentName) {
+                alert("❌ Vui lòng nhập đầy đủ thông tin bắt buộc!");
+                return;
+            }
+            
+            // Create data object
+            const data = {
+                department_id: departmentId,
+                department_name: departmentName,
+                dept_description: deptDescription || null
+            };
+            
+            // Disable submit button and show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalBtnText = submitBtn.html();
+            submitBtn.prop('disabled', true);
+            submitBtn.html('<span class="loading-spinner"></span>Đang xử lý...');
+            
             $.ajax({
-                url: `http://localhost:5000/departments/${department_id}`,
+                url: `http://localhost:5000/departments/${departmentId}`,
                 method: 'PUT',
                 headers: {
-                    'secret-key': secretKey
+                    'secret-key': secretKey,
+                    'Content-Type': 'application/json'
                 },
-                contentType: 'application/json',
-                data: JSON.stringify({ department_id, department_name }),
-                success: function() {
+                data: JSON.stringify(data),
+                success: function(response) {
                     $('#editDepartmentModal').modal('hide');
+                    $('#editDepartmentForm')[0].reset();
                     loadDepartments();
+                    alert("✅ Sửa thông tin phòng ban thành công!");
                 },
                 error: function(xhr) {
-                    alert("❌ Lỗi khi sửa phòng ban!");
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    } else {
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi sửa thông tin phòng ban!";
+                        alert(`❌ ${errorMessage}`);
+                    }
+                },
+                complete: function() {
+                    submitBtn.prop('disabled', false);
+                    submitBtn.html(originalBtnText);
                 }
             });
         });
 
         // Delete department
         $(document).on('click', '.delete-btn', function() {
-            if (confirm("Bạn có chắc muốn xóa phòng ban này?")) {
-                const department_id = $(this).data('id');
+            const departmentId = $(this).data('id');
+            if (!departmentId) {
+                alert("❌ ID phòng ban không hợp lệ!");
+                return;
+            }
+            if (confirm("⚠️ Bạn có chắc muốn xóa phòng ban này?\nLưu ý: Không thể xóa phòng ban đã có nhân viên.")) {
                 $.ajax({
-                    url: `http://localhost:5000/departments/${department_id}`,
+                    url: `http://localhost:5000/departments/${departmentId}`,
                     method: 'DELETE',
                     headers: {
                         'secret-key': secretKey
                     },
-                    success: function() {
+                    success: function(response) {
                         loadDepartments();
+                        alert("✅ Xóa phòng ban thành công!");
                     },
                     error: function(xhr) {
-                        alert("❌ Lỗi khi xóa phòng ban!");
+                        if (xhr.status === 401) {
+                            localStorage.removeItem('secretKey');
+                            window.location.href = "../auth/login.html";
+                        } else {
+                            const errorMessage = xhr.responseJSON?.message || "Lỗi khi xóa phòng ban!";
+                            alert(`❌ ${errorMessage}`);
+                        }
                     }
                 });
             }
         });
 
-        // Load departments on page load
-        loadDepartments();
-
         // Logout
-        document.getElementById("logoutBtn").addEventListener("click", function(event) {
+        $('#logoutBtn').on('click', function(event) {
             event.preventDefault();
-            localStorage.removeItem("secretKey");
+            localStorage.removeItem('secretKey');
             window.location.href = "../auth/login.html";
         });
-    </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        // Load departments when page loads
+        $(document).ready(function() {
+            loadDepartments();
+        });
+    </script>
 </body>
 </html>

@@ -33,7 +33,7 @@ db.connect((err) => {
 
 app.use('/', routes(db));
 
-const Port = process.env.Port || 8000
+const Port = process.env.Port || 5000;
 app.listen(Port, () => {
-    console.log(`🚀 Server đang chạy tại: http://localhost:${Port}`);
+    console.log(`🚀 Server đang chạy tại: http://localhost:${Port}/auth/login.html`);
 });

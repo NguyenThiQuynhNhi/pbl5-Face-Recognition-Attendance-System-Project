@@ -3,53 +3,302 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quản Lý Nhân Viên</title>
+    <title>Quản Lý Nhân Viên - Hệ Thống Chấm Công</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1A4185;
+            --secondary-color: #FFC470;
+            --accent-color: #BD2C13;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            margin: 0 0.2rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2a5ca5 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .page-header h1 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .table th {
+            font-weight: 600;
+            padding: 1rem;
+        }
+        
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+        }
+        
+        .btn-warning {
+            background-color: #ffc107;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            color: #212529;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+        }
+        
+        .modal-title {
+            font-weight: 700;
+        }
+        
+        .btn-close {
+            filter: brightness(0) invert(1);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ced4da;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(26, 65, 133, 0.25);
+        }
+        
+        .footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+        }
+        
+        .action-buttons .btn {
+            margin: 0 0.25rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 0;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">Employee Management</a>
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-user-clock me-2"></i>Employee Management
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Trang Chủ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="departments.html">Phòng Ban</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="employees.html">Nhân Viên</a></li>
-                    <li class="nav-item"><a class="nav-link" href="attendance.html">Chấm Công</a></li>
-                    <li class="nav-item"><a class="nav-link" href="admins.html">Tài Khoản Admin</a></li>
-                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Đăng Xuất</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i>Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="department.html"><i class="fas fa-building me-1"></i>Phòng Ban</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="employee.html"><i class="fas fa-users me-1"></i>Nhân Viên</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance.html"><i class="fas fa-calendar-check me-1"></i>Chấm Công</a></li>
+                    <li class="nav-item"><a class="nav-link" href="admin.html"><i class="fas fa-user-shield me-1"></i>Tài Khoản Admin</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-1"></i>Đăng Xuất</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="container mt-4">
-        <h1 class="text-center">Quản Lý Nhân Viên</h1>
-
-        <!-- Button to open Add Employee Modal -->
-        <div class="text-end mb-3">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">Thêm Nhân Viên</button>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1>Quản Lý Nhân Viên</h1>
+            <p>Thêm, sửa, xóa và quản lý thông tin nhân viên trong hệ thống.</p>
         </div>
+    </div>
 
-        <!-- Employee Table -->
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên</th>
-                    <th>Phòng Ban</th>
-                    <th>Email</th>
-                    <th>Hành Động</th>
-                </tr>
-            </thead>
-            <tbody id="employeeTableBody"></tbody>
-        </table>
+    <!-- Main Content -->
+    <div class="container">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">Danh Sách Nhân Viên</h5>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                        <i class="fas fa-plus me-1"></i>Thêm Nhân Viên
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Ảnh</th>
+                                <th>Tên Nhân Viên</th>
+                                <th>ID Phòng Ban</th>
+                                <th>Email</th>
+                                <th>Số Điện Thoại</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeTableBody">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <i class="fas fa-users"></i>
+                    <h3>Chưa có nhân viên nào</h3>
+                    <p>Bắt đầu bằng cách thêm nhân viên mới vào hệ thống.</p>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                        <i class="fas fa-plus me-1"></i>Thêm Nhân Viên
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Add Employee Modal -->
@@ -57,14 +306,14 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addEmployeeModalLabel">Thêm Nhân Viên</h5>
+                    <h5 class="modal-title" id="addEmployeeModalLabel">Thêm Nhân Viên Mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addEmployeeForm">
                         <div class="mb-3">
-                            <label class="form-label">ID Nhân Viên:</label>
-                            <input type="number" id="addEmployeeId" class="form-control" required>
+                            <label class="form-label">Mã Nhân Viên:</label>
+                            <input type="text" id="addEmployeeId" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Tên Nhân Viên:</label>
@@ -72,13 +321,25 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">ID Phòng Ban:</label>
-                            <input type="number" id="addDepartmentId" class="form-control" required>
+                            <select id="addDepartmentId" class="form-control" required>
+                                <!-- Departments will be loaded here -->
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Email:</label>
                             <input type="email" id="addEmail" class="form-control" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                        <div class="mb-3">
+                            <label class="form-label">Số Điện Thoại:</label>
+                            <input type="tel" id="addPhone" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ảnh Nhân Viên:</label>
+                            <input type="file" id="addImage" class="form-control" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-1"></i>Lưu
+                        </button>
                     </form>
                 </div>
             </div>
@@ -90,7 +351,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editEmployeeModalLabel">Sửa Nhân Viên</h5>
+                    <h5 class="modal-title" id="editEmployeeModalLabel">Sửa Thông Tin Nhân Viên</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -102,24 +363,82 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">ID Phòng Ban:</label>
-                            <input type="number" id="editDepartmentId" class="form-control" required>
+                            <select id="editDepartmentId" class="form-control" required>
+                                <!-- Departments will be loaded here -->
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Email:</label>
                             <input type="email" id="editEmail" class="form-control" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Lưu</button>
+                        <div class="mb-3">
+                            <label class="form-label">Số Điện Thoại:</label>
+                            <input type="tel" id="editPhone" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ảnh Nhân Viên:</label>
+                            <input type="file" id="editImage" class="form-control" accept="image/*">
+                            <div id="currentImage" class="mt-2"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-1"></i>Lưu Thay Đổi
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-0">© 2023 Hệ Thống Quản Lý Nhân Viên. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         const secretKey = localStorage.getItem('secretKey');
         if (!secretKey) {
             window.location.href = "../auth/login.html";
+        }
+
+        // Load departments for dropdown
+        function loadDepartments() {
+            $.ajax({
+                url: 'http://localhost:5000/departments',
+                method: 'GET',
+                headers: {
+                    'secret-key': secretKey
+                },
+                success: function(response) {
+                    const departments = response.data;
+                    const addSelect = $('#addDepartmentId');
+                    const editSelect = $('#editDepartmentId');
+                    
+                    // Clear existing options
+                    addSelect.empty();
+                    editSelect.empty();
+                    
+                    // Add default option
+                    addSelect.append('<option value="" disabled selected>Chọn phòng ban</option>');
+                    editSelect.append('<option value="" disabled selected>Chọn phòng ban</option>');
+                    
+                    // Add department options
+                    departments.forEach(dept => {
+                        addSelect.append(`<option value="${dept.department_id}">${dept.department_name}</option>`);
+                        editSelect.append(`<option value="${dept.department_id}">${dept.department_name}</option>`);
+                    });
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    } else {
+                        alert("❌ Lỗi khi tải danh sách phòng ban!");
+                    }
+                }
+            });
         }
 
         // Load employees
@@ -134,20 +453,37 @@
                     const employees = response.data;
                     const tableBody = $('#employeeTableBody');
                     tableBody.empty();
-                    employees.forEach(employee => {
-                        tableBody.append(`
-                            <tr>
-                                <td>${employee.employee_id}</td>
-                                <td>${employee.employee_name}</td>
-                                <td>${employee.department_id}</td>
-                                <td>${employee.email}</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${employee.employee_id}">Sửa</button>
-                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${employee.employee_id}">Xóa</button>
-                                </td>
-                            </tr>
-                        `);
-                    });
+                    
+                    if (employees.length === 0) {
+                        $('#emptyState').show();
+                    } else {
+                        $('#emptyState').hide();
+                        employees.forEach(employee => {
+                            tableBody.append(`
+                                <tr>
+                                    <td>${employee.employee_id}</td>
+                                    <td>
+                                        <img src="${employee.image_path || '../assets/default-avatar.png'}" 
+                                             alt="Employee photo" 
+                                             class="rounded-circle"
+                                             style="width: 40px; height: 40px; object-fit: cover;">
+                                    </td>
+                                    <td>${employee.employee_name}</td>
+                                    <td>${employee.department_id}</td>
+                                    <td>${employee.email}</td>
+                                    <td>${employee.phone}</td>
+                                    <td class="action-buttons">
+                                        <button class="btn btn-warning btn-sm edit-btn" data-id="${employee.employee_id}">
+                                            <i class="fas fa-edit"></i> Sửa
+                                        </button>
+                                        <button class="btn btn-danger btn-sm delete-btn" data-id="${employee.employee_id}">
+                                            <i class="fas fa-trash"></i> Xóa
+                                        </button>
+                                    </td>
+                                </tr>
+                            `);
+                        });
+                    }
                 },
                 error: function(xhr) {
                     if (xhr.status === 401) {
@@ -163,82 +499,165 @@
         // Add employee
         $('#addEmployeeForm').on('submit', function(event) {
             event.preventDefault();
-            const employee_id = $('#addEmployeeId').val();
-            const employee_name = $('#addEmployeeName').val();
-            const department_id = $('#addDepartmentId').val();
+            const employeeId = $('#addEmployeeId').val();
+            const employeeName = $('#addEmployeeName').val();
+            const departmentId = $('#addDepartmentId').val();
             const email = $('#addEmail').val();
-
+            const phone = $('#addPhone').val();
+            const imageFile = $('#addImage')[0].files[0];
+            
+            // Create data object
+            const data = {
+                employee_id: employeeId,
+                employee_name: employeeName,
+                department_id: departmentId,
+                email: email,
+                phone: phone
+            };
+            
+            // Disable submit button and show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalBtnText = submitBtn.html();
+            submitBtn.prop('disabled', true);
+            submitBtn.html('<span class="loading-spinner"></span>Đang xử lý...');
+            
             $.ajax({
                 url: 'http://localhost:5000/employees',
                 method: 'POST',
                 headers: {
-                    'secret-key': secretKey
+                    'secret-key': secretKey,
+                    'Content-Type': 'application/json'
                 },
-                contentType: 'application/json',
-                data: JSON.stringify({ employee_id, employee_name, department_id, email }),
-                success: function() {
+                data: JSON.stringify(data),
+                success: function(response) {
                     $('#addEmployeeModal').modal('hide');
+                    $('#addEmployeeForm')[0].reset();
                     loadEmployees();
+                    alert("✅ Thêm nhân viên thành công!");
                 },
                 error: function(xhr) {
-                    alert("❌ Lỗi khi thêm nhân viên!");
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    } else {
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi thêm nhân viên!";
+                        alert(`❌ ${errorMessage}`);
+                    }
+                },
+                complete: function() {
+                    // Re-enable the submit button and restore original text
+                    submitBtn.prop('disabled', false);
+                    submitBtn.html(originalBtnText);
                 }
             });
         });
 
         // Edit employee
         $(document).on('click', '.edit-btn', function() {
-            const employee_id = $(this).data('id');
+            const employeeId = $(this).data('id');
+            if (!employeeId) {
+                alert("❌ ID nhân viên không hợp lệ!");
+                return;
+            }
             $.ajax({
-                url: `http://localhost:5000/employees`,
+                url: `http://localhost:5000/employees/${employeeId}`,
                 method: 'GET',
                 headers: {
                     'secret-key': secretKey
                 },
                 success: function(response) {
-                    const employee = response.data.find(emp => emp.employee_id == employee_id);
-                    if (employee) {
-                        $('#editEmployeeId').val(employee.employee_id);
-                        $('#editEmployeeName').val(employee.employee_name);
-                        $('#editDepartmentId').val(employee.department_id);
-                        $('#editEmail').val(employee.email);
-                        $('#editEmployeeModal').modal('show');
+                    const employee = response.data;
+                    $('#editEmployeeId').val(employee.employee_id);
+                    $('#editEmployeeName').val(employee.employee_name);
+                    $('#editDepartmentId').val(employee.department_id);
+                    $('#editEmail').val(employee.email);
+                    $('#editPhone').val(employee.phone);
+                    if (employee.image_path) {
+                        $('#currentImage').html(`
+                            <img src="${employee.image_path}" 
+                                 alt="Current employee photo" 
+                                 class="rounded"
+                                 style="max-width: 100px; max-height: 100px;">
+                        `);
+                    } else {
+                        $('#currentImage').empty();
+                    }
+                    $('#editEmployeeModal').modal('show');
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    } else {
+                        alert("❌ Lỗi khi lấy thông tin nhân viên!");
                     }
                 }
             });
         });
 
+        // Edit employee form submission
         $('#editEmployeeForm').on('submit', function(event) {
             event.preventDefault();
-            const employee_id = $('#editEmployeeId').val();
-            const employee_name = $('#editEmployeeName').val();
-            const department_id = $('#editDepartmentId').val();
+            const employeeId = $('#editEmployeeId').val();
+            const employeeName = $('#editEmployeeName').val();
+            const departmentId = $('#editDepartmentId').val();
             const email = $('#editEmail').val();
-
+            const phone = $('#editPhone').val();
+            
+            // Create data object
+            const data = {
+                employee_name: employeeName,
+                department_id: departmentId,
+                email: email,
+                phone: phone
+            };
+            
+            // Disable submit button and show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalBtnText = submitBtn.html();
+            submitBtn.prop('disabled', true);
+            submitBtn.html('<span class="loading-spinner"></span>Đang xử lý...');
+            
             $.ajax({
-                url: `http://localhost:5000/employees/${employee_id}`,
+                url: `http://localhost:5000/employees/${employeeId}`,
                 method: 'PUT',
                 headers: {
-                    'secret-key': secretKey
+                    'secret-key': secretKey,
+                    'Content-Type': 'application/json'
                 },
-                contentType: 'application/json',
-                data: JSON.stringify({ employee_id, employee_name, department_id, email }),
-                success: function() {
+                data: JSON.stringify(data),
+                success: function(response) {
                     $('#editEmployeeModal').modal('hide');
                     loadEmployees();
+                    alert("✅ Cập nhật nhân viên thành công!");
                 },
                 error: function(xhr) {
-                    alert("❌ Lỗi khi sửa nhân viên!");
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    } else {
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi cập nhật nhân viên!";
+                        alert(`❌ ${errorMessage}`);
+                    }
+                },
+                complete: function() {
+                    // Re-enable the submit button and restore original text
+                    submitBtn.prop('disabled', false);
+                    submitBtn.html(originalBtnText);
                 }
             });
         });
 
         // Delete employee
         $(document).on('click', '.delete-btn', function() {
+            const employeeId = $(this).data('id');
+            if (!employeeId) {
+                alert("❌ ID nhân viên không hợp lệ!");
+                return;
+            }
             if (confirm("Bạn có chắc muốn xóa nhân viên này?")) {
-                const employee_id = $(this).data('id');
                 $.ajax({
-                    url: `http://localhost:5000/employees/${employee_id}`,
+                    url: `http://localhost:5000/employees/${employeeId}`,
                     method: 'DELETE',
                     headers: {
                         'secret-key': secretKey
@@ -247,13 +666,19 @@
                         loadEmployees();
                     },
                     error: function(xhr) {
-                        alert("❌ Lỗi khi xóa nhân viên!");
+                        if (xhr.status === 401) {
+                            localStorage.removeItem('secretKey');
+                            window.location.href = "../auth/login.html";
+                        } else {
+                            alert("❌ Lỗi khi xóa nhân viên!");
+                        }
                     }
                 });
             }
         });
 
-        // Load employees on page load
+        // Load data on page load
+        loadDepartments();
         loadEmployees();
 
         // Logout
