@@ -20,27 +20,6 @@ PROOF_PATH = "D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/"
 if not os.path.exists(PROOF_PATH):
     os.makedirs(PROOF_PATH)
 
-# Dùng camera máy
-# class MyVideoCapture:
-#     def __init__(self, video_source=0):
-#         # Mở camera
-#         self.vid = cv2.VideoCapture(video_source)
-#         if not self.vid.isOpened():
-#             raise ValueError("Không thể mở camera")
-# 
-#     def __del__(self):
-#         # Đóng camera khi không dùng nữa
-#         if self.vid.isOpened():
-#             self.vid.release()
-# 
-#     def get_frame(self):
-#         # Lấy khung hình từ camera
-#         ret, frame = self.vid.read()
-#         if ret:
-#             frame = cv2.resize(frame, (640, 480))
-#             return (ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-#         return (ret, None)
-
 # DÙNG CAMERA ESP32
 class MyVideoCapture:
     def __init__(self, video_source="http://172.20.10.5:81/stream"):
@@ -135,7 +114,7 @@ class App:
 
         # Chuyển khoảng cách thành tỷ lệ phần trăm giống
         similarity_percentage = (1 - best_match_distance) * 100
-        # print(f"Tỷ lệ giống: {similarity_percentage:.2f}%")
+        print(f"Tỷ lệ giống: {similarity_percentage:.2f}%")
 
         # Ngưỡng nhận diện: 50% (tương ứng với khoảng cách 0.5)
         if similarity_percentage >= 50:

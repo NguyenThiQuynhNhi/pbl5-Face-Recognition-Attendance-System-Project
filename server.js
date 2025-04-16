@@ -23,17 +23,18 @@ const db = mysql.createConnection({
     database: "employee_management",
 });
 
-db.connect((err) => {
-    if (err) {
-        console.error("❌ Lỗi kết nối MySQL:", err);
-    } else {
-        console.log("✅ Kết nối MySQL thành công!");
-    }
-});
+// db.connect((err) => {
+//     if (err) {
+//         console.error("❌ Lỗi kết nối MySQL:", err);
+//     } else {
+//         console.log("✅ Kết nối MySQL thành công!");
+//     }
+// });
+db.connect(); // Kết nối MySQL thành công
 
 app.use('/', routes(db));
 
-const Port = process.env.Port || 8000
+const Port = process.env.Port || 5000
 app.listen(Port, () => {
     console.log(`🚀 Server đang chạy tại: http://localhost:${Port}/auth/login.html`);
 });
