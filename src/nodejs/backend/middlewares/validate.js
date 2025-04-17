@@ -15,10 +15,14 @@ export const validateAdmin = (req, res, next) => {
 };
 
 export const validateEmployee = (req, res, next) => {
-    const { employee_id, employee_name, department_id, email } = req.body;
-    if (!employee_id || !employee_name || !department_id || !email) {
-        return res.status(400).json({ message: "⛔ Thiếu thông tin nhân viên!" });
+    // Nếu là thêm mới (POST) thì mới validate đầy đủ
+    if (req.method === 'POST') {
+        const { employee_id, employee_name, department_id, email } = req.body;
+        if (!employee_id || !employee_name || !department_id || !email) {
+            return res.status(400).json({ message: "⛔ Thiếu thông tin nhân viên!" });
+        }
     }
+    // Nếu là cập nhật (PUT) thì bỏ qua validation
     next();
 };
 

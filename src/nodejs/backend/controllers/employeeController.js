@@ -24,7 +24,11 @@ const getEmployeeById = async (req, res, next, db) => {
 
 const addEmployee = async (req, res, next, db) => {
     try {
-        const result = await employeeService.addEmployee(db, req.body);
+        let imageFile = null;
+        if (req.files && req.files.image) {
+            imageFile = req.files.image;
+        }
+        const result = await employeeService.addEmployee(db, req.body, imageFile);
         return res.status(201).json({ data: result });
     } catch (error) {
         next(error);
@@ -34,7 +38,11 @@ const addEmployee = async (req, res, next, db) => {
 const updateEmployee = async (req, res, next, db) => {
     try {
         const employee_id = req.params.employee_id;
-        const result = await employeeService.updateEmployee(db, employee_id, req.body);
+        let imageFile = null;
+        if (req.files && req.files.image) {
+            imageFile = req.files.image;
+        }
+        const result = await employeeService.updateEmployee(db, employee_id, req.body, imageFile);
         return res.status(200).json({ data: result });
     } catch (error) {
         next(error);
