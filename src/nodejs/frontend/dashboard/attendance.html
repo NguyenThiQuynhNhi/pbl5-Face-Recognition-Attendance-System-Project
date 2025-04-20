@@ -3,412 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quản Lý Chấm Công - Hệ Thống Chấm Công</title>
+    <title>Quản Lý Chấm Công</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #1A4185;
-            --secondary-color: #FFC470;
-            --accent-color: #BD2C13;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-        }
-        
-        .navbar {
-            background-color: var(--primary-color) !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-        
-        .nav-link {
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            margin: 0 0.2rem;
+        .attendance-photo {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
             border-radius: 5px;
-            transition: all 0.3s;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
         }
-        
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+        .attendance-photo:hover {
+            transform: scale(1.1);
         }
-        
-        .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.2);
+        /* Modal styles */
+        .photo-preview-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
         }
-        
-        .page-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #2a5ca5 100%);
-            color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        .photo-preview-content {
+            margin: auto;
+            display: block;
+            max-width: 80%;
+            max-height: 80vh;
+            margin-top: 60px;
         }
-        
-        .page-header h1 {
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .page-header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .table {
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-        
-        .table thead {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .table th {
-            font-weight: 600;
-            padding: 1rem;
-        }
-        
-        .table td {
-            padding: 1rem;
-            vertical-align: middle;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border: none;
-            padding: 0.5rem 1.5rem;
-            font-weight: 600;
-            border-radius: 10px;
-        }
-        
-        .btn-success {
-            background-color: #28a745;
-            border: none;
-            padding: 0.5rem 1.5rem;
-            font-weight: 600;
-            border-radius: 10px;
-        }
-        
-        .btn-warning {
-            background-color: #ffc107;
-            border: none;
-            padding: 0.5rem 1.5rem;
-            font-weight: 600;
-            border-radius: 10px;
-            color: #212529;
-        }
-        
-        .btn-danger {
-            background-color: #dc3545;
-            border: none;
-            padding: 0.5rem 1.5rem;
-            font-weight: 600;
-            border-radius: 10px;
-        }
-        
-        .btn-sm {
-            padding: 0.25rem 0.75rem;
-            font-size: 0.875rem;
-        }
-        
-        .modal-content {
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-        
-        .modal-header {
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 15px 15px 0 0;
-            padding: 1.5rem;
-        }
-        
-        .modal-title {
-            font-weight: 700;
-        }
-        
-        .btn-close {
-            filter: brightness(0) invert(1);
-        }
-        
-        .modal-body {
-            padding: 1.5rem;
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: var(--dark-color);
-        }
-        
-        .form-control {
-            border-radius: 10px;
-            padding: 0.75rem 1rem;
-            border: 1px solid #ced4da;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(26, 65, 133, 0.25);
-        }
-        
-        .footer {
-            background-color: var(--dark-color);
-            color: white;
-            padding: 1.5rem 0;
-            margin-top: 3rem;
-        }
-        
-        .action-buttons .btn {
-            margin: 0 0.25rem;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 3rem 0;
-            color: #6c757d;
-        }
-        
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-            opacity: 0.5;
-        }
-        
-        .empty-state h3 {
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .empty-state p {
-            margin-bottom: 1.5rem;
-        }
-        
-        .loading-spinner {
-            display: inline-block;
-            width: 1.5rem;
-            height: 1.5rem;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 0.5rem;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-        
-        .status-in {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        
-        .status-out {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        
-        .filter-section {
-            background-color: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-        
-        .filter-section h5 {
-            margin-bottom: 1rem;
-            color: var(--dark-color);
-        }
-        
-        .filter-row {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .filter-group {
-            flex: 1;
+        .close-preview {
+            position: absolute;
+            right: 35px;
+            top: 15px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-user-clock me-2"></i>Employee Management
-            </a>
+            <a class="navbar-brand" href="#">Employee Management</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i>Trang Chủ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="department.html"><i class="fas fa-building me-1"></i>Phòng Ban</a></li>
-                    <li class="nav-item"><a class="nav-link" href="employee.html"><i class="fas fa-users me-1"></i>Nhân Viên</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="attendance.html"><i class="fas fa-calendar-check me-1"></i>Chấm Công</a></li>
-                    <li class="nav-item"><a class="nav-link" href="admin.html"><i class="fas fa-user-shield me-1"></i>Tài Khoản Admin</a></li>
-                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-1"></i>Đăng Xuất</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html">Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="department.html">Phòng Ban</a></li>
+                    <li class="nav-item"><a class="nav-link" href="employee.html">Nhân Viên</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="attendance.html">Chấm Công</a></li>
+                    <li class="nav-item"><a class="nav-link" href="admin.html">Tài Khoản Admin</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Đăng Xuất</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="container">
-            <h1>Quản Lý Chấm Công</h1>
-            <p>Quản lý và theo dõi chấm công của nhân viên trong hệ thống.</p>
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Quản Lý Chấm Công</h1>
+
+        <!-- Button to open Add Attendance Modal -->
+        <div class="text-end mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAttendanceModal">
+                <i class="fas fa-plus me-2"></i>Thêm Bản Ghi Chấm Công
+            </button>
+        </div>
+
+        <!-- Attendance Table -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>ID Nhân Viên</th>
+                        <th>Thời Gian</th>
+                        <th>Trạng Thái</th>
+                        <th>Ảnh Chấm Công</th>
+                        <th>Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceTableBody"></tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="container">
-        <!-- Filter Section -->
-        <div class="filter-section">
-            <h5><i class="fas fa-filter me-2"></i>Bộ Lọc</h5>
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label class="form-label">Nhân Viên:</label>
-                    <select id="employeeFilter" class="form-control">
-                        <option value="">Tất cả nhân viên</option>
-                        <!-- Employees will be loaded here -->
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label class="form-label">Trạng Thái:</label>
-                    <select id="statusFilter" class="form-control">
-                        <option value="">Tất cả trạng thái</option>
-                        <option value="In">Đi làm</option>
-                        <option value="Out">Ra về</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label class="form-label">Từ Ngày:</label>
-                    <input type="date" id="startDateFilter" class="form-control">
-                </div>
-                <div class="filter-group">
-                    <label class="form-label">Đến Ngày:</label>
-                    <input type="date" id="endDateFilter" class="form-control">
-                </div>
-            </div>
-            <div class="text-end">
-                <button id="applyFilter" class="btn btn-primary">
-                    <i class="fas fa-search me-1"></i>Áp Dụng Bộ Lọc
-                </button>
-                <button id="resetFilter" class="btn btn-secondary ms-2">
-                    <i class="fas fa-undo me-1"></i>Đặt Lại
-                </button>
-            </div>
-        </div>
-        
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="card-title mb-0">Danh Sách Chấm Công</h5>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAttendanceModal">
-                        <i class="fas fa-plus me-1"></i>Thêm Chấm Công
-                    </button>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>ID Nhân Viên</th>
-                                <th>Tên Nhân Viên</th>
-                                <th>Thời Gian</th>
-                                <th>Trạng Thái</th>
-                                <th>Thao Tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="attendanceTableBody">
-                            <!-- Data will be loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div id="emptyState" class="empty-state" style="display: none;">
-                    <i class="fas fa-calendar-check"></i>
-                    <h3>Chưa có bản ghi chấm công nào</h3>
-                    <p>Bắt đầu bằng cách thêm bản ghi chấm công mới vào hệ thống.</p>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAttendanceModal">
-                        <i class="fas fa-plus me-1"></i>Thêm Chấm Công
-                    </button>
-                </div>
-            </div>
-        </div>
+    <!-- Photo Preview Modal -->
+    <div id="photoPreviewModal" class="photo-preview-modal">
+        <span class="close-preview">&times;</span>
+        <img class="photo-preview-content" id="previewImage">
     </div>
 
     <!-- Add Attendance Modal -->
-    <div class="modal fade" id="addAttendanceModal" tabindex="-1" aria-labelledby="addAttendanceModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addAttendanceModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addAttendanceModalLabel">Thêm Chấm Công Mới</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">Thêm Bản Ghi Chấm Công</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addAttendanceForm">
                         <div class="mb-3">
-                            <label class="form-label">Nhân Viên:</label>
+                            <label class="form-label">ID Nhân Viên:</label>
                             <select id="addEmployeeId" class="form-control" required>
-                                <option value="" disabled selected>Chọn nhân viên</option>
-                                <!-- Employees will be loaded here -->
+                                <option value="">-- Chọn nhân viên --</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Thời Gian:</label>
-                            <input type="datetime-local" id="addTime" class="form-control" required>
+                            <label class="form-label">Thời Gian (YYYY-MM-DD HH:MM:SS):</label>
+                            <input type="text" id="addDateTime" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Trạng Thái:</label>
-                            <select id="addStatus" class="form-control" required>
-                                <option value="" disabled selected>Chọn trạng thái</option>
-                                <option value="In">Đi làm</option>
-                                <option value="Out">Ra về</option>
+                            <select id="addInOut" class="form-control" required>
+                                <option value="In">Vào</option>
+                                <option value="Out">Ra</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-save me-1"></i>Lưu
+                            <i class="fas fa-save me-2"></i>Thêm
                         </button>
                     </form>
                 </div>
@@ -417,50 +140,41 @@
     </div>
 
     <!-- Edit Attendance Modal -->
-    <div class="modal fade" id="editAttendanceModal" tabindex="-1" aria-labelledby="editAttendanceModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editAttendanceModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editAttendanceModalLabel">Sửa Thông Tin Chấm Công</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">Sửa Bản Ghi Chấm Công</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="editAttendanceForm">
                         <input type="hidden" id="editAttendanceId">
                         <div class="mb-3">
-                            <label class="form-label">Nhân Viên:</label>
+                            <label class="form-label">ID Nhân Viên:</label>
                             <select id="editEmployeeId" class="form-control" required>
-                                <option value="" disabled selected>Chọn nhân viên</option>
-                                <!-- Employees will be loaded here -->
+                                <option value="">-- Chọn nhân viên --</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Thời Gian:</label>
-                            <input type="datetime-local" id="editTime" class="form-control" required>
+                            <label class="form-label">Thời Gian (YYYY-MM-DD HH:MM:SS):</label>
+                            <input type="text" id="editDateTime" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Trạng Thái:</label>
-                            <select id="editStatus" class="form-control" required>
-                                <option value="" disabled selected>Chọn trạng thái</option>
-                                <option value="In">Đi làm</option>
-                                <option value="Out">Ra về</option>
+                            <select id="editInOut" class="form-control" required>
+                                <option value="In">Vào</option>
+                                <option value="Out">Ra</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-save me-1"></i>Lưu Thay Đổi
+                            <i class="fas fa-save me-2"></i>Lưu
                         </button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container text-center">
-            <p class="mb-0">© 2023 Hệ Thống Quản Lý Nhân Viên. Tất cả quyền được bảo lưu.</p>
-        </div>
-    </footer>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -469,148 +183,53 @@
             window.location.href = "../auth/login.html";
         }
 
-        // Load employees for dropdown
-        function loadEmployees() {
-            $.ajax({
-                url: 'http://localhost:5000/employees',
-                method: 'GET',
-                headers: {
-                    'secret-key': secretKey
-                },
-                success: function(response) {
-                    const employees = response.data;
-                    const addSelect = $('#addEmployeeId');
-                    const editSelect = $('#editEmployeeId');
-                    const filterSelect = $('#employeeFilter');
-                    
-                    // Clear existing options
-                    addSelect.empty();
-                    editSelect.empty();
-                    filterSelect.empty();
-                    
-                    // Add default options
-                    addSelect.append('<option value="" disabled selected>Chọn nhân viên</option>');
-                    editSelect.append('<option value="" disabled selected>Chọn nhân viên</option>');
-                    filterSelect.append('<option value="">Tất cả nhân viên</option>');
-                    
-                    // Add employee options
-                    employees.forEach(emp => {
-                        addSelect.append(`<option value="${emp.employee_id}">${emp.employee_name}</option>`);
-                        editSelect.append(`<option value="${emp.employee_id}">${emp.employee_name}</option>`);
-                        filterSelect.append(`<option value="${emp.employee_id}">${emp.employee_name}</option>`);
-                    });
-                },
-                error: function(xhr) {
-                    if (xhr.status === 401) {
-                        localStorage.removeItem('secretKey');
-                        window.location.href = "../auth/login.html";
-                    } else {
-                        alert("❌ Lỗi khi tải danh sách nhân viên!");
-                    }
-                }
-            });
-        }
-
         // Load attendance records
-        function loadAttendanceRecords() {
-            // Get filter values
-            const employeeId = $('#employeeFilter').val() ? parseInt($('#employeeFilter').val()) : null;
-            const status = $('#statusFilter').val();
-            const startDate = $('#startDateFilter').val();
-            const endDate = $('#endDateFilter').val();
-            
-            // Build query string
-            let queryString = '';
-            if (employeeId) queryString += `&employee_id=${employeeId}`;
-            if (status) queryString += `&status=${status}`;
-            if (startDate) queryString += `&start_date=${startDate}`;
-            if (endDate) queryString += `&end_date=${endDate}`;
-            
+        function loadAttendance() {
             $.ajax({
-                url: `http://localhost:5000/attendance${queryString ? '?' + queryString.substring(1) : ''}`,
+                url: 'http://localhost:5000/attendance',
                 method: 'GET',
                 headers: {
                     'secret-key': secretKey
                 },
                 success: function(response) {
-                    const records = response.data;
+                    const attendance = response.data;
                     const tableBody = $('#attendanceTableBody');
                     tableBody.empty();
-                    
-                    if (records.length === 0) {
-                        $('#emptyState').show();
-                    } else {
-                        $('#emptyState').hide();
-                        records.forEach(record => {
-                            // Format date
-                            const date = new Date(record.time);
-                            const formattedDate = date.toLocaleString('vi-VN', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit'
-                            });
-                            
-                            // Get employee name
-                            $.ajax({
-                                url: `http://localhost:5000/employees/${record.employee_id}`,
-                                method: 'GET',
-                                headers: {
-                                    'secret-key': secretKey
-                                },
-                                success: function(empResponse) {
-                                    const employee = empResponse.data;
-                                    tableBody.append(`
-                                        <tr>
-                                            <td>${record.attendance_id}</td>
-                                            <td>${record.employee_id}</td>
-                                            <td>${employee.employee_name}</td>
-                                            <td>${formattedDate}</td>
-                                            <td>
-                                                <span class="status-badge ${record.status === 'In' ? 'status-in' : 'status-out'}">
-                                                    ${record.status === 'In' ? 'Đi làm' : 'Ra về'}
-                                                </span>
-                                            </td>
-                                            <td class="action-buttons">
-                                                <button class="btn btn-warning btn-sm edit-btn" data-id="${record.attendance_id}">
-                                                    <i class="fas fa-edit"></i> Sửa
-                                                </button>
-                                                <button class="btn btn-danger btn-sm delete-btn" data-id="${record.attendance_id}">
-                                                    <i class="fas fa-trash"></i> Xóa
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    `);
-                                },
-                                error: function() {
-                                    // If employee not found, just show the ID
-                                    tableBody.append(`
-                                        <tr>
-                                            <td>${record.attendance_id}</td>
-                                            <td>${record.employee_id}</td>
-                                            <td>Không tìm thấy</td>
-                                            <td>${formattedDate}</td>
-                                            <td>
-                                                <span class="status-badge ${record.status === 'In' ? 'status-in' : 'status-out'}">
-                                                    ${record.status === 'In' ? 'Đi làm' : 'Ra về'}
-                                                </span>
-                                            </td>
-                                            <td class="action-buttons">
-                                                <button class="btn btn-warning btn-sm edit-btn" data-id="${record.attendance_id}">
-                                                    <i class="fas fa-edit"></i> Sửa
-                                                </button>
-                                                <button class="btn btn-danger btn-sm delete-btn" data-id="${record.attendance_id}">
-                                                    <i class="fas fa-trash"></i> Xóa
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    `);
-                                }
-                            });
+                    attendance.forEach(record => {
+                        const photoHtml = record.photo_url ? 
+                            `<img src="${record.photo_url}" alt="Ảnh chấm công" class="attendance-photo" onclick="showPhotoPreview('${record.photo_url}')">` : 
+                            'Không có ảnh';
+                        
+                        // Format the date string
+                        const date = new Date(record.date_n_time);
+                        const formattedDate = date.toLocaleString('vi-VN', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false
                         });
-                    }
+                        
+                        tableBody.append(`
+                            <tr>
+                                <td>${record.attendance_id}</td>
+                                <td>${record.employee_id}</td>
+                                <td>${formattedDate}</td>
+                                <td>${record.in_out}</td>
+                                <td class="text-center">${photoHtml}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${record.attendance_id}">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </button>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${record.attendance_id}">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                    });
                 },
                 error: function(xhr) {
                     if (xhr.status === 401) {
@@ -623,19 +242,45 @@
             });
         }
 
+        // Photo Preview Functions
+        function showPhotoPreview(photoUrl) {
+            const modal = document.getElementById('photoPreviewModal');
+            const previewImage = document.getElementById('previewImage');
+            previewImage.src = photoUrl;
+            modal.style.display = "block";
+        }
+
+        // Close preview when clicking on X or outside the image
+        document.querySelector('.close-preview').onclick = function() {
+            document.getElementById('photoPreviewModal').style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('photoPreviewModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
         // Add attendance record
         $('#addAttendanceForm').on('submit', function(event) {
             event.preventDefault();
-            const employeeId = $('#addEmployeeId').val();
-            const time = $('#addTime').val();
-            const status = $('#addStatus').val();
-            
+            const employee_id = $('#addEmployeeId').val();
+            const date_n_time = $('#addDateTime').val();
+            const in_out = $('#addInOut').val();
+
+            // Validate input
+            if (!employee_id || !date_n_time || !in_out) {
+                alert("❌ Vui lòng điền đầy đủ thông tin!");
+                return;
+            }
+
             // Disable submit button and show loading state
             const submitBtn = $(this).find('button[type="submit"]');
             const originalBtnText = submitBtn.html();
             submitBtn.prop('disabled', true);
-            submitBtn.html('<span class="loading-spinner"></span>Đang xử lý...');
-            
+            submitBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...');
+
             $.ajax({
                 url: 'http://localhost:5000/attendance',
                 method: 'POST',
@@ -643,26 +288,19 @@
                     'secret-key': secretKey
                 },
                 contentType: 'application/json',
-                data: JSON.stringify({ 
-                    employee_id: employeeId, 
-                    time: time, 
-                    status: status 
-                }),
-                success: function() {
+                data: JSON.stringify({ employee_id, date_n_time, in_out }),
+                success: function(response) {
                     $('#addAttendanceModal').modal('hide');
                     $('#addAttendanceForm')[0].reset();
-                    loadAttendanceRecords();
+                    loadAttendance();
+                    alert("✅ " + (response.data.message || "Thêm bản ghi chấm công thành công!"));
                 },
                 error: function(xhr) {
-                    if (xhr.status === 401) {
-                        localStorage.removeItem('secretKey');
-                        window.location.href = "../auth/login.html";
-                    } else {
-                        alert("❌ Lỗi khi thêm chấm công!");
-                    }
+                    const errorMessage = xhr.responseJSON?.message || "Lỗi khi thêm bản ghi chấm công!";
+                    alert(`❌ ${errorMessage}`);
                 },
                 complete: function() {
-                    // Re-enable the submit button and restore original text
+                    // Re-enable submit button and restore original text
                     submitBtn.prop('disabled', false);
                     submitBtn.html(originalBtnText);
                 }
@@ -671,80 +309,112 @@
 
         // Edit attendance record
         $(document).on('click', '.edit-btn', function() {
-            const attendanceId = parseInt($(this).data('id'));
-            if (isNaN(attendanceId)) {
-                alert("❌ ID chấm công không hợp lệ!");
-                return;
-            }
+            const attendance_id = $(this).data('id');
+            
+            // Load employee list first
             $.ajax({
-                url: `http://localhost:5000/attendance/${attendanceId}`,
+                url: 'http://localhost:5000/employees',
                 method: 'GET',
                 headers: {
                     'secret-key': secretKey
                 },
                 success: function(response) {
-                    const record = response.data;
-                    $('#editAttendanceId').val(record.attendance_id);
-                    $('#editEmployeeId').val(record.employee_id);
+                    const employees = response.data;
+                    const selectBox = $('#editEmployeeId');
+                    selectBox.empty();
+                    selectBox.append('<option value="">-- Chọn nhân viên --</option>');
+                    employees.forEach(emp => {
+                        selectBox.append(`<option value="${emp.employee_id}">${emp.employee_id} - ${emp.employee_name}</option>`);
+                    });
                     
-                    // Format datetime for input
-                    const date = new Date(record.time);
-                    const formattedDate = date.toISOString().slice(0, 16);
-                    $('#editTime').val(formattedDate);
-                    
-                    $('#editStatus').val(record.status);
-                    $('#editAttendanceModal').modal('show');
+                    // Then load attendance data
+                    $.ajax({
+                        url: `http://localhost:5000/attendance`,
+                        method: 'GET',
+                        headers: {
+                            'secret-key': secretKey
+                        },
+                        success: function(response) {
+                            const record = response.data.find(rec => rec.attendance_id == attendance_id);
+                            if (record) {
+                                $('#editAttendanceId').val(record.attendance_id);
+                                $('#editEmployeeId').val(record.employee_id);
+                                
+                                // Format the datetime for the edit form
+                                const date = new Date(record.date_n_time);
+                                const formattedDateTime = date.toLocaleString('vi-VN', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit',
+                                    hour12: false
+                                }).replace(',', '');
+                                
+                                $('#editDateTime').val(formattedDateTime);
+                                $('#editInOut').val(record.in_out);
+                                $('#editAttendanceModal').modal('show');
+                            } else {
+                                alert("❌ Không tìm thấy bản ghi chấm công!");
+                            }
+                        },
+                        error: function(xhr) {
+                            const errorMessage = xhr.responseJSON?.message || "Lỗi khi lấy thông tin chấm công!";
+                            alert(`❌ ${errorMessage}`);
+                        }
+                    });
                 },
                 error: function(xhr) {
                     if (xhr.status === 401) {
                         localStorage.removeItem('secretKey');
                         window.location.href = "../auth/login.html";
                     } else {
-                        alert("❌ Lỗi khi lấy thông tin chấm công!");
+                        alert("❌ Lỗi khi lấy danh sách nhân viên!");
                     }
                 }
             });
         });
 
+        // Submit edit form
         $('#editAttendanceForm').on('submit', function(event) {
             event.preventDefault();
-            const attendanceId = $('#editAttendanceId').val();
-            const employeeId = $('#editEmployeeId').val();
-            const time = $('#editTime').val();
-            const status = $('#editStatus').val();
-            
+            const attendance_id = $('#editAttendanceId').val();
+            const employee_id = $('#editEmployeeId').val();
+            const date_n_time = $('#editDateTime').val();
+            const in_out = $('#editInOut').val();
+
+            // Validate input
+            if (!employee_id || !date_n_time || !in_out) {
+                alert("❌ Vui lòng điền đầy đủ thông tin!");
+                return;
+            }
+
             // Disable submit button and show loading state
             const submitBtn = $(this).find('button[type="submit"]');
             const originalBtnText = submitBtn.html();
             submitBtn.prop('disabled', true);
-            submitBtn.html('<span class="loading-spinner"></span>Đang xử lý...');
-            
+            submitBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...');
+
             $.ajax({
-                url: `http://localhost:5000/attendance/${attendanceId}`,
+                url: `http://localhost:5000/attendance/${attendance_id}`,
                 method: 'PUT',
                 headers: {
                     'secret-key': secretKey
                 },
                 contentType: 'application/json',
-                data: JSON.stringify({ 
-                    employee_id: employeeId, 
-                    time: time, 
-                    status: status 
-                }),
-                success: function() {
+                data: JSON.stringify({ employee_id, date_n_time, in_out }),
+                success: function(response) {
                     $('#editAttendanceModal').modal('hide');
-                    loadAttendanceRecords();
+                    loadAttendance();
+                    alert("✅ " + (response.data.message || "Cập nhật bản ghi chấm công thành công!"));
                 },
                 error: function(xhr) {
-                    if (xhr.status === 401) {
-                        localStorage.removeItem('secretKey');
-                        window.location.href = "../auth/login.html";
-                    } else {
-                        alert("❌ Lỗi khi cập nhật chấm công!");
-                    }
+                    const errorMessage = xhr.responseJSON?.message || "Lỗi khi cập nhật bản ghi chấm công!";
+                    alert(`❌ ${errorMessage}`);
                 },
                 complete: function() {
-                    // Re-enable the submit button and restore original text
+                    // Re-enable submit button and restore original text
                     submitBtn.prop('disabled', false);
                     submitBtn.html(originalBtnText);
                 }
@@ -753,55 +423,60 @@
 
         // Delete attendance record
         $(document).on('click', '.delete-btn', function() {
-            const attendanceId = parseInt($(this).data('id'));
-            if (isNaN(attendanceId)) {
-                alert("❌ ID chấm công không hợp lệ!");
-                return;
-            }
-            if (confirm("Bạn có chắc muốn xóa bản ghi chấm công này?")) {
+            const attendance_id = $(this).data('id');
+            if (confirm("⚠️ Bạn có chắc muốn xóa bản ghi chấm công này?")) {
                 $.ajax({
-                    url: `http://localhost:5000/attendance/${attendanceId}`,
+                    url: `http://localhost:5000/attendance/${attendance_id}`,
                     method: 'DELETE',
                     headers: {
                         'secret-key': secretKey
                     },
-                    success: function() {
-                        loadAttendanceRecords();
+                    success: function(response) {
+                        loadAttendance();
+                        alert("✅ " + (response.data.message || "Xóa bản ghi chấm công thành công!"));
                     },
                     error: function(xhr) {
-                        if (xhr.status === 401) {
-                            localStorage.removeItem('secretKey');
-                            window.location.href = "../auth/login.html";
-                        } else {
-                            alert("❌ Lỗi khi xóa chấm công!");
-                        }
+                        const errorMessage = xhr.responseJSON?.message || "Lỗi khi xóa bản ghi chấm công!";
+                        alert(`❌ ${errorMessage}`);
                     }
                 });
             }
         });
 
-        // Apply filters
-        $('#applyFilter').on('click', function() {
-            loadAttendanceRecords();
-        });
+        // Load attendance on page load
+        loadAttendance();
 
-        // Reset filters
-        $('#resetFilter').on('click', function() {
-            $('#employeeFilter').val('');
-            $('#statusFilter').val('');
-            $('#startDateFilter').val('');
-            $('#endDateFilter').val('');
-            loadAttendanceRecords();
-        });
+        // Load employee list for dropdown
+        function loadEmployeeList() {
+            $.ajax({
+                url: 'http://localhost:5000/employees',
+                method: 'GET',
+                headers: {
+                    'secret-key': secretKey
+                },
+                success: function(response) {
+                    const employees = response.data;
+                    const selectBox = $('#addEmployeeId');
+                    selectBox.empty();
+                    selectBox.append('<option value="">-- Chọn nhân viên --</option>');
+                    employees.forEach(emp => {
+                        selectBox.append(`<option value="${emp.employee_id}">${emp.employee_id} - ${emp.employee_name}</option>`);
+                    });
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    } else {
+                        alert("❌ Lỗi khi lấy danh sách nhân viên!");
+                    }
+                }
+            });
+        }
 
-        // Set default date to today
-        const today = new Date().toISOString().split('T')[0];
-        $('#startDateFilter').val(today);
-        $('#endDateFilter').val(today);
-
-        // Load data on page load
-        loadEmployees();
-        loadAttendanceRecords();
+        // Load employee list when page loads and when add modal opens
+        loadEmployeeList();
+        $('#addAttendanceModal').on('show.bs.modal', loadEmployeeList);
 
         // Logout
         document.getElementById("logoutBtn").addEventListener("click", function(event) {
@@ -812,5 +487,6 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </body>
 </html>
