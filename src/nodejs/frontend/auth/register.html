@@ -3,38 +3,377 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Đăng Ký</title>
+    <title>Đăng Ký - Hệ Thống Chấm Công</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1A4185;
+            --secondary-color: #FFC470;
+            --accent-color: #BD2C13;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2a5ca5 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .card-header {
+            background: transparent;
+            border: none;
+            padding: 2rem 2rem 1rem;
+            text-align: center;
+        }
+        
+        .card-header img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+        }
+        
+        .card-header h1 {
+            color: var(--primary-color);
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-header p {
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+        
+        .card-body {
+            padding: 2rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ced4da;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(26, 65, 133, 0.25);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .btn-primary:hover {
+            background-color: #153a6f;
+            transform: translateY(-2px);
+        }
+        
+        .alert {
+            border: none;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        
+        .alert-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        
+        .login-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .login-link a:hover {
+            color: #153a6f;
+            text-decoration: underline;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .input-group-text {
+            background-color: transparent;
+            border-right: none;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        
+        .form-control {
+            border-left: none;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        
+        .input-group:focus-within {
+            box-shadow: 0 0 0 0.25rem rgba(26, 65, 133, 0.25);
+            border-radius: 10px;
+        }
+        
+        .input-group:focus-within .input-group-text,
+        .input-group:focus-within .form-control {
+            border-color: var(--primary-color);
+        }
+        
+        .password-toggle {
+            cursor: pointer;
+            color: #6c757d;
+            transition: color 0.3s;
+        }
+        
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+        
+        .form-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+    </style>
 </head>
-<body class="bg-light">
-
-    <div class="container d-flex justify-content-center align-items-center vh-100">
-        <div class="card p-4 shadow" style="width: 400px;">
-            <h3 class="text-center">Đăng Ký</h3>
-            <form>
-                <div class="mb-3">
-                    <label class="form-label">Họ và Tên:</label>
-                    <input type="text" class="form-control" placeholder="Nhập họ và tên">
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828471.png" alt="Logo">
+                <h1>Đăng Ký Tài Khoản</h1>
+                <p>Điền thông tin để tạo tài khoản mới</p>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger" id="errorAlert" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span id="errorMessage"></span>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Email:</label>
-                    <input type="email" class="form-control" placeholder="Nhập email">
+                
+                <div class="alert alert-success" id="successAlert" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span id="successMessage"></span>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Mật khẩu:</label>
-                    <input type="password" class="form-control" placeholder="Nhập mật khẩu">
+                
+                <form id="registerForm">
+                    <div class="mb-3">
+                        <label class="form-label">Tên đăng nhập:</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input type="text" id="username" class="form-control" required>
+                        </div>
+                        <div class="form-text">Tên đăng nhập phải có ít nhất 3 ký tự</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu:</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" id="password" class="form-control" required>
+                            <span class="input-group-text password-toggle" onclick="togglePassword('password')">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                        <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Xác nhận mật khẩu:</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" id="confirmPassword" class="form-control" required>
+                            <span class="input-group-text password-toggle" onclick="togglePassword('confirmPassword')">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên:</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-id-card"></i>
+                            </span>
+                            <input type="text" id="fullName" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Email:</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input type="email" id="email" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Đăng Ký
+                    </button>
+                </form>
+                
+                <div class="login-link">
+                    <a href="login.html">
+                        <i class="fas fa-sign-in-alt me-2"></i>Đã có tài khoản? Đăng nhập
+                    </a>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Xác nhận mật khẩu:</label>
-                    <input type="password" class="form-control" placeholder="Nhập lại mật khẩu">
-                </div>
-                <button type="submit" class="btn btn-success w-100">Đăng Ký</button>
-            </form>
-            <p class="text-center mt-3">
-                Đã có tài khoản? <a href="login.html">Đăng nhập</a>
-            </p>
+            </div>
         </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        $('#registerForm').on('submit', function(event) {
+            event.preventDefault();
+            
+            const username = $('#username').val();
+            const password = $('#password').val();
+            const confirmPassword = $('#confirmPassword').val();
+            const fullName = $('#fullName').val();
+            const email = $('#email').val();
+            
+            // Validate password match
+            if (password !== confirmPassword) {
+                $('#errorMessage').text('Mật khẩu xác nhận không khớp!');
+                $('#errorAlert').show();
+                return;
+            }
+            
+            // Validate password length
+            if (password.length < 6) {
+                $('#errorMessage').text('Mật khẩu phải có ít nhất 6 ký tự!');
+                $('#errorAlert').show();
+                return;
+            }
+            
+            // Validate username length
+            if (username.length < 3) {
+                $('#errorMessage').text('Tên đăng nhập phải có ít nhất 3 ký tự!');
+                $('#errorAlert').show();
+                return;
+            }
+            
+            // Disable submit button and show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalBtnText = submitBtn.html();
+            submitBtn.prop('disabled', true);
+            submitBtn.html('<span class="loading-spinner"></span>Đang xử lý...');
+            
+            // Hide any existing alerts
+            $('#errorAlert').hide();
+            $('#successAlert').hide();
+            
+            $.ajax({
+                url: 'http://localhost:5000/auth/register',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    username,
+                    password,
+                    fullName,
+                    email
+                }),
+                success: function(response) {
+                    $('#successMessage').text('Đăng ký thành công! Vui lòng đăng nhập.');
+                    $('#successAlert').show();
+                    $('#registerForm')[0].reset();
+                    
+                    // Redirect to login page after 2 seconds
+                    setTimeout(function() {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                },
+                error: function(xhr) {
+                    let errorMessage = 'Có lỗi xảy ra, vui lòng thử lại sau.';
+                    
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    
+                    $('#errorMessage').text(errorMessage);
+                    $('#errorAlert').show();
+                },
+                complete: function() {
+                    // Re-enable the submit button and restore original text
+                    submitBtn.prop('disabled', false);
+                    submitBtn.html(originalBtnText);
+                }
+            });
+        });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

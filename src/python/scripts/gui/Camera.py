@@ -11,10 +11,10 @@ import serial
 import time
 
 # Đường dẫn đến thư mục chứa ảnh nhân viên
-DATA_PATH = "D:/SEM6/PBL5/Face-Recognition/src/python/data/image"
+DATA_PATH = "D:/Workspace/PBL5/pbl5-Face-Recognition-Attendance-System-Project/src/python/data/image"
 
 # Đường dẫn để lưu ảnh chấm công
-PROOF_PATH = "D:/SEM6/PBL5/Face-Recognition/src/python/data/proofs/"
+PROOF_PATH = "D:/Workspace/PBL5/pbl5-Face-Recognition-Attendance-System-Project/src/python/data/proofs/"
 
 # Đảm bảo thư mục lưu ảnh chấm công tồn tại
 if not os.path.exists(PROOF_PATH):
@@ -84,35 +84,43 @@ class App:
         self.vid = MyVideoCapture("http://172.20.10.5:81/stream")  # Sử dụng ESP32 camera
         self.canvas = tkinter.Canvas(window, width=self.vid.width, height=self.vid.height)
         self.canvas.pack()
-        self.btn_getTimekeeping = tkinter.Button(window, text="Chấm công", width=50, command=self.getvideo, font=("SVN-HC calvous", 14, "bold"), foreground="#FFC470", bg="#BD2C13")
-        self.btn_getTimekeeping.pack(anchor=tkinter.CENTER, expand=True)
-
+        
+        # Auto-check functionality
+        self.last_check_time = 0
+        self.check_interval = 5  # Check every 5 seconds
+        self.last_recognized_employee = None
+        self.last_recognized_time = 0
+        self.cooldown_period = 30  # 30 seconds cooldown before recognizing the same person again
+        
         self.delay = 1
-        self.current_frame = None  # Lưu khung hình hiện tại để sử dụng khi chấm công
         self.update()
         self.window.mainloop()
 
-    def getvideo(self):
-        # Chụp ảnh từ camera
+    def update(self):
+        # Cập nhật khung hình từ camera lên giao diện
         ret, frame = self.vid.get_frame()
-        if not ret:
-            tkinter.messagebox.showinfo(title="Notification", message="Không thể chụp ảnh từ camera")
-            return
+        if ret:
+            self.photo = ImageTk.PhotoImage(image=Image.fromarray(frame))
+            self.canvas.create_image(0, 0, image=self.photo, anchor=tkinter.NW)
+            
+            # Auto check face every 5 seconds
+            current_time = time.time()
+            if current_time - self.last_check_time >= self.check_interval:
+                self.last_check_time = current_time
+                self.check_face(frame)
+                
+        self.window.after(self.delay, self.update)
 
-        # Lưu khung hình hiện tại để sử dụng sau
-        self.current_frame = frame.copy()
-
+    def check_face(self, frame):
         # Chuẩn bị ảnh để nhận diện
         frame = cv2.resize(frame, (0, 0), None, fx=0.5, fy=0.5)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         encodeface = face_recognition.face_encodings(frame)
         if not encodeface:
-            tkinter.messagebox.showinfo(title="Notification", message="Không tìm thấy khuôn mặt trong ảnh")
             return
 
         # Kiểm tra nếu không có dữ liệu để so sánh
         if not self.listimg.encodelist:
-            tkinter.messagebox.showinfo(title="Notification", message="Không có dữ liệu khuôn mặt để so sánh")
             return
 
         # So sánh khuôn mặt
@@ -127,32 +135,99 @@ class App:
 
         # Chuyển khoảng cách thành tỷ lệ phần trăm giống
         similarity_percentage = (1 - best_match_distance) * 100
-        print(f"Tỷ lệ giống: {similarity_percentage:.2f}%")
+        # print(f"Tỷ lệ giống: {similarity_percentage:.2f}%")
 
         # Ngưỡng nhận diện: 50% (tương ứng với khoảng cách 0.5)
         if similarity_percentage >= 50:
-            dialog = DialogBox(self.window, "Xác nhận thông tin", self.listimg.classname[best_match_index], self.listimg.namect[best_match_index], self.current_frame)
-            image_label = tkinter.Label(dialog)
-            image_label.pack()
-            employee_dir = os.path.join(DATA_PATH, self.listimg.classname[best_match_index])
-            image_files = [f for f in os.listdir(employee_dir) if f.lower().endswith(('.jpg', '.jpeg', '.png', '.bmp'))]
-            if image_files:
-                image_path = os.path.join(employee_dir, image_files[0])
-                image = Image.open(image_path).convert("RGB")
-                resized_image = image.resize((200, 200))
-                tk_image = ImageTk.PhotoImage(resized_image)
-                image_label.configure(image=tk_image)
-            dialog.mainloop()
-        else:
-            tkinter.messagebox.showinfo(title="Notification", message="Không thể nhận dạng")
+            current_time = time.time()
+            employee_id = self.listimg.classname[best_match_index]
+            
+            # Check if this is the same employee and within cooldown period
+            if (self.last_recognized_employee == employee_id and 
+                current_time - self.last_recognized_time < self.cooldown_period):
+                return
+                
+            # Update last recognized employee and time
+            self.last_recognized_employee = employee_id
+            self.last_recognized_time = current_time
+            
+            # Process attendance automatically
+            self.process_attendance(employee_id, self.listimg.namect[best_match_index], frame)
 
-    def update(self):
-        # Cập nhật khung hình từ camera lên giao diện
-        ret, frame = self.vid.get_frame()
-        if ret:
-            self.photo = ImageTk.PhotoImage(image=Image.fromarray(frame))
-            self.canvas.create_image(0, 0, image=self.photo, anchor=tkinter.NW)
-        self.window.after(self.delay, self.update)
+    def process_attendance(self, employee_id, employee_name, frame):
+        now = datetime.datetime.now()
+        sql_datetime = now.strftime('%Y-%m-%d %H:%M:%S')
+        today = now.strftime('%Y-%m-%d')
+        timestamp = now.strftime('%Y%m%d_%H%M%S')
+
+        # Lưu ảnh chấm công
+        photo_proof = None
+        if frame is not None:
+            # Đặt tên file ảnh: <employee_id>_<attendance_id>_<timestamp>.jpg
+            # kiểm tra ngày tháng và lưu vào folder(tạo nếu chưa có) theo cấu trúc yyyy/mm/dd
+            date_folder = now.strftime('%Y/%m/%d')
+            full_proof_path = os.path.join(PROOF_PATH, date_folder)
+            if not os.path.exists(full_proof_path):
+                os.makedirs(full_proof_path)
+            photo_filename = f"{employee_name}_{employee_id}_{timestamp}.jpg"
+            photo_path = os.path.join(full_proof_path, photo_filename)
+
+            # Chuyển đổi khung hình từ RGB sang BGR để lưu bằng OpenCV
+            frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(photo_path, frame_bgr)
+            # Đường dẫn lưu vào database (đường dẫn tương đối để truy cập qua URL)
+            photo_proof = f"/proofs/{photo_filename}"
+
+        # Kết nối cơ sở dữ liệu
+        connection = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="",
+            database="employee_management"
+        )
+        cursor = connection.cursor()
+        cursor.execute(f"SELECT * FROM attendance WHERE employee_id='{employee_id}' AND DATE(date_n_time) = '{today}'")
+        result = cursor.fetchall()
+
+        # Xác định trạng thái chấm công
+        status = "Enough"
+        if not result:
+            # Chưa có bản ghi nào trong ngày
+            cursor.execute(f"INSERT INTO attendance (employee_id, date_n_time, in_out, status, photo_proof) VALUES ('{employee_id}', '{sql_datetime}', 'In', '{status}', '{photo_proof}')")
+            print(f"✅ Đã chấm công vào làm cho nhân viên: {employee_name}")
+        else:
+            # Đã có bản ghi trong ngày
+            last_record = result[-1]
+            if last_record[3] == 'In':
+                # Nếu lần cuối là check-in, thì lần này là check-out
+                cursor.execute(f"INSERT INTO attendance (employee_id, date_n_time, in_out, status, photo_proof) VALUES ('{employee_id}', '{sql_datetime}', 'Out', '{status}', '{photo_proof}')")
+                print(f"✅ Đã chấm công ra về cho nhân viên: {employee_name}")
+            else:
+                # Nếu lần cuối là check-out, thì lần này là check-in mới
+                cursor.execute(f"INSERT INTO attendance (employee_id, date_n_time, in_out, status, photo_proof) VALUES ('{employee_id}', '{sql_datetime}', 'In', '{status}', '{photo_proof}')")
+                print(f"✅ Đã chấm công vào làm cho nhân viên: {employee_name}")
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        # Gửi thông tin đến Arduino LCD qua cổng COM5
+        try:
+            print("Đang kết nối với Arduino qua cổng COM5...")
+            ser = serial.Serial('COM5', 9600, timeout=1)
+            time.sleep(2)  # Đợi Arduino khởi động
+            
+            # Gửi tên nhân viên
+            ser.write((employee_name + '\n').encode('utf-8'))
+            time.sleep(0.5)  # Thêm thời gian chờ để đảm bảo dữ liệu được gửi
+            ser.flush()  # Đảm bảo dữ liệu được gửi hết
+            
+            print(f"🟢 Gửi thành công đến Arduino: {employee_name}")
+            ser.close()
+        except Exception as e:
+            print(f"⚠️ Không thể kết nối với Arduino qua cổng COM5: {str(e)}")
+            if 'ser' in locals():
+                ser.close()
 
 class loadimg:
     def __init__(self):
@@ -217,96 +292,5 @@ class loadimg:
         cursor.close()
         connection.close()
 
-class DialogBox(tkinter.Toplevel):
-    def __init__(self, parent, title, codect, namect, frame):
-        super().__init__(parent)
-        self.codect = codect
-        self.namect = namect
-        self.frame = frame  # Khung hình từ camera
-        self.title(title)
-        self.config(bg="#FFC470")
-        self.geometry("400x400+600+150")
-        label = tkinter.Label(self, text="Mã nhân viên: " + codect, font=("SVN-HC calvous", 14, "bold"), foreground="#1A4185")
-        label.config(bg="#FFC470")
-        label.place(x=60, y=200, width=250, height=50)
-        labelname = tkinter.Label(self, text="Họ và Tên: " + namect, font=("SVN-HC calvous", 14, "bold"), foreground="#1A4185")
-        labelname.config(bg="#FFC470")
-        labelname.place(x=0, y=260, width=400, height=50)
-        button = tkinter.Button(self, text="Xác nhận", command=self.submit, font=("SVN-HC calvous", 14, "bold"), foreground="#FFC470", bg="#BD2C13")
-        button.place(x=100, y=360, width=200, height=50)
-
-    def submit(self):
-        now = datetime.datetime.now()
-        sql_datetime = now.strftime('%Y-%m-%d %H:%M:%S')
-        today = now.strftime('%Y-%m-%d')
-        timestamp = now.strftime('%Y%m%d_%H%M%S')
-
-        # Lưu ảnh chấm công
-        photo_proof = None
-        if self.frame is not None:
-            # Đặt tên file ảnh: employee_<employee_id>_<timestamp>.jpg
-            date_folder = now.strftime('%Y/%m/%d')
-            full_proof_path = os.path.join(PROOF_PATH, date_folder)
-            if not os.path.exists(full_proof_path):
-                os.makedirs(full_proof_path)
-            photo_filename = f"{self.namect}_{self.codect}_{timestamp}.jpg"
-            photo_path = os.path.join(full_proof_path, photo_filename)
-            photo_path = os.path.join(PROOF_PATH, photo_filename)
-            # Chuyển đổi khung hình từ RGB sang BGR để lưu bằng OpenCV
-            frame_bgr = cv2.cvtColor(self.frame, cv2.COLOR_RGB2BGR)
-            cv2.imwrite(photo_path, frame_bgr)
-            # Đường dẫn lưu vào database (đường dẫn tương đối để truy cập qua URL)
-            photo_proof = f"/proofs/{photo_filename}"
-
-        # Kết nối cơ sở dữ liệu
-        connection = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="",
-            database="employee_management"
-        )
-        cursor = connection.cursor()
-        cursor.execute(f"SELECT * FROM attendance WHERE employee_id='{self.codect}' AND DATE(date_n_time) = '{today}'")
-        result = cursor.fetchall()
-
-        # Xác định trạng thái chấm công
-        status = "Enough"
-        if not result:
-            # Chưa có bản ghi nào trong ngày
-            cursor.execute(f"INSERT INTO attendance (employee_id, date_n_time, in_out, status, photo_proof) VALUES ('{self.codect}', '{sql_datetime}', 'In', '{status}', '{photo_proof}')")
-        else:
-            # Đã có bản ghi trong ngày
-            last_record = result[-1]
-            if last_record[3] == 'In':
-                # Nếu lần cuối là check-in, thì lần này là check-out
-                cursor.execute(f"INSERT INTO attendance (employee_id, date_n_time, in_out, status, photo_proof) VALUES ('{self.codect}', '{sql_datetime}', 'Out', '{status}', '{photo_proof}')")
-            else:
-                # Nếu lần cuối là check-out, thì lần này là check-in mới
-                cursor.execute(f"INSERT INTO attendance (employee_id, date_n_time, in_out, status, photo_proof) VALUES ('{self.codect}', '{sql_datetime}', 'In', '{status}', '{photo_proof}')")
-
-        connection.commit()
-        cursor.close()
-        connection.close()
-
-        # Gửi thông tin đến Arduino LCD qua cổng COM5
-        try:
-            print("Đang kết nối với Arduino qua cổng COM5...")
-            ser = serial.Serial('COM5', 9600, timeout=1)
-            time.sleep(2)  # Đợi Arduino khởi động
-            
-            # Gửi tên nhân viên
-            ser.write((self.namect + '\n').encode('utf-8'))
-            time.sleep(0.5)  # Thêm thời gian chờ để đảm bảo dữ liệu được gửi
-            ser.flush()  # Đảm bảo dữ liệu được gửi hết
-            
-            print(f"🟢 Gửi thành công đến Arduino: {self.namect}")
-            ser.close()
-        except Exception as e:
-            print(f"⚠️ Không thể kết nối với Arduino qua cổng COM5: {str(e)}")
-            if 'ser' in locals():
-                ser.close()
-
-        self.destroy()
-
 # Khởi chạy ứng dụng
-App(tkinter.Tk(), "Vui lòng tháo kính và nhìn thẳng vào camera để thực hiện chấm công", loadimg())
+App(tkinter.Tk(), "Hệ thống chấm công tự động", loadimg())

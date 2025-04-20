@@ -9,7 +9,12 @@ const login = async (req, res, next, db) => {
             data: { admin, secretKey: `secret_${admin.admin_id}_${admin.role}` },
         });
     } catch (error) {
-        next(error);
+        // Handle specific error messages
+        if (error.message === 'Sai username hoặc mật khẩu!') {
+            return res.status(401).json({ message: error.message });
+        }
+        // Handle server errors
+        return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại!' });
     }
 };
 
