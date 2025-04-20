@@ -7,9 +7,18 @@ export const validateLogin = (req, res, next) => {
 };
 
 export const validateAdmin = (req, res, next) => {
-    const { username, password, full_name, role, email } = req.body;
-    if (!username || !password || !full_name || !role || !email) {
-        return res.status(400).json({ message: "⛔ Thiếu thông tin admin!" });
+    // Nếu là thêm mới (POST) thì yêu cầu đầy đủ thông tin
+    if (req.method === 'POST') {
+        const { username, password, full_name, role, email } = req.body;
+        if (!username || !password || !full_name || !role || !email) {
+            return res.status(400).json({ message: "⛔ Thiếu thông tin admin!" });
+        }
+    } else if (req.method === 'PUT') {
+        // Nếu là cập nhật thì không yêu cầu password
+        const { username, full_name, role, email } = req.body;
+        if (!username || !full_name || !role || !email) {
+            return res.status(400).json({ message: "⛔ Thiếu thông tin admin!" });
+        }
     }
     next();
 };
