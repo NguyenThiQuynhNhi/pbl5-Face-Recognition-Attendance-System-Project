@@ -9,6 +9,8 @@ const getAttendance = async (req, res, next, db) => {
     }
 };
 
+<<<<<<< HEAD
+=======
 const getAttendanceById = async (req, res, next, db) => {
     try {
         const attendance_id = parseInt(req.params.attendance_id);
@@ -22,6 +24,7 @@ const getAttendanceById = async (req, res, next, db) => {
     }
 };
 
+>>>>>>> e6ae8c3722c1976fb3fae893279d892105707ec1
 const addAttendance = async (req, res, next, db) => {
     try {
         const body = req.body;
