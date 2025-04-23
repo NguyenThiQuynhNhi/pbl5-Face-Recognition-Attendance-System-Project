@@ -12,6 +12,8 @@ CREATE TABLE departments (
 CREATE TABLE employees (
     employee_id VARCHAR(20) PRIMARY KEY,    -- Viết tắt: phòng + tên, không dùng AUTO_INCREMENT
     employee_name VARCHAR(100) NOT NULL,
+--     employee_username VARCHAR(100) NOT NULL, 
+--     employee_password VARCHAR(100) NOT NULL,
     department_id VARCHAR(10) NOT NULL,
     email VARCHAR(100) UNIQUE,
     phone VARCHAR(15),
@@ -55,15 +57,16 @@ INSERT INTO departments (department_id, department_name, dept_description) VALUE
 
 -- Thêm dữ liệu vào bảng employees
 INSERT INTO `employees` VALUES 
-('KTNTQN','Nguyễn Thị Quỳnh Nhi','KT','e.ht@example.com','0945678901','D:/Workspace/PBL5/pbl5-Face-Recognition-Attendance-System-Project/src/python/data/image/KTNTQN/'),
-('HCNQB','Nguyễn Quang Bình','HC','chau.lm@example.com','0923456789','D:/Workspace/PBL5/pbl5-Face-Recognition-Attendance-System-Project/src/python/data/image/HCNQB/'),
-('NSNTK','Nguyễn Tấn Kiệt','NS','binh.tt@example.com','0912345678','D:/Workspace/PBL5/pbl5-Face-Recognition-Attendance-System-Project/src/python/data/image/NSNTK/');
-
+('HCNQB','Nguyễn Quang Bình','HC','nqbinh.dc@example.com','0901234567','HCNQB.jpg'),
+('KDLMC','Lê Minh Châu','KD','lmchau.kd@example.com','0923456789','KDLMC.jpg'),
+('KTNTQN','Nguyễn Thị Quỳnh Nhi','KT','ntqnhi.kt@example.com','0945678901','KTNTQN.png'),
+('NSNTK','Nguyễn Tấn Kiệt','NS','ntkiet.ns@example.com','0912345678','NSNTK.png'),
+('TCDBHN','Dương Bá Hoàng Ngọc','TC','dbhngoc.tc@example.com','0934567890','TCDBHN.jpg');
 
 -- Thêm dữ liệu vào bảng admins
 INSERT INTO admins (username, password, full_name, role, email) VALUES
-('superadmin1', 'hashed_password_123', 'Nguyễn Super Admin', 'SuperAdmin', 'superadmin1@example.com'),
-('hr1', 'hashed_password_456', 'Trần Thị HR', 'HR', 'hr1@example.com'),
-('superadmin2', 'hashed_password_789', 'Lê Super Admin', 'SuperAdmin', 'superadmin2@example.com'),
-('hr2', 'hashed_password_101', 'Phạm Thị HR', 'HR', 'hr2@example.com'),
-('hr3', 'hashed_password_112', 'Hoàng Văn HR', 'HR', 'hr3@example.com');
+('superadmin1', 'superadmin1', 'Nguyễn Super Admin', 'SuperAdmin', 'superadmin1@example.com'),
+('hr1', 'hr1', 'Trần Thị HR', 'HR', 'hr1@example.com'),
+('superadmin2', 'superadmin2', 'Lê Super Admin', 'SuperAdmin', 'superadmin2@example.com'),
+('hr2', 'hr2', 'Phạm Thị HR', 'HR', 'hr2@example.com'),
+('hr3', 'hr3', 'Hoàng Văn HR', 'HR', 'hr3@example.com');
