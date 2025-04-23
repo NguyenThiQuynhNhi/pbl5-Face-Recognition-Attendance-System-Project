@@ -1,7 +1,10 @@
 export const validateLogin = (req, res, next) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ message: "⛔ Thiếu username hoặc mật khẩu!" });
+    const { accountType, username, password } = req.body;
+    if (!accountType || !username || !password) {
+        return res.status(400).json({ message: 'Thiếu thông tin đăng nhập' });
+    }
+    if (!['admin', 'employee'].includes(accountType)) {
+        return res.status(400).json({ message: 'Loại tài khoản không hợp lệ' });
     }
     next();
 };

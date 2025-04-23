@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard Nhân Viên - Hệ Thống Chấm Công</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1A4185;
+            --secondary-color: #FFC470;
+            --accent-color: #BD2C13;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            margin: 0 0.2rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .welcome-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2a5ca5 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .welcome-section h1 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-section p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+            height: 100%;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .card-text {
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+        }
+        
+        .btn-warning {
+            background-color: #ffc107;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            color: #212529;
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .stats-section {
+            margin-top: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-user-clock me-2"></i>Employee Dashboard
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="index.html"><i class="fas fa-home me-1"></i>Trang Chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html"><i class="fas fa-user me-1"></i>Thông Tin Cá Nhân</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance.html"><i class="fas fa-calendar-check me-1"></i>Lịch Sử Chấm Công</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-1"></i>Đăng Xuất</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <div class="container">
+            <h1>Chào Mừng Đến Với Dashboard Nhân Viên</h1>
+            <p>Xem thông tin cá nhân và lịch sử chấm công của bạn một cách dễ dàng.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-number" id="attendanceCount">0</div>
+                        <div class="stat-label">Lượt Chấm Công Tháng Này</div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="stat-card">
+                        <div class="stat-number" id="departmentName">-</div>
+                        <div class="stat-label">Phòng Ban</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h2 class="text-center mb-4">Chức Năng Chính</h2>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card text-center p-4">
+                    <div class="card-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h5 class="card-title">Thông Tin Cá Nhân</h5>
+                    <p class="card-text">Xem và cập nhật thông tin cá nhân của bạn.</p>
+                    <a href="profile.html" class="btn btn-primary">
+                        <i class="fas fa-arrow-right me-1"></i>Xem Ngay
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card text-center p-4">
+                    <div class="card-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h5 class="card-title">Lịch Sử Chấm Công</h5>
+                    <p class="card-text">Xem lịch sử chấm công của bạn.</p>
+                    <a href="attendance.html" class="btn btn-warning">
+                        <i class="fas fa-arrow-right me-1"></i>Xem Ngay
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-0">© 2023 Hệ Thống Quản Lý Nhân Viên. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <!-- Script -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Kiểm tra secretKey
+        const secretKey = localStorage.getItem('secretKey');
+        if (!secretKey) {
+            window.location.href = "../auth/login.html";
+        }
+
+        // Xử lý đăng xuất
+        document.getElementById("logoutBtn").addEventListener("click", function(event) {
+            event.preventDefault();
+            localStorage.removeItem("secretKey");
+            window.location.href = "../auth/login.html";
+        });
+
+        // Load statistics
+        function loadStats() {
+            // Lấy employee_id từ secretKey
+            const match = secretKey.match(/^secret_([^_]+)_(.+)$/);
+            if (!match) {
+                localStorage.removeItem('secretKey');
+                window.location.href = "../auth/login.html";
+                return;
+            }
+            const employeeId = match[1];
+
+            // Load thông tin nhân viên
+            $.ajax({
+                url: `http://localhost:5000/employees/${employeeId}`,
+                method: 'GET',
+                headers: {
+                    'secret-key': secretKey
+                },
+                success: function(response) {
+                    const employee = response.data;
+                    // Lấy tên phòng ban từ department_id
+                    $.ajax({
+                        url: `http://localhost:5000/departments/${employee.department_id}`,
+                        method: 'GET',
+                        headers: {
+                            'secret-key': secretKey
+                        },
+                        success: function(deptResponse) {
+                            $('#departmentName').text(deptResponse.data.department_name);
+                        },
+                        error: function(xhr) {
+                            if (xhr.status === 401) {
+                                localStorage.removeItem('secretKey');
+                                window.location.href = "../auth/login.html";
+                            }
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    }
+                }
+            });
+
+            // Load số lượt chấm công trong tháng
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+            $.ajax({
+                url: `http://localhost:5000/attendance?employee_id=${employeeId}`,
+                method: 'GET',
+                headers: {
+                    'secret-key': secretKey
+                },
+                success: function(response) {
+                    const monthlyAttendance = response.data.filter(record => 
+                        record.date_n_time >= firstDayOfMonth
+                    );
+                    $('#attendanceCount').text(monthlyAttendance.length);
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                    }
+                }
+            });
+        }
+
+        // Load stats when page loads
+        loadStats();
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
