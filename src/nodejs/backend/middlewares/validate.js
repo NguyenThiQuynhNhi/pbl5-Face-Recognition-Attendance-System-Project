@@ -16,8 +16,6 @@ export const validateAdmin = (req, res, next) => {
 
 export const validateEmployee = (req, res, next) => {
     const { employee_id, employee_name, department_id, email, phone, face_image_dir } = req.body;
-    
-    // For PUT/PATCH requests, we don't need to validate employee_id as it comes from URL params
     if (req.method === 'POST') {
         if (!employee_id || !employee_name || !department_id || !email) {
             return res.status(400).json({ message: "⛔ Thiếu thông tin nhân viên!" });
