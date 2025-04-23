@@ -9,19 +9,6 @@ const getAttendance = async (req, res, next, db) => {
     }
 };
 
-const getAttendanceById = async (req, res, next, db) => {
-    try {
-        const attendance_id = parseInt(req.params.attendance_id);
-        const attendance = await attendanceService.getAttendanceById(db, attendance_id);
-        if (!attendance) {
-            return res.status(404).json({ message: "Không tìm thấy bản ghi chấm công!" });
-        }
-        return res.status(200).json({ data: attendance });
-    } catch (error) {
-        next(error);
-    }
-};
-
 const addAttendance = async (req, res, next, db) => {
     try {
         const body = req.body;
@@ -55,7 +42,6 @@ const deleteAttendance = async (req, res, next, db) => {
 
 export default {
     getAttendance,
-    getAttendanceById,
     addAttendance,
     updateAttendance,
     deleteAttendance,

@@ -225,6 +225,13 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        /* xem ảnh */
+        .employee-photo {
+            transition: transform 0.2s ease-in-out;
+        }
+        .employee-photo:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -389,6 +396,21 @@
         </div>
     </div>
 
+    <!-- Image Preview Modal -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imagePreviewModalLabel">Ảnh Nhân Viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="previewImage" src="" alt="Employee photo preview" style="max-width: 100%; max-height: 70vh;">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container text-center">
@@ -459,14 +481,18 @@
                     } else {
                         $('#emptyState').hide();
                         employees.forEach(employee => {
+                            const imageUrl = employee.face_image_dir ? 'http://localhost:5000' + employee.face_image_dir : '../assets/default-avatar.png';
                             tableBody.append(`
                                 <tr>
                                     <td>${employee.employee_id}</td>
                                     <td>
-                                        <img src="${employee.image_path || '../assets/default-avatar.png'}" 
+                                        <img src="${imageUrl}" 
                                              alt="Employee photo" 
-                                             class="rounded-circle"
-                                             style="width: 40px; height: 40px; object-fit: cover;">
+                                             class="rounded-circle employee-photo"
+                                             style="width: 50px; height: 50px; object-fit: cover; cursor: pointer;"
+                                             onclick="showImagePreview('${imageUrl}', '${employee.employee_name}')"
+                                             data-bs-toggle="tooltip"
+                                             title="Click để xem ảnh">
                                     </td>
                                     <td>${employee.employee_name}</td>
                                     <td>${employee.department_id}</td>
@@ -483,6 +509,9 @@
                                 </tr>
                             `);
                         });
+                        
+                        // Kích hoạt tooltips
+                        $('[data-bs-toggle="tooltip"]').tooltip();
                     }
                 },
                 error: function(xhr) {
@@ -506,14 +535,16 @@
             const phone = $('#addPhone').val();
             const imageFile = $('#addImage')[0].files[0];
             
-            // Create data object
-            const data = {
-                employee_id: employeeId,
-                employee_name: employeeName,
-                department_id: departmentId,
-                email: email,
-                phone: phone
-            };
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('employee_id', employeeId);
+            formData.append('employee_name', employeeName);
+            formData.append('department_id', departmentId);
+            formData.append('email', email);
+            formData.append('phone', phone);
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
             
             // Disable submit button and show loading state
             const submitBtn = $(this).find('button[type="submit"]');
@@ -525,10 +556,11 @@
                 url: 'http://localhost:5000/employees',
                 method: 'POST',
                 headers: {
-                    'secret-key': secretKey,
-                    'Content-Type': 'application/json'
+                    'secret-key': secretKey
                 },
-                data: JSON.stringify(data),
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function(response) {
                     $('#addEmployeeModal').modal('hide');
                     $('#addEmployeeForm')[0].reset();
@@ -572,9 +604,9 @@
                     $('#editDepartmentId').val(employee.department_id);
                     $('#editEmail').val(employee.email);
                     $('#editPhone').val(employee.phone);
-                    if (employee.image_path) {
+                    if (employee.face_image_dir) {
                         $('#currentImage').html(`
-                            <img src="${employee.image_path}" 
+                            <img src="http://localhost:5000${employee.face_image_dir}" 
                                  alt="Current employee photo" 
                                  class="rounded"
                                  style="max-width: 100px; max-height: 100px;">
@@ -603,14 +635,16 @@
             const departmentId = $('#editDepartmentId').val();
             const email = $('#editEmail').val();
             const phone = $('#editPhone').val();
+            const imageFile = $('#editImage')[0].files[0];
             
-            // Create data object
-            const data = {
-                employee_name: employeeName,
-                department_id: departmentId,
-                email: email,
-                phone: phone
-            };
+            // Create FormData object
+            const formData = new FormData();
+            // Chỉ gửi các trường có dữ liệu
+            if (employeeName) formData.append('employee_name', employeeName);
+            if (departmentId) formData.append('department_id', departmentId);
+            if (email) formData.append('email', email);
+            if (phone) formData.append('phone', phone);
+            if (imageFile) formData.append('image', imageFile);
             
             // Disable submit button and show loading state
             const submitBtn = $(this).find('button[type="submit"]');
@@ -622,10 +656,11 @@
                 url: `http://localhost:5000/employees/${employeeId}`,
                 method: 'PUT',
                 headers: {
-                    'secret-key': secretKey,
-                    'Content-Type': 'application/json'
+                    'secret-key': secretKey
                 },
-                data: JSON.stringify(data),
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function(response) {
                     $('#editEmployeeModal').modal('hide');
                     loadEmployees();
@@ -687,6 +722,27 @@
             localStorage.removeItem("secretKey");
             window.location.href = "../auth/login.html";
         });
+
+        // Thêm hàm xem ảnh preview
+        function showImagePreview(imageUrl, employeeName) {
+            const previewImage = document.getElementById('previewImage');
+            previewImage.src = imageUrl;
+            document.getElementById('imagePreviewModalLabel').textContent = `Ảnh của ${employeeName}`;
+            const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+            imagePreviewModal.show();
+        }
+
+        // Thêm style cho ảnh nhân viên
+        const style = document.createElement('style');
+        style.textContent = `
+            .employee-photo {
+                transition: transform 0.2s ease-in-out;
+            }
+            .employee-photo:hover {
+                transform: scale(1.1);
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
