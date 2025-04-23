@@ -7,50 +7,32 @@ export const validateLogin = (req, res, next) => {
 };
 
 export const validateAdmin = (req, res, next) => {
-    const { username, password, full_name, role, email } = req.body;
-    if (!username || !password || !full_name || !role || !email) {
-        return res.status(400).json({ message: "⛔ Thiếu thông tin admin!" });
+    // Nếu là thêm mới (POST) thì yêu cầu đầy đủ thông tin
+    if (req.method === 'POST') {
+        const { username, password, full_name, role, email } = req.body;
+        if (!username || !password || !full_name || !role || !email) {
+            return res.status(400).json({ message: "⛔ Thiếu thông tin admin!" });
+        }
+    } else if (req.method === 'PUT') {
+        // Nếu là cập nhật thì không yêu cầu password
+        const { username, full_name, role, email } = req.body;
+        if (!username || !full_name || !role || !email) {
+            return res.status(400).json({ message: "⛔ Thiếu thông tin admin!" });
+        }
     }
     next();
 };
 
 export const validateEmployee = (req, res, next) => {
     const { employee_id, employee_name, department_id, email, phone, face_image_dir } = req.body;
+    // Nếu là thêm mới (POST) thì mới validate đầy đủ
     if (req.method === 'POST') {
+        const { employee_id, employee_name, department_id, email } = req.body;
         if (!employee_id || !employee_name || !department_id || !email) {
             return res.status(400).json({ message: "⛔ Thiếu thông tin nhân viên!" });
         }
-
-        // Only validate employee_id format for new employees
-        if (!employee_id || (typeof employee_id !== 'string' && typeof employee_id !== 'number')) {
-            return res.status(400).json({ message: "⛔ Mã nhân viên không hợp lệ!" });
-        }
-    } else {
-        // For updates, only validate provided fields
-        if (!employee_name || !department_id || !email) {
-            return res.status(400).json({ message: "⛔ Thiếu thông tin nhân viên!" });
-        }
     }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return res.status(400).json({ message: "⛔ Email không hợp lệ!" });
-    }
-
-    // Validate phone number if provided
-    if (phone) {
-        const phoneRegex = /^[0-9]{10,11}$/;
-        if (!phoneRegex.test(phone)) {
-            return res.status(400).json({ message: "⛔ Số điện thoại không hợp lệ!" });
-        }
-    }
-
-    // Validate face_image_dir if provided
-    if (face_image_dir && typeof face_image_dir !== 'string') {
-        return res.status(400).json({ message: "⛔ Đường dẫn ảnh không hợp lệ!" });
-    }
-
+    // Nếu là cập nhật (PUT) thì bỏ qua validation
     next();
 };
 
