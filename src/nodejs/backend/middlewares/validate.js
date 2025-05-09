@@ -24,6 +24,7 @@ export const validateAdmin = (req, res, next) => {
 };
 
 export const validateEmployee = (req, res, next) => {
+    const { employee_id, employee_name, department_id, email, phone, face_image_dir } = req.body;
     // Nếu là thêm mới (POST) thì mới validate đầy đủ
     if (req.method === 'POST') {
         const { employee_id, employee_name, department_id, email } = req.body;

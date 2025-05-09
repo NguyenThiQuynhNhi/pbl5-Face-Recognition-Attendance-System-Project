@@ -11,50 +11,65 @@ import serial
 import time
 
 # Đường dẫn đến thư mục chứa ảnh nhân viên
-DATA_PATH = "D:/Workspace/PBL5/pbl5-Face-Recognition-Attendance-System-Project/src/python/data/image"
+DATA_PATH = "./src/python/data/image"
 
 # Đường dẫn để lưu ảnh chấm công
-PROOF_PATH = "D:/Workspace/PBL5/pbl5-Face-Recognition-Attendance-System-Project/src/python/data/proofs/"
+PROOF_PATH = "./src/python/data/proofs/"
 
 # Đảm bảo thư mục lưu ảnh chấm công tồn tại
 if not os.path.exists(PROOF_PATH):
     os.makedirs(PROOF_PATH)
 
-# Dùng camera máy
-# class MyVideoCapture:
-#     def __init__(self, video_source=0):
-#         # Mở camera
-#         self.vid = cv2.VideoCapture(video_source)
-#         if not self.vid.isOpened():
-#             raise ValueError("Không thể mở camera")
-# 
-#     def __del__(self):
-#         # Đóng camera khi không dùng nữa
-#         if self.vid.isOpened():
-#             self.vid.release()
-# 
-#     def get_frame(self):
-#         # Lấy khung hình từ camera
-#         ret, frame = self.vid.read()
-#         if ret:
-#             frame = cv2.resize(frame, (640, 480))
-#             return (ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-#         return (ret, None)
-
 # DÙNG CAMERA ESP32
+# class MyVideoCapture:
+#     def __init__(self, video_source="http://172.20.10.5:81/stream"):
+#         print("Đang mở camera từ:", video_source)
+#         self.video_source = video_source
+#         self.stream = cv2.VideoCapture(video_source)
+#         if not self.stream.isOpened():
+#             print("LỖI: Không thể mở stream từ ESP32-CAM!")
+#             raise ValueError("Unable to open ESP32-CAM stream", video_source)
+#         else:
+#             print("Camera ESP32-CAM đã kết nối thành công!")
+
+#         self.width = 640
+#         self.height = 480
+
+#     def __del__(self):
+#         if self.stream.isOpened():
+#             self.stream.release()
+
+#     def get_frame(self):
+#         ret, frame = self.stream.read()
+#         if ret:
+#             # Đôi khi ESP32 trả về hình JPEG không hoàn chỉnh, cần xử lý lại
+#             try:
+#                 frame = cv2.resize(frame, (self.width, self.height))
+#                 return ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+#             except Exception as e:
+#                 print(f"⚠️ Lỗi khi xử lý hình ảnh từ ESP32-CAM: {e}")
+#                 return False, None
+#         else:
+#             print("⚠️ Không đọc được frame từ ESP32-CAM!")
+#             return False, None
+
+# DÙNG CAMERA MÁY TÍNH (được comment lại)
 class MyVideoCapture:
-    def __init__(self, video_source="http://172.20.10.5:81/stream"):
-        print("Đang mở camera từ:", video_source)
+    def __init__(self, video_source=0):
+        print("Đang mở camera máy tính từ:", video_source)
         self.video_source = video_source
         self.stream = cv2.VideoCapture(video_source)
         if not self.stream.isOpened():
-            print("LỖI: Không thể mở stream từ ESP32-CAM!")
-            raise ValueError("Unable to open ESP32-CAM stream", video_source)
+            print("LỖI: Không thể mở camera máy tính!")
+            raise ValueError("Unable to open laptop camera", video_source)
         else:
-            print("Camera ESP32-CAM đã kết nối thành công!")
+            print("Camera máy tính đã kết nối thành công!")
 
-        self.width = 640
-        self.height = 480
+        self.width = self.stream.get(cv2.CAP_PROP_FRAME_WIDTH)
+        self.height = self.stream.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        if self.width == 0 or self.height == 0:
+            self.width = 640
+            self.height = 480
 
     def __del__(self):
         if self.stream.isOpened():
@@ -63,15 +78,8 @@ class MyVideoCapture:
     def get_frame(self):
         ret, frame = self.stream.read()
         if ret:
-            # Đôi khi ESP32 trả về hình JPEG không hoàn chỉnh, cần xử lý lại
-            try:
-                frame = cv2.resize(frame, (self.width, self.height))
-                return ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            except Exception as e:
-                print(f"⚠️ Lỗi khi xử lý hình ảnh từ ESP32-CAM: {e}")
-                return False, None
+            return ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         else:
-            print("⚠️ Không đọc được frame từ ESP32-CAM!")
             return False, None
 
 class App:
@@ -81,7 +89,14 @@ class App:
         self.window.config(bg="#FFC470")
         self.window.title(window_title)
         self.window.geometry(f"+{450}+{100}")
-        self.vid = MyVideoCapture("http://172.20.10.5:81/stream")  # Sử dụng ESP32 camera
+        
+        # ===== CHỌN CAMERA =====
+        # ESP32 camera (Hiện đang sử dụng)
+        # self.vid = MyVideoCapture("http://172.20.10.5:81/stream")  
+        
+        # Máy tính camera (Đã comment lại, bỏ comment để sử dụng)
+        self.vid = MyVideoCapture(0)  # 0 là camera mặc định
+        
         self.canvas = tkinter.Canvas(window, width=self.vid.width, height=self.vid.height)
         self.canvas.pack()
         
@@ -135,7 +150,7 @@ class App:
 
         # Chuyển khoảng cách thành tỷ lệ phần trăm giống
         similarity_percentage = (1 - best_match_distance) * 100
-        # print(f"Tỷ lệ giống: {similarity_percentage:.2f}%")
+        print(f"Tỷ lệ giống: {similarity_percentage:.2f}%")
 
         # Ngưỡng nhận diện: 50% (tương ứng với khoảng cách 0.5)
         if similarity_percentage >= 50:
@@ -163,20 +178,29 @@ class App:
         # Lưu ảnh chấm công
         photo_proof = None
         if frame is not None:
-            # Đặt tên file ảnh: <employee_id>_<attendance_id>_<timestamp>.jpg
-            # kiểm tra ngày tháng và lưu vào folder(tạo nếu chưa có) theo cấu trúc yyyy/mm/dd
-            date_folder = now.strftime('%Y/%m/%d')
+            # Tạo cấu trúc thư mục: proofs/year/month/day
+            year = now.strftime('%Y') 
+            month = now.strftime('%m')  
+            day = now.strftime('%d')   
+
+            # Tạo đường dẫn thư mục theo cấu trúc proofs/year/month/day
+            date_folder = os.path.join(year, month, day)
             full_proof_path = os.path.join(PROOF_PATH, date_folder)
+
+            # Tạo thư mục nếu chưa tồn tại
             if not os.path.exists(full_proof_path):
                 os.makedirs(full_proof_path)
-            photo_filename = f"{employee_name}_{employee_id}_{timestamp}.jpg"
+
+            # Đặt tên file ảnh: <employee_id>_<timestamp>.jpg
+            photo_filename = f"{employee_id}_{timestamp}.jpg"
             photo_path = os.path.join(full_proof_path, photo_filename)
 
             # Chuyển đổi khung hình từ RGB sang BGR để lưu bằng OpenCV
             frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             cv2.imwrite(photo_path, frame_bgr)
+
             # Đường dẫn lưu vào database (đường dẫn tương đối để truy cập qua URL)
-            photo_proof = f"/proofs/{photo_filename}"
+            photo_proof = f"/{year}/{month}/{day}/{photo_filename}"
 
         # Kết nối cơ sở dữ liệu
         connection = mysql.connector.connect(

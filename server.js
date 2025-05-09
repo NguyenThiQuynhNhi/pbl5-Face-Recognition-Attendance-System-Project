@@ -23,13 +23,19 @@ if (!fs.existsSync(uploadsDir)) {
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'src/nodejs/frontend')));
+app.use(express.static(path.join(__dirname, 'src/python/data/proofs')));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Thêm route cho đường dẫn gốc để redirect đến trang login
+app.get('/', (req, res) => {
+    res.redirect('/auth/login.html');
+})
 
 // Middleware xử lý upload file
 app.use(fileUpload({
     createParentPath: true,
     limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB max-file-size
+        fileSize: 5 * 1024 * 1024 
     },
 }));
 
@@ -47,10 +53,11 @@ db.connect((err) => {
         console.log("✅ Kết nối MySQL thành công!");
     }
 });
+db.connect(); 
 
 app.use('/', routes(db));
 
 const Port = process.env.Port || 5000;
 app.listen(Port, () => {
-    console.log(`🚀 Server đang chạy tại: http://localhost:${Port}/auth/login.html`);
+    console.log(`🚀 Server đang chạy tại: http://localhost:${Port}`);
 });

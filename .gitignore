@@ -1,2 +1,4 @@
-src/python/venv/
+/.venv/
 .env
+/node_modules
+/.vscode
