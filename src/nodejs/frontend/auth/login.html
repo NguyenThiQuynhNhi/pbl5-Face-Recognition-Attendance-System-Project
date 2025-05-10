@@ -101,6 +101,14 @@
                         </div>
                         <form id="loginForm">
                             <div class="mb-3">
+                                <label class="form-label">Loại tài khoản:</label>
+                                <select id="accountType" class="form-control" required>
+                                    <option value="" disabled selected>Chọn loại tài khoản</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="employee">Nhân viên</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
                                 <label class="form-label">Tên đăng nhập:</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -135,18 +143,18 @@
         document.getElementById("loginForm").addEventListener("submit", function(event) {
             event.preventDefault();
 
+            const accountType = document.getElementById("accountType").value;
             const username = document.getElementById("username").value.trim();
             const password = document.getElementById("password").value.trim();
             const errorMsg = document.getElementById("errorMsg");
             const errorText = document.getElementById("errorText");
 
-            if (!username || !password) {
+            if (!accountType || !username || !password) {
                 errorMsg.style.display = "block";
-                errorText.textContent = "Vui lòng nhập tên đăng nhập và mật khẩu!";
+                errorText.textContent = "Vui lòng chọn loại tài khoản và nhập đầy đủ thông tin!";
                 return;
             }
 
-            // Disable the submit button and show loading state
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
@@ -156,23 +164,26 @@
                 url: 'http://localhost:5000/auth/login',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ username, password }),
+                data: JSON.stringify({ accountType, username, password }),
                 success: function(response) {
                     if (response.message === "✅ Đăng nhập thành công!") {
                         localStorage.setItem('secretKey', response.data.secretKey);
-                        window.location.href = "../dashboard/index.html"; 
+                        if (accountType === "admin") {
+                            window.location.href = "../dashboard_admin/index.html";
+                        } else {
+                            window.location.href = "../dashboard_employee/index.html";
+                        }
                     }
                 },
                 error: function(xhr) {
                     errorMsg.style.display = "block";
                     if (xhr.status === 401) {
-                        errorText.textContent = "Sai tên đăng nhập hoặc mật khẩu!";
+                        errorText.textContent = "Sai tên đăng nhập, mật khẩu hoặc loại tài khoản!";
                     } else {
                         errorText.textContent = "Lỗi server, vui lòng thử lại!";
                     }
                 },
                 complete: function() {
-                    // Re-enable the submit button and restore original text
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
                 }
