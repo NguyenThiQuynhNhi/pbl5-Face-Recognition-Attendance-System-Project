@@ -59,10 +59,30 @@ const deleteEmployee = async (req, res, next, db) => {
     }
 };
 
+const changePassword = async (req, res, next, db) => {
+    try {
+        const employee_id = req.params.employee_id;
+        const { old_password, new_password } = req.body;
+        // Lấy thông tin nhân viên
+        const employee = await employeeService.getEmployeeById(db, employee_id);
+        if (!employee) {
+            return res.status(404).json({ message: "Không tìm thấy nhân viên!" });
+        }
+        if (employee.employee_password !== old_password) {
+            return res.status(400).json({ message: "Mật khẩu cũ không đúng!" });
+        }
+        await employeeService.changePassword(db, employee_id, new_password);
+        return res.json({ message: "Đổi mật khẩu thành công!" });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export default {
     getEmployees,
     getEmployeeById,
     addEmployee,
     updateEmployee,
     deleteEmployee,
+    changePassword,
 };

@@ -253,10 +253,24 @@ const deleteEmployee = (db, employee_id) => {
     });
 };
 
+const changePassword = (db, employee_id, new_password) => {
+    return new Promise((resolve, reject) => {
+        const query = 'UPDATE employees SET employee_password = ? WHERE employee_id = ?';
+        db.query(query, [new_password, employee_id], (err, result) => {
+            if (err) {
+                console.error('Database error:', err);
+                return reject(new Error('Lỗi cập nhật mật khẩu!'));
+            }
+            resolve({ message: 'Đổi mật khẩu thành công!' });
+        });
+    });
+};
+
 export default {
     getEmployees,
     getEmployeeById,
     addEmployee,
     updateEmployee,
     deleteEmployee,
+    changePassword,
 };

@@ -118,49 +118,99 @@
     <!-- Main Content -->
     <div class="container my-5">
         <h2 class="text-center mb-4">Thông Tin Cá Nhân</h2>
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card p-4">
-                    <div class="card-body">
-                        <div class="alert alert-success" id="successMsg" role="alert" style="display: none;">
-                            <i class="fas fa-check-circle me-2"></i>
-                            <span id="successText"></span>
+        <ul class="nav nav-tabs mb-4" id="profileTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Thông tin cá nhân</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password" type="button" role="tab">Đổi mật khẩu</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="profileTabContent">
+            <div class="tab-pane fade show active" id="info" role="tabpanel">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card p-4">
+                            <div class="card-body">
+                                <div class="alert alert-success" id="successMsg" role="alert" style="display: none;">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <span id="successText"></span>
+                                </div>
+                                <div class="alert alert-danger" id="errorMsg" role="alert" style="display: none;">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <span id="errorText"></span>
+                                </div>
+                                <form id="profileForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Mã Nhân Viên:</label>
+                                        <input type="text" id="employeeId" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Tên Nhân Viên:</label>
+                                        <input type="text" id="employeeName" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Tên Đăng Nhập:</label>
+                                        <input type="text" id="employeeUsername" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Phòng Ban:</label>
+                                        <input type="text" id="departmentName" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email:</label>
+                                        <input type="email" id="email" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Số Điện Thoại:</label>
+                                        <input type="tel" id="phone" class="form-control" required>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-2"></i>Cập Nhật
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                        <div class="alert alert-danger" id="errorMsg" role="alert" style="display: none;">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            <span id="errorText"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="password" role="tabpanel">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card p-4">
+                            <div class="card-body">
+                                <div class="alert alert-success" id="pwSuccessMsg" role="alert" style="display: none;">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <span id="pwSuccessText"></span>
+                                </div>
+                                <div class="alert alert-danger" id="pwErrorMsg" role="alert" style="display: none;">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <span id="pwErrorText"></span>
+                                </div>
+                                <div class="mb-3 text-danger" style="font-size: 0.95rem;">
+                                    Không đặt mật khẩu trùng ngày sinh và cần đặt MK dài 6 đến 12 ký tự, trong số các ký tự: !#$%&()*+/0123456789:;<>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~
+                                </div>
+                                <form id="changePasswordForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Mật khẩu cũ:</label>
+                                        <input type="password" id="oldPassword" class="form-control" required autocomplete="current-password">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Mật khẩu mới:</label>
+                                        <input type="password" id="newPassword" class="form-control" required autocomplete="new-password">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Gõ lại mật khẩu mới:</label>
+                                        <input type="password" id="confirmPassword" class="form-control" required autocomplete="new-password">
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary" id="btnSavePassword">Lưu mật khẩu</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                        <form id="profileForm">
-                            <div class="mb-3">
-                                <label class="form-label">Mã Nhân Viên:</label>
-                                <input type="text" id="employeeId" class="form-control" readonly>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Tên Nhân Viên:</label>
-                                <input type="text" id="employeeName" class="form-control" readonly>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Tên Đăng Nhập:</label>
-                                <input type="text" id="employeeUsername" class="form-control" readonly>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Phòng Ban:</label>
-                                <input type="text" id="departmentName" class="form-control" readonly>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Email:</label>
-                                <input type="email" id="email" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Số Điện Thoại:</label>
-                                <input type="tel" id="phone" class="form-control" required>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>Cập Nhật
-                                </button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -286,6 +336,85 @@
                 complete: function() {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
+                }
+            });
+        });
+
+        // Xử lý đổi mật khẩu
+        $(document).ready(function() {
+            $("#changePasswordForm").on("submit", function(event) {
+                event.preventDefault();
+                try {
+                    const oldPassword = document.getElementById("oldPassword").value;
+                    const newPassword = document.getElementById("newPassword").value;
+                    const confirmPassword = document.getElementById("confirmPassword").value;
+                    const pwErrorMsg = $('#pwErrorMsg');
+                    const pwSuccessMsg = $('#pwSuccessMsg');
+                    const pwErrorText = $('#pwErrorText');
+                    const pwSuccessText = $('#pwSuccessText');
+                    pwErrorMsg.hide();
+                    pwSuccessMsg.hide();
+                    // Kiểm tra hợp lệ
+                    if (!oldPassword || !newPassword || !confirmPassword) {
+                        pwErrorMsg.show();
+                        pwErrorText.text('Vui lòng nhập đầy đủ các trường!');
+                        return;
+                    }
+                    if (newPassword.length < 6 || newPassword.length > 12) {
+                        pwErrorMsg.show();
+                        pwErrorText.text('Mật khẩu mới phải từ 6 đến 12 ký tự!');
+                        return;
+                    }
+                    if (!/^[!#$%&()*+/0-9:;<>?@A-Za-z\[\]^_`{|}~]+$/.test(newPassword)) {
+                        pwErrorMsg.show();
+                        pwErrorText.text('Mật khẩu mới chứa ký tự không hợp lệ!');
+                        return;
+                    }
+                    if (newPassword !== confirmPassword) {
+                        pwErrorMsg.show();
+                        pwErrorText.text('Mật khẩu mới nhập lại không khớp!');
+                        return;
+                    }
+                    if (oldPassword === newPassword) {
+                        pwErrorMsg.show();
+                        pwErrorText.text('Mật khẩu mới không được trùng mật khẩu cũ!');
+                        return;
+                    }
+                    // Gửi request đổi mật khẩu
+                    const match = secretKey.match(/^secret_([^_]+)_(.+)$/);
+                    if (!match) {
+                        localStorage.removeItem('secretKey');
+                        window.location.href = "../auth/login.html";
+                        return;
+                    }
+                    const employeeId = match[1];
+                    $.ajax({
+                        url: `http://localhost:5000/employees/${employeeId}/change-password`,
+                        method: 'POST',
+                        headers: { 'secret-key': secretKey },
+                        contentType: 'application/json',
+                        data: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+                        success: function(response) {
+                            pwSuccessMsg.show();
+                            pwSuccessText.text('Đổi mật khẩu thành công!');
+                            document.getElementById("changePasswordForm").reset();
+                            setTimeout(() => pwSuccessMsg.hide(), 3000);
+                        },
+                        error: function(xhr) {
+                            pwErrorMsg.show();
+                            if (xhr.status === 401) {
+                                localStorage.removeItem('secretKey');
+                                window.location.href = "../auth/login.html";
+                            } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                pwErrorText.text(xhr.responseJSON.message);
+                            } else {
+                                pwErrorText.text('Lỗi đổi mật khẩu, vui lòng thử lại!');
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error('Lỗi JS:', e);
+                    alert('Lỗi JS: ' + e.message);
                 }
             });
         });
