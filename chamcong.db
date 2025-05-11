@@ -55,6 +55,11 @@ INSERT INTO departments (department_id, department_name, dept_description) VALUE
 ('TC', 'Phòng Tài chính', 'Quản lý tài chính và kế toán'),
 ('HC', 'Phòng Hành chính', 'Hỗ trợ vận hành và quản lý văn phòng');
 
+-- Thêm dữ liệu vào bảng attendance
+INSERT INTO `attendance` VALUES 
+(1,'KTNTQN','2025-04-23 13:18:47','In','Enough','/2025/04/23/KTNTQN_20250423_131847.jpg'),
+(2,'KTNTQN','2025-04-23 13:19:28','Out','Enough','/2025/04/23/KTNTQN_20250423_131928.jpg');
+
 -- Thêm dữ liệu vào bảng employees
 INSERT INTO `employees` VALUES 
 ('HCNQB','Nguyễn Quang Bình','HC','nqbinh.dc@example.com','0901234567','HCNQB.jpg'),
