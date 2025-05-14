@@ -23,8 +23,7 @@ body {
 
 .nav-link {
     font-weight: 500;
-    padding: 0.5rem 1rem;
-    margin: 0 0.2rem;
+    font-size: 13.7px;
     border-radius: 5px;
     transition: all 0.3s;
 }
@@ -35,6 +34,27 @@ body {
 
 .nav-link.active {
     background-color: rgba(255, 255, 255, 0.2);
+}
+
+
+
+.welcome-section {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #2a5ca5 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-section h1 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.welcome-section p {
+    font-size: 1.2rem;
+    opacity: 0.9;
 }
 
 .page-header {
@@ -68,6 +88,23 @@ body {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
+.card-title {
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.card-text {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
 .table {
     border-radius: 10px;
     overflow: hidden;
@@ -91,6 +128,14 @@ body {
 
 .btn-primary {
     background-color: var(--primary-color);
+    border: none;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    border-radius: 10px;
+}
+
+.btn-info {
+    background-color: #17a2b8;
     border: none;
     padding: 0.5rem 1.5rem;
     font-weight: 600;
@@ -146,6 +191,32 @@ body {
 
 .btn-close {
     filter: brightness(0) invert(1);
+}
+
+.stats-section {
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background-color: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: #6c757d;
+    font-weight: 500;
 }
 
 .modal-body {

@@ -1,68 +1,38 @@
-import employeeService from '../services/employeeService.js';
+import employeeService from "../services/employeeService.js";
 
 const getEmployees = async (req, res, next, db) => {
-    try {
-        const employees = await employeeService.getEmployees(db);
-        return res.status(200).json({ data: employees });
-    } catch (error) {
-        next(error);
-    }
+    const employees = await employeeService.getEmployees(db, req.query.department_id);
+    res.status(200).json({ success: true, data: employees });
 };
 
 const getEmployeeById = async (req, res, next, db) => {
-    try {
-        const employee_id = req.params.employee_id;
-        const employee = await employeeService.getEmployeeById(db, employee_id);
-        if (!employee) {
-            return res.status(404).json({ message: "Không tìm thấy nhân viên!" });
-        }
-        return res.status(200).json({ data: employee });
-    } catch (error) {
-        next(error);
-    }
+    const employee = await employeeService.getEmployeeById(db, req.params.employee_id);
+    res.status(200).json({ success: true, data: employee });
 };
 
-const addEmployee = async (req, res, next, db) => {
-    try {
-        let imageFile = null;
-        if (req.files && req.files.image) {
-            imageFile = req.files.image;
-        }
-        const result = await employeeService.addEmployee(db, req.body, imageFile);
-        return res.status(201).json({ data: result });
-    } catch (error) {
-        next(error);
-    }
+const addEmployee = (req, res, next, db) => {
+    employeeService.addEmployee(db, req.body);
+    res.status(201).json({ success: true, message: "Thêm nhân viên thành công!" });
 };
 
-const updateEmployee = async (req, res, next, db) => {
-    try {
-        const employee_id = req.params.employee_id;
-        let imageFile = null;
-        if (req.files && req.files.image) {
-            imageFile = req.files.image;
-        }
-        const result = await employeeService.updateEmployee(db, employee_id, req.body, imageFile);
-        return res.status(200).json({ data: result });
-    } catch (error) {
-        next(error);
-    }
+const updateEmployee = (req, res, next, db) => {
+    employeeService.updateEmployee(db, req.params.employee_id, req.body);
+    res.status(200).json({ success: true, message: "Cập nhật nhân viên thành công!" });
 };
 
-const deleteEmployee = async (req, res, next, db) => {
-    try {
-        const employee_id = req.params.employee_id;
-        const result = await employeeService.deleteEmployee(db, employee_id);
-        return res.status(200).json({ data: result });
-    } catch (error) {
-        next(error);
-    }
+const deleteEmployee = (req, res, next, db) => {
+    employeeService.deleteEmployee(db, req.params.employee_id);
+    res.status(200).json({ success: true, message: "Xóa nhân viên thành công!" });
 };
 
-export default {
-    getEmployees,
-    getEmployeeById,
-    addEmployee,
-    updateEmployee,
-    deleteEmployee,
+const getProfile = async (req, res, next, db) => {
+    const employee = await employeeService.getEmployeeById(db, req.user.employee_id);
+    res.status(200).json({ success: true, data: employee });
 };
+
+const updateProfile = (req, res, next, db) => {
+    employeeService.updateProfile(db, req.user.id, req.body);
+    res.status(200).json({ success: true, message: "Cập nhật thông tin cá nhân thành công!" });
+};
+
+export default { getEmployees, getEmployeeById, addEmployee, updateEmployee, deleteEmployee, getProfile, updateProfile };

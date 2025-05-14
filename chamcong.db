@@ -1,35 +1,26 @@
+DROP DATABASE employee_management;
 CREATE DATABASE employee_management;
 USE employee_management;
 
 -- Bảng phòng ban
 CREATE TABLE departments (
-    department_id VARCHAR(10) PRIMARY KEY,  -- Viết tắt, không dùng AUTO_INCREMENT
+    department_id VARCHAR(10) PRIMARY KEY,
     department_name VARCHAR(100) NOT NULL,
     dept_description TEXT
 );
 
 -- Bảng nhân viên
 CREATE TABLE employees (
-    employee_id VARCHAR(20) PRIMARY KEY,    -- Viết tắt: phòng + tên, không dùng AUTO_INCREMENT
+    employee_id VARCHAR(20) PRIMARY KEY,
     employee_name VARCHAR(100) NOT NULL,
---     employee_username VARCHAR(100) NOT NULL, 
---     employee_password VARCHAR(100) NOT NULL,
+    employee_username VARCHAR(100) NOT NULL UNIQUE,
+    employee_password VARCHAR(100) NOT NULL,
     department_id VARCHAR(10) NOT NULL,
     email VARCHAR(100) UNIQUE,
     phone VARCHAR(15),
-    face_image_dir VARCHAR(255), -- chứa đường dẫn THƯ MỤC, ví dụ: /images/employee_id
+    face_image_dir VARCHAR(255),
+    base_salary DECIMAL(15, 2) NOT NULL DEFAULT 0.00, -- Lương cơ bản
     FOREIGN KEY (department_id) REFERENCES departments(department_id)
-);
-
--- Bảng chấm công
-CREATE TABLE attendance (
-    attendance_id INT PRIMARY KEY AUTO_INCREMENT,
-    employee_id VARCHAR(20) NOT NULL,
-    date_n_time DATETIME NOT NULL,
-    in_out ENUM('In', 'Out') NOT NULL,
-    status ENUM('Enough', 'Lack', 'Late', 'Early') DEFAULT 'Enough',
-    photo_proof VARCHAR(255),
-    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
 );
 
 -- Bảng tài khoản admin
@@ -42,12 +33,67 @@ CREATE TABLE admins (
     email VARCHAR(100) UNIQUE NOT NULL
 );
 
--- Tạo chỉ mục để tối ưu truy vấn
-CREATE INDEX idx_date_n_time ON attendance(date_n_time);
-CREATE INDEX idx_employee_id ON attendance(employee_id);
-CREATE INDEX idx_status ON attendance(status);
+-- Bảng chấm công
+CREATE TABLE attendance (
+    attendance_id INT PRIMARY KEY AUTO_INCREMENT,
+    employee_id VARCHAR(20) NOT NULL,
+    attendance_date DATE NOT NULL,
+    time_in TIME, -- Chỉ lưu giờ để dễ tính toán
+    time_out TIME,
+    status ENUM('Enough', 'Lack') DEFAULT 'Enough',
+    late_hours INT DEFAULT 0, -- Số giờ bị phạt (số nguyên)
+    photo_proof_in VARCHAR(255),
+    photo_proof_out VARCHAR(255),
+    UNIQUE (employee_id, attendance_date),
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+);
 
--- Thêm dữ liệu vào bảng departments
+-- Bảng báo cáo chấm công
+CREATE TABLE attendance_reports (
+    report_id INT PRIMARY KEY AUTO_INCREMENT,
+    employee_id VARCHAR(20) NOT NULL,
+    attendance_date DATE NOT NULL,
+    issue_type ENUM('WrongTime', 'WrongFace', 'MissingRecord', 'Other') NOT NULL,
+    description TEXT,
+    status ENUM('Pending', 'Reviewed', 'Resolved') DEFAULT 'Pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+);
+
+-- Bảng đơn xin nghỉ phép
+CREATE TABLE leave_requests (
+    request_id INT PRIMARY KEY AUTO_INCREMENT,
+    employee_id VARCHAR(20) NOT NULL,
+    leave_date DATE NOT NULL,
+    reason TEXT NOT NULL,
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    approved_by INT,
+    approved_at DATETIME,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id),
+    FOREIGN KEY (approved_by) REFERENCES admins(admin_id)
+);
+
+-- Bảng báo cáo nghỉ không phép
+CREATE TABLE absence_reports (
+    report_id INT PRIMARY KEY AUTO_INCREMENT,
+    employee_id VARCHAR(20) NOT NULL,
+    absence_date DATE NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (employee_id, absence_date),
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+);
+
+-- Tạo chỉ mục
+CREATE INDEX idx_employee_id ON attendance(employee_id);
+CREATE INDEX idx_attendance_date ON attendance(attendance_date);
+CREATE INDEX idx_status ON attendance(status);
+CREATE INDEX idx_employee_id ON attendance_reports(employee_id);
+CREATE INDEX idx_attendance_date ON attendance_reports(attendance_date);
+CREATE INDEX idx_employee_id ON leave_requests(employee_id);
+CREATE INDEX idx_employee_id ON absence_reports(employee_id);
+
+-- Thêm dữ liệu mẫu
 INSERT INTO departments (department_id, department_name, dept_description) VALUES
 ('NS', 'Phòng Nhân sự', 'Quản lý nhân sự và tuyển dụng'),
 ('KT', 'Phòng Kỹ thuật', 'Phát triển và bảo trì hệ thống'),
@@ -55,23 +101,39 @@ INSERT INTO departments (department_id, department_name, dept_description) VALUE
 ('TC', 'Phòng Tài chính', 'Quản lý tài chính và kế toán'),
 ('HC', 'Phòng Hành chính', 'Hỗ trợ vận hành và quản lý văn phòng');
 
--- Thêm dữ liệu vào bảng attendance
-INSERT INTO `attendance` VALUES 
-(1,'KTNTQN','2025-04-23 13:18:47','In','Enough','/2025/04/23/KTNTQN_20250423_131847.jpg'),
-(2,'KTNTQN','2025-04-23 13:19:28','Out','Enough','/2025/04/23/KTNTQN_20250423_131928.jpg');
-
--- Thêm dữ liệu vào bảng employees
-INSERT INTO `employees` VALUES 
-('HCNQB','Nguyễn Quang Bình','HC','nqbinh.dc@example.com','0901234567','HCNQB.jpg'),
-('KDLMC','Lê Minh Châu','KD','lmchau.kd@example.com','0923456789','KDLMC.jpg'),
-('KTNTQN','Nguyễn Thị Quỳnh Nhi','KT','ntqnhi.kt@example.com','0945678901','KTNTQN.png'),
-('NSNTK','Nguyễn Tấn Kiệt','NS','ntkiet.ns@example.com','0912345678','NSNTK.png'),
-('TCDBHN','Dương Bá Hoàng Ngọc','TC','dbhngoc.tc@example.com','0934567890','TCDBHN.jpg');
-
--- Thêm dữ liệu vào bảng admins
 INSERT INTO admins (username, password, full_name, role, email) VALUES
 ('superadmin1', 'superadmin1', 'Nguyễn Super Admin', 'SuperAdmin', 'superadmin1@example.com'),
 ('hr1', 'hr1', 'Trần Thị HR', 'HR', 'hr1@example.com'),
 ('superadmin2', 'superadmin2', 'Lê Super Admin', 'SuperAdmin', 'superadmin2@example.com'),
 ('hr2', 'hr2', 'Phạm Thị HR', 'HR', 'hr2@example.com'),
 ('hr3', 'hr3', 'Hoàng Văn HR', 'HR', 'hr3@example.com');
+
+INSERT INTO employees (employee_id, employee_name, employee_username, employee_password, department_id, email, phone, face_image_dir, base_salary) VALUES
+('HCNQB', 'Nguyễn Quang Bình', 'quangbinh', 'quangbinh', 'HC', 'nqbinh.dc@example.com', '0901234567', 'HCNQB.jpg', 10000000),
+('KDLMC', 'Lê Minh Châu', 'minhchau', 'minhchau', 'KD', 'lmchau.kd@example.com', '0923456789', 'KDLMC.jpg', 12000000),
+('KTNTQN', 'Nguyễn Thị Quỳnh Nhi', 'quynhnhi', 'quynhnhi', 'KT', 'ntqnhi.kt@example.com', '0945678901', 'KTNTQN.png', 15000000),
+('NSNTK', 'Nguyễn Tấn Kiệt', 'tankiet', 'tankiet', 'NS', 'ntkiet.ns@example.com', '0912345678', 'NSNTK.png', 11000000),
+('TCDBHN', 'Dương Bá Hoàng Ngọc', 'hoangngoc', 'hoangngoc', 'TC', 'dbhngoc.tc@example.com', '0934567890', 'TCDBHN.jpg', 13000000);
+
+INSERT INTO attendance (employee_id, attendance_date, time_in, time_out, status, late_hours, photo_proof_in, photo_proof_out) VALUES
+('KTNTQN', '2025-04-23', '13:18:47', '13:19:28', 'Enough', 6, '/2025/04/23/KTNTQN_20250423_131847.jpg', '/2025/04/23/KTNTQN_20250423_131928.jpg'), -- Đi trễ 5h18p, phạt 6 giờ
+('KTNTQN', '2025-04-24', '08:00:00', '17:00:00', 'Enough', 0, '/2025/04/24/KTNTQN_20250424_080000.jpg', '/2025/04/24/KTNTQN_20250424_170000.jpg'),
+('HCNQB', '2025-04-23', '09:00:00', NULL, 'Lack', 1, '/2025/04/23/HCNQB_20250423_090000.jpg', NULL); -- Đi trễ 1 giờ, phạt 1 giờ
+
+INSERT INTO attendance_reports (employee_id, attendance_date, issue_type, description, status, created_at) VALUES
+('KTNTQN', '2025-04-23', 'WrongTime', 'Thời gian vào được ghi nhận muộn hơn thực tế do lỗi hệ thống', 'Pending', '2025-04-23 14:00:00'),
+('HCNQB', '2025-04-23', 'MissingRecord', 'Không có bản ghi thời gian ra do quên chấm công', 'Pending', '2025-04-23 18:00:00'),
+('KDLMC', '2025-04-24', 'WrongFace', 'Hình ảnh chấm công không khớp với khuôn mặt', 'Reviewed', '2025-04-24 09:30:00'),
+('NSNTK', '2025-04-24', 'Other', 'Chấm công bị lỗi do mất kết nối mạng', 'Resolved', '2025-04-24 10:00:00');
+
+INSERT INTO leave_requests (employee_id, leave_date, reason, status, created_at, approved_by, approved_at) VALUES
+('KTNTQN', '2025-05-03', 'Nghỉ phép để giải quyết việc gia đình', 'Pending', '2025-04-25 08:00:00', NULL, NULL),
+('HCNQB', '2025-05-12', 'Nghỉ phép đi du lịch', 'Approved', '2025-04-26 09:00:00', 2, '2025-04-26 14:00:00'),
+('KDLMC', '2025-04-27', 'Nghỉ ốm', 'Rejected', '2025-04-27 06:00:00', 4, '2025-04-27 15:00:00'),
+('TCDBHN', '2025-05-20', 'Nghỉ để tham dự hội thảo', 'Pending', '2025-04-28 11:00:00', NULL, NULL);
+
+INSERT INTO absence_reports (employee_id, absence_date, created_at) VALUES
+('KTNTQN', '2025-05-12', '2025-05-12 17:00:00'),
+('HCNQB', '2025-04-24', '2025-04-24 17:00:00'),
+('NSNTK', '2025-04-25', '2025-04-25 17:00:00'),
+('TCDBHN', '2025-04-26', '2025-04-26 17:00:00');

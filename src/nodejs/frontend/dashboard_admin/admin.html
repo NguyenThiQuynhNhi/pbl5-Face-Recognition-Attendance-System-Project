@@ -7,25 +7,57 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./style.css">
+    <style>
+        .empty-state { text-align: center; padding: 20px; }
+        .empty-state i { font-size: 3rem; color: #6c757d; }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .loading-spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid #fff;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-user-clock me-2"></i>Employee Management
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-home me-1"></i>ABC
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i>Trang Chủ</a></li>
                     <li class="nav-item"><a class="nav-link" href="department.html"><i class="fas fa-building me-1"></i>Phòng Ban</a></li>
                     <li class="nav-item"><a class="nav-link" href="employee.html"><i class="fas fa-users me-1"></i>Nhân Viên</a></li>
                     <li class="nav-item"><a class="nav-link" href="attendance.html"><i class="fas fa-calendar-check me-1"></i>Chấm Công</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="admin.html"><i class="fas fa-user-shield me-1"></i>Tài Khoản Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance-reports.html"><i class="fas fa-file-alt me-1"></i>Báo Cáo Chấm Công</a></li>
+                    <li class="nav-item"><a class="nav-link" href="leave-requests.html"><i class="fas fa-calendar-times me-1"></i>Đơn Xin Nghỉ Phép</a></li>
+                    <li class="nav-item"><a class="nav-link" href="absence-reports.html"><i class="fas fa-user-times me-1"></i>Báo Cáo Nghỉ Không Phép</a></li>
+                    <li class="nav-item"><a class="nav-link" href="salary-report.html"><i class="fas fa-money-check-alt me-1"></i>Báo Cáo Lương</a></li>
+                    <li class="nav-item active"><a class="nav-link" href="admin.html"><i class="fas fa-user-shield me-1"></i>Tài Khoản Admin</a></li>
                     <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-1"></i>Đăng Xuất</a></li>
                 </ul>
             </div>
@@ -36,7 +68,6 @@
     <div class="page-header">
         <div class="container">
             <h1>Quản Lý Tài Khoản Admin</h1>
-            <p>Quản lý thông tin và phân quyền cho các tài khoản admin trong hệ thống.</p>
         </div>
     </div>
 
@@ -63,9 +94,7 @@
                                 <th>Thao Tác</th>
                             </tr>
                         </thead>
-                        <tbody id="adminTableBody">
-                            <!-- Data will be loaded here -->
-                        </tbody>
+                        <tbody id="adminTableBody"></tbody>
                     </table>
                 </div>
                 
@@ -93,11 +122,12 @@
                     <form id="addAdminForm">
                         <div class="mb-3">
                             <label class="form-label">Tên Đăng Nhập:</label>
-                            <input type="text" id="addUsername" class="form-control" required>
+                            <input type="text" id="addUsername" class="form-control" required pattern="[a-zA-Z0-9]{3,20}" title="Tên đăng nhập từ 3-20 ký tự, chỉ chứa chữ và số">
+pänt>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Mật Khẩu:</label>
-                            <input type="password" id="addPassword" class="form-control" required>
+                            <input type="password" id="addPassword" class="form-control" required pattern=".{6,}" title="Mật khẩu ít nhất 6 ký tự">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Họ Tên:</label>
@@ -110,11 +140,11 @@
                         <div class="mb-3">
                             <label class="form-label">Vai Trò:</label>
                             <select id="addRole" class="form-control" required>
-                                <option value="Admin">Admin</option>
+                                <option value="HR">HR</option>
                                 <option value="SuperAdmin">SuperAdmin</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">
+                        <button type="submit" class="btn btn-primary w-100" id="addAdminSubmit">
                             <i class="fas fa-save me-1"></i>Thêm
                         </button>
                     </form>
@@ -136,12 +166,12 @@
                         <input type="hidden" id="editAdminId">
                         <div class="mb-3">
                             <label class="form-label">Tên Đăng Nhập:</label>
-                            <input type="text" id="editUsername" class="form-control" required>
+                            <input type="text" id="editUsername" class="form-control" required pattern="[a-zA-Z0-9]{3,20}">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Mật Khẩu:</label>
-                            <input type="password" id="editPassword" class="form-control">
-                            <small class="form-text text-muted">Để trống nếu không muốn thay đổi mật khẩu.</small>
+                            <input type="password" id="editPassword" class="form-control" placeholder="Để trống nếu không đổi">
+                            <small class="form-text text-muted">Mật khẩu ít nhất 6 ký tự nếu thay đổi.</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Họ Tên:</label>
@@ -154,11 +184,11 @@
                         <div class="mb-3">
                             <label class="form-label">Vai Trò:</label>
                             <select id="editRole" class="form-control" required>
-                                <option value="Admin">Admin</option>
+                                <option value="HR">HR</option>
                                 <option value="SuperAdmin">SuperAdmin</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">
+                        <button type="submit" class="btn btn-primary w-100" id="editAdminSubmit">
                             <i class="fas fa-save me-1"></i>Lưu Thay Đổi
                         </button>
                     </form>
@@ -175,373 +205,192 @@
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
         // Kiểm tra secretKey
         const secretKey = localStorage.getItem('secretKey');
         if (!secretKey) {
-            window.location.href = "../auth/login.html";
+            window.location.href = '../auth/login.html';
         }
+        console.log('SecretKey:', secretKey);
 
-        // Xử lý đăng xuất
-        document.getElementById("logoutBtn").addEventListener("click", function(event) {
-            event.preventDefault();
-            localStorage.removeItem("secretKey");
-            window.location.href = "../auth/login.html";
-        });
+        // Hàm hiển thị/ẩn loading
+        const showLoading = () => $('#loadingOverlay').show();
+        const hideLoading = () => $('#loadingOverlay').hide();
 
-        function loadAttendance() {
+        // Hàm gửi yêu cầu AJAX
+        const sendAjaxRequest = (url, method, data, successCallback) => {
+            showLoading();
             $.ajax({
-                url: 'http://localhost:5000/attendance',
-                method: 'GET',
-                headers: {
-                    'secret-key': secretKey
+                url: `http://localhost:5000/companyABC/admin${url}`,
+                method,
+                headers: { 'secret-key': secretKey },
+                contentType: data ? 'application/json' : undefined,
+                data: data ? JSON.stringify(data) : null,
+                success: (response) => {
+                    hideLoading();
+                    successCallback(response);
                 },
-                success: function(response) {
-                    const attendance = response.data;
-                    const tableBody = $('#attendanceTableBody');
-                    tableBody.empty();
-                    
-                    if (attendance.length === 0) {
-                        $('#emptyState').show();
-                    } else {
-                        $('#emptyState').hide();
-                        attendance.forEach(record => {
-                            // Tạo URL ảnh chấm công
-                            const correctedPhotoUrl = record.photo_proof;
-                            const photoUrl = correctedPhotoUrl 
-                                ? `http://localhost:5000${correctedPhotoUrl}` 
-                                : null;
-        
-                            const photoHtml = photoUrl ?
-                                `<img src="${photoUrl}" alt="Ảnh chấm công" 
-                                      class="rounded attendance-photo"
-                                      style="width: 50px; height: 50px; object-fit: cover; cursor: pointer;"
-                                      onclick="showImagePreview('${photoUrl}')"
-                                      data-bs-toggle="tooltip"
-                                      title="Click để xem ảnh">` :
-                                '<span class="badge bg-secondary">Không có ảnh</span>';
-        
-                            // Format the date string
-                            const date = new Date(record.date_n_time);
-                            const formattedDate = date.toLocaleString('vi-VN', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit',
-                                hour12: false
-                            });
-        
-                            tableBody.append(`
-                                <tr>
-                                    <td>${record.attendance_id}</td>
-                                    <td>${record.employee_id}</td>
-                                    <td>${formattedDate}</td>
-                                    <td>
-                                        <span class="badge ${record.in_out === 'In' ? 'bg-success' : 'bg-danger'}">
-                                            ${record.in_out === 'In' ? '<i class="fas fa-sign-in-alt me-1"></i>Vào' : '<i class="fas fa-sign-out-alt me-1"></i>Ra'}
-                                        </span>
-                                    </td>
-                                    <td class="text-center">${photoHtml}</td>
-                                    <td class="action-buttons">
-                                        <button class="btn btn-warning btn-sm edit-btn" data-id="${record.attendance_id}">
-                                            <i class="fas fa-edit"></i> Sửa
-                                        </button>
-                                        <button class="btn btn-danger btn-sm delete-btn" data-id="${record.attendance_id}">
-                                            <i class="fas fa-trash"></i> Xóa
-                                        </button>
-                                    </td>
-                                </tr>
-                            `);
-                        });
-                        
-                        // Activate tooltips
-                        $('[data-bs-toggle="tooltip"]').tooltip();
-                    }
-                },
-                error: function(xhr) {
+                error: (xhr) => {
+                    hideLoading();
+                    console.error(`[ERROR] ${method} ${url} - Status ${xhr.status}: ${xhr.responseText}`);
                     if (xhr.status === 401) {
                         localStorage.removeItem('secretKey');
-                        window.location.href = "../auth/login.html";
+                        window.location.href = '../auth/login.html';
                     } else {
-                        alert("❌ Lỗi khi lấy danh sách chấm công!");
+                        alert(`❌ Lỗi ${xhr.status}: ${xhr.responseText || 'Không thể thực hiện yêu cầu'}`);
                     }
                 }
             });
-        }
-
-        // Add admin
-        $('#addAdminForm').on('submit', function(event) {
-            event.preventDefault();
-            const username = $('#addUsername').val();
-            const password = $('#addPassword').val();
-            const full_name = $('#addFullName').val();
-            const email = $('#addEmail').val();
-            const role = $('#addRole').val();
-
-            $.ajax({
-                url: 'http://localhost:5000/admins',
-                method: 'POST',
-                headers: {
-                    'secret-key': secretKey
-                },
-                contentType: 'application/json',
-                data: JSON.stringify({ username, password, full_name, email, role }),
-                success: function() {
-                    $('#addAdminModal').modal('hide');
-                    loadAdmins();
-                },
-                error: function(xhr) {
-                    alert("❌ Lỗi khi thêm admin!");
-                }
-            });
-        });
-
-        // Edit admin
-        $(document).on('click', '.edit-btn', function() {
-            const admin_id = $(this).data('id');
-            $.ajax({
-                url: `http://localhost:5000/admins`,
-                method: 'GET',
-                headers: {
-                    'secret-key': secretKey
-                },
-                success: function(response) {
-                    const admin = response.data.find(a => a.admin_id == admin_id);
-                    if (admin) {
-                        $('#editAdminId').val(admin.admin_id);
-                        $('#editUsername').val(admin.username);
-                        $('#editPassword').val('');
-                        $('#editFullName').val(admin.full_name);
-                        $('#editEmail').val(admin.email);
-                        $('#editRole').val(admin.role);
-                        $('#editAdminModal').modal('show');
-                    }
-                }
-            });
-        });
-
-        $('#editAdminForm').on('submit', function(event) {
-            event.preventDefault();
-            const admin_id = $('#editAdminId').val();
-            const username = $('#editUsername').val();
-            const password = $('#editPassword').val();
-            const full_name = $('#editFullName').val();
-            const email = $('#editEmail').val();
-            const role = $('#editRole').val();
-
-            const data = { username, full_name, email, role };
-            if (password) {
-                data.password = password;
-            }
-
-            $.ajax({
-                url: `http://localhost:5000/admins/${admin_id}`,
-                method: 'PUT',
-                headers: {
-                    'secret-key': secretKey
-                },
-                contentType: 'application/json',
-                data: JSON.stringify(data),
-                success: function() {
-                    $('#editAdminModal').modal('hide');
-                    loadAdmins();
-                },
-                error: function(xhr) {
-                    alert("❌ Lỗi khi sửa admin!");
-                }
-            });
-        });
-
-        // Delete admin
-        $(document).on('click', '.delete-btn', function() {
-            if (confirm("Bạn có chắc muốn xóa tài khoản admin này?")) {
-                const admin_id = $(this).data('id');
-                $.ajax({
-                    url: `http://localhost:5000/admins/${admin_id}`,
-                    method: 'DELETE',
-                    headers: {
-                        'secret-key': secretKey
-                    },
-                    success: function() {
-                        loadAdmins();
-                    },
-                    error: function(xhr) {
-                        alert("❌ Lỗi khi xóa admin!");
-                    }
-                });
-            }
-        });
-
-        // Load admins on page load
-        loadAdmins();
-
-        // Logout
-        document.getElementById("logoutBtn").addEventListener("click", function(event) {
-            event.preventDefault();
-            localStorage.removeItem("secretKey");
-            window.location.href = "../auth/login.html";
-        });
-    </script> -->
-    <script>
-        const secretKey = localStorage.getItem('secretKey');
-        if (!secretKey) {
-            window.location.href = "../auth/login.html";
-        }
+        };
 
         // Load admins
-        function loadAdmins() {
-            $.ajax({
-                url: 'http://localhost:5000/admins',
-                method: 'GET',
-                headers: {
-                    'secret-key': secretKey
-                },
-                success: function(response) {
-                    const admins = response.data;
-                    const tableBody = $('#adminTableBody');
-                    tableBody.empty();
+        const loadAdmins = () => {
+            sendAjaxRequest('/admins', 'GET', null, (response) => {
+                const admins = response.data || [];
+                const tableBody = $('#adminTableBody');
+                const emptyState = $('#emptyState');
+                tableBody.empty();
+                if (admins.length === 0) {
+                    emptyState.show();
+                } else {
+                    emptyState.hide();
                     admins.forEach(admin => {
                         tableBody.append(`
                             <tr>
                                 <td>${admin.admin_id}</td>
                                 <td>${admin.username}</td>
-                                <td>${admin.full_name}</td>
+                                <td>${admin.full_name || 'N/A'}</td>
                                 <td>${admin.email}</td>
                                 <td>${admin.role}</td>
                                 <td>
-                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${admin.admin_id}">Sửa</button>
-                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${admin.admin_id}">Xóa</button>
+                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${admin.admin_id}" title="Sửa admin">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${admin.admin_id}" title="Xóa admin">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                         `);
                     });
-                },
-                error: function(xhr) {
-                    if (xhr.status === 401) {
-                        localStorage.removeItem('secretKey');
-                        window.location.href = "../auth/login.html";
-                    } else {
-                        alert("❌ Lỗi khi lấy danh sách admin!");
-                    }
                 }
             });
-        }
+        };
+
+        // Validate form
+        const validateForm = (formId) => {
+            const form = $(`#${formId}`);
+            const username = form.find('[id$="Username"]').val();
+            const password = form.find('[id$="Password"]').val();
+            const email = form.find('[id$="Email"]').val();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!username.match(/^[a-zA-Z0-9]{3,20}$/)) {
+                alert('Tên đăng nhập phải từ 3-20 ký tự, chỉ chứa chữ và số!');
+                return false;
+            }
+            if (formId === 'addAdminForm' && !password.match(/.{6,}/)) {
+                alert('Mật khẩu phải ít nhất 6 ký tự!');
+                return false;
+            }
+            if (formId === 'editAdminForm' && password && !password.match(/.{6,}/)) {
+                alert('Mật khẩu mới phải ít nhất 6 ký tự!');
+                return false;
+            }
+            if (!emailRegex.test(email)) {
+                alert('Email không hợp lệ!');
+                return false;
+            }
+            return true;
+        };
 
         // Add admin
-        $('#addAdminForm').on('submit', function(event) {
+        $('#addAdminForm').on('submit', (event) => {
             event.preventDefault();
-            const username = $('#addUsername').val();
-            const password = $('#addPassword').val();
-            const full_name = $('#addFullName').val();
-            const email = $('#addEmail').val();
-            const role = $('#addRole').val();
-
-            $.ajax({
-                url: 'http://localhost:5000/admins',
-                method: 'POST',
-                headers: {
-                    'secret-key': secretKey
-                },
-                contentType: 'application/json',
-                data: JSON.stringify({ username, password, full_name, email, role }),
-                success: function() {
-                    $('#addAdminModal').modal('hide');
-                    loadAdmins();
-                },
-                error: function(xhr) {
-                    alert("❌ Lỗi khi thêm admin!");
-                }
+            if (!validateForm('addAdminForm')) return;
+            const data = {
+                username: $('#addUsername').val(),
+                password: $('#addPassword').val(),
+                full_name: $('#addFullName').val(),
+                email: $('#addEmail').val(),
+                role: $('#addRole').val()
+            };
+            $('#addAdminSubmit').prop('disabled', true);
+            sendAjaxRequest('/admins', 'POST', data, () => {
+                alert('✅ Thêm admin thành công!');
+                $('#addAdminModal').modal('hide');
+                $('#addAdminForm')[0].reset();
+                loadAdmins();
+                $('#addAdminSubmit').prop('disabled', false);
             });
         });
 
         // Edit admin
         $(document).on('click', '.edit-btn', function() {
             const admin_id = $(this).data('id');
-            $.ajax({
-                url: `http://localhost:5000/admins`,
-                method: 'GET',
-                headers: {
-                    'secret-key': secretKey
-                },
-                success: function(response) {
-                    const admin = response.data.find(a => a.admin_id == admin_id);
-                    if (admin) {
-                        $('#editAdminId').val(admin.admin_id);
-                        $('#editUsername').val(admin.username);
-                        $('#editPassword').val('');
-                        $('#editFullName').val(admin.full_name);
-                        $('#editEmail').val(admin.email);
-                        $('#editRole').val(admin.role);
-                        $('#editAdminModal').modal('show');
-                    }
+            sendAjaxRequest(`/admins/${admin_id}`, 'GET', null, (response) => {
+                const admin = response.data;
+                if (admin) {
+                    $('#editAdminId').val(admin.admin_id);
+                    $('#editUsername').val(admin.username);
+                    $('#editPassword').val('');
+                    $('#editFullName').val(admin.full_name || '');
+                    $('#editEmail').val(admin.email);
+                    $('#editRole').val(admin.role);
+                    $('#editAdminModal').modal('show');
+                } else {
+                    alert('❌ Không tìm thấy admin!');
                 }
             });
         });
 
-        $('#editAdminForm').on('submit', function(event) {
+        $('#editAdminForm').on('submit', (event) => {
             event.preventDefault();
+            if (!validateForm('editAdminForm')) return;
             const admin_id = $('#editAdminId').val();
-            const username = $('#editUsername').val();
+            const data = {
+                username: $('#editUsername').val(),
+                full_name: $('#editFullName').val(),
+                email: $('#editEmail').val(),
+                role: $('#editRole').val()
+            };
             const password = $('#editPassword').val();
-            const full_name = $('#editFullName').val();
-            const email = $('#editEmail').val();
-            const role = $('#editRole').val();
-
-            const data = { username, full_name, email, role };
-            if (password) {
-                data.password = password;
-            }
-
-            $.ajax({
-                url: `http://localhost:5000/admins/${admin_id}`,
-                method: 'PUT',
-                headers: {
-                    'secret-key': secretKey
-                },
-                contentType: 'application/json',
-                data: JSON.stringify(data),
-                success: function() {
-                    $('#editAdminModal').modal('hide');
-                    loadAdmins();
-                },
-                error: function(xhr) {
-                    alert("❌ Lỗi khi sửa admin!");
-                }
+            if (password) data.password = password;
+            $('#editAdminSubmit').prop('disabled', true);
+            sendAjaxRequest(`/admins/${admin_id}`, 'PUT', data, () => {
+                alert('✅ Cập nhật admin thành công!');
+                $('#editAdminModal').modal('hide');
+                loadAdmins();
+                $('#editAdminSubmit').prop('disabled', false);
             });
         });
 
         // Delete admin
         $(document).on('click', '.delete-btn', function() {
-            if (confirm("Bạn có chắc muốn xóa tài khoản admin này?")) {
-                const admin_id = $(this).data('id');
-                $.ajax({
-                    url: `http://localhost:5000/admins/${admin_id}`,
-                    method: 'DELETE',
-                    headers: {
-                        'secret-key': secretKey
-                    },
-                    success: function() {
-                        loadAdmins();
-                    },
-                    error: function(xhr) {
-                        alert("❌ Lỗi khi xóa admin!");
-                    }
+            const admin_id = $(this).data('id');
+            if (confirm('Bạn có chắc muốn xóa tài khoản admin này?')) {
+                sendAjaxRequest(`/admins/${admin_id}`, 'DELETE', null, () => {
+                    alert('✅ Xóa admin thành công!');
+                    loadAdmins();
                 });
             }
         });
 
+        // Logout
+        $('#logoutBtn').on('click', (event) => {
+            event.preventDefault();
+            localStorage.removeItem('secretKey');
+            window.location.href = '../auth/login.html';
+        });
+
+        // Reset modal khi đóng
+        $('#addAdminModal, #editAdminModal').on('hidden.bs.modal', function() {
+            $(this).find('form')[0].reset();
+            $(this).find('button[type="submit"]').prop('disabled', false);
+        });
+
         // Load admins on page load
         loadAdmins();
-
-        // Logout
-        document.getElementById("logoutBtn").addEventListener("click", function(event) {
-            event.preventDefault();
-            localStorage.removeItem("secretKey");
-            window.location.href = "../auth/login.html";
-        });
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản Lý Danh Sách Báo Cáo Chấm Công</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">
+          <i class="fas fa-home me-1"></i>ABC
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="department.html"
+                ><i class="fas fa-building me-1"></i>Phòng Ban</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="employee.html"
+                ><i class="fas fa-users me-1"></i>Nhân Viên</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="attendance.html"
+                ><i class="fas fa-calendar-check me-1"></i>Chấm Công</a
+              >
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="attendance-reports.html"
+                ><i class="fas fa-file-alt me-1"></i>Báo Cáo Chấm Công</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="leave-requests.html"
+                ><i class="fas fa-calendar-times me-1"></i>Đơn Xin Nghỉ Phép</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="absence-reports.html"
+                ><i class="fas fa-user-times me-1"></i>Báo Cáo Nghỉ Không
+                Phép</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="salary-report.html"
+                ><i class="fas fa-money-check-alt me-1"></i>Báo Cáo Lương</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="admin.html"
+                ><i class="fas fa-user-shield me-1"></i>Tài Khoản Admin</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-danger" href="#" id="logoutBtn"
+                ><i class="fas fa-sign-out-alt me-1"></i>Đăng Xuất</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="container">
+        <h1>Quản Lý Danh Sách Báo Cáo Chấm Công</h1>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+      <!-- Section Báo Cáo Chấm Công -->
+      <div class="section" id="attendanceReportsSection">
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <input
+              type="date"
+              class="form-control"
+              id="filter_attendance_date"
+              placeholder="Ngày chấm công"
+            />
+          </div>
+          <div class="col-md-3">
+            <select class="form-control" id="filter_employee_id">
+              <option value="">Tất cả nhân viên</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select class="form-control" id="filter_status">
+              <option value="">Tất cả trạng thái</option>
+              <option value="Pending">Chờ xử lý</option>
+              <option value="Reviewed">Đã xem</option>
+              <option value="Resolved">Đã giải quyết</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select class="form-control" id="filter_department_id">
+              <option value="">Tất cả phòng ban</option>
+            </select>
+          </div>
+        </div>
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <button class="btn btn-primary" onclick="fetchReports()">
+              Lọc
+            </button>
+            <button class="btn btn-secondary" onclick="resetFilters()">
+              Xóa bộ lọc
+            </button>
+          </div>
+          <div class="col-md-6 text-end">
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#addReportModal"
+            >
+              <i class="fas fa-plus me-1"></i>Thêm Báo Cáo
+            </button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nhân Viên</th>
+                <th>Phòng Ban</th>
+                <th>Ngày Chấm Công</th>
+                <th>Vấn Đề</th>
+                <th>Mô Tả</th>
+                <th>Trạng Thái</th>
+                <th>Ngày Gửi</th>
+                <th>Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="reportsTableBody"></tbody>
+          </table>
+        </div>
+        <div id="emptyState" class="empty-state" style="display: none">
+          <i class="fas fa-file-alt fa-3x"></i>
+          <h3>Chưa có báo cáo chấm công</h3>
+          <p>Không có dữ liệu phù hợp với bộ lọc.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Thêm Báo Cáo -->
+    <div class="modal fade" id="addReportModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Thêm Báo Cáo Chấm Công</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addReportForm">
+              <div class="mb-3">
+                <label for="report_employee_id" class="form-label"
+                  >Nhân Viên</label
+                >
+                <select
+                  class="form-control"
+                  id="report_employee_id"
+                  required
+                ></select>
+              </div>
+              <div class="mb-3">
+                <label for="attendance_date" class="form-label"
+                  >Ngày Chấm Công</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="attendance_date"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="issue_type" class="form-label">Loại Vấn Đề</label>
+                <select class="form-control" id="issue_type" required>
+                  <option value="WrongTime">Sai thời gian</option>
+                  <option value="WrongFace">Sai khuôn mặt</option>
+                  <option value="MissingRecord">Thiếu bản ghi</option>
+                  <option value="Other">Khác</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="description" class="form-label">Mô Tả</label>
+                <textarea
+                  class="form-control"
+                  id="description"
+                  rows="4"
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Thêm</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Sửa Báo Cáo -->
+    <div class="modal fade" id="editReportModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Sửa Báo Cáo Chấm Công</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editReportForm">
+              <input type="hidden" id="edit_report_id" />
+              <div class="mb-3">
+                <label for="edit_report_employee_id" class="form-label"
+                  >Nhân Viên</label
+                >
+                <select
+                  class="form-control"
+                  id="edit_report_employee_id"
+                  required
+                ></select>
+              </div>
+              <div class="mb-3">
+                <label for="edit_attendance_date" class="form-label"
+                  >Ngày Chấm Công</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="edit_attendance_date"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="edit_issue_type" class="form-label"
+                  >Loại Vấn Đề</label
+                >
+                <select class="form-control" id="edit_issue_type" required>
+                  <option value="WrongTime">Sai thời gian</option>
+                  <option value="WrongFace">Sai khuôn mặt</option>
+                  <option value="MissingRecord">Thiếu bản ghi</option>
+                  <option value="Other">Khác</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="edit_description" class="form-label">Mô Tả</label>
+                <textarea
+                  class="form-control"
+                  id="edit_description"
+                  rows="4"
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Cập Nhật</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Kiểm tra secretKey
+      const secretKey = localStorage.getItem("secretKey");
+      if (!secretKey) {
+        window.location.href = "../auth/login.html";
+      }
+
+      // Xử lý đăng xuất
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", (event) => {
+          event.preventDefault();
+          localStorage.removeItem("secretKey");
+          window.location.href = "../auth/login.html";
+        });
+
+      // Hàm chung để gửi yêu cầu AJAX
+      const sendAjaxRequest = (
+        url,
+        method = "GET",
+        data = null,
+        successCallback
+      ) => {
+        $.ajax({
+          url: `http://localhost:5000/companyABC/admin${url}`,
+          method: method,
+          headers: { "secret-key": secretKey },
+          data: data ? JSON.stringify(data) : null,
+          contentType: data ? "application/json" : undefined,
+          success: (response) => {
+            console.log(`[SUCCESS] ${method} ${url}:`, response);
+            successCallback(response);
+          },
+          error: (xhr) => {
+            console.error(
+              `[ERROR] ${method} ${url} - Status ${xhr.status}: ${xhr.responseText}`
+            );
+            if (xhr.status === 401) {
+              localStorage.removeItem("secretKey");
+              window.location.href = "../auth/login.html";
+            } else {
+              alert(`❌ Lỗi ${xhr.status}: ${xhr.responseText}`);
+            }
+          },
+        });
+      };
+
+      // Lưu trữ employees và departments
+      let employees = [];
+      let departments = [];
+
+      // Tải danh sách nhân viên
+      const fetchEmployees = (selectElement) => {
+        if (employees.length > 0) {
+          selectElement.innerHTML = employees
+            .map(
+              (emp) =>
+                `<option value="${emp.employee_id}">${emp.employee_name} (${emp.employee_id})</option>`
+            )
+            .join("");
+          document.getElementById("filter_employee_id").innerHTML =
+            `<option value="">Tất cả nhân viên</option>` +
+            employees
+              .map(
+                (emp) =>
+                  `<option value="${emp.employee_id}">${emp.employee_name} (${emp.employee_id})</option>`
+              )
+              .join("");
+          return;
+        }
+        sendAjaxRequest("/employees", "GET", null, (response) => {
+          employees = response.data || [];
+          console.log("Employees loaded:", employees);
+          selectElement.innerHTML = employees
+            .map(
+              (emp) =>
+                `<option value="${emp.employee_id}">${emp.employee_name} (${emp.employee_id})</option>`
+            )
+            .join("");
+          document.getElementById("filter_employee_id").innerHTML =
+            `<option value="">Tất cả nhân viên</option>` +
+            employees
+              .map(
+                (emp) =>
+                  `<option value="${emp.employee_id}">${emp.employee_name} (${emp.employee_id})</option>`
+              )
+              .join("");
+        });
+      };
+
+      // Tải danh sách phòng ban
+      const fetchDepartments = () => {
+        if (departments.length > 0) {
+          document.getElementById("filter_department_id").innerHTML =
+            `<option value="">Tất cả phòng ban</option>` +
+            departments
+              .map(
+                (dept) =>
+                  `<option value="${dept.department_id}">${dept.department_name}</option>`
+              )
+              .join("");
+          return;
+        }
+        sendAjaxRequest("/departments", "GET", null, (response) => {
+          departments = response.data || [];
+          console.log("Departments loaded:", departments);
+          document.getElementById("filter_department_id").innerHTML =
+            `<option value="">Tất cả phòng ban</option>` +
+            departments
+              .map(
+                (dept) =>
+                  `<option value="${dept.department_id}">${dept.department_name}</option>`
+              )
+              .join("");
+        });
+      };
+
+      // Tải danh sách báo cáo
+      const fetchReports = () => {
+        const filters = {
+          attendance_date: document.getElementById("filter_attendance_date")
+            .value,
+          employee_id: document.getElementById("filter_employee_id").value,
+          status: document.getElementById("filter_status").value,
+          department_id: document.getElementById("filter_department_id").value,
+        };
+        const query = Object.keys(filters)
+          .filter((key) => filters[key])
+          .map((key) => `${key}=${encodeURIComponent(filters[key])}`)
+          .join("&");
+        const url = `/attendance-reports${query ? "?" + query : ""}`;
+        console.log("Fetching reports with URL:", url);
+        sendAjaxRequest(url, "GET", null, (response) => {
+          const records = response.data || [];
+          console.log("Attendance reports records:", records);
+          const tbody = document.getElementById("reportsTableBody");
+          const emptyState = document.getElementById("emptyState");
+          if (records.length === 0) {
+            tbody.innerHTML = "";
+            emptyState.style.display = "block";
+          } else {
+            emptyState.style.display = "none";
+            tbody.innerHTML = records
+              .map((report) => {
+                const emp = employees.find(
+                  (e) => e.employee_id === report.employee_id
+                ) || { employee_name: report.employee_id, face_image_dir: "" };
+                const imageSrc = emp.face_image_dir
+                  ? `http://localhost:5000${emp.face_image_dir}`
+                  : "https://via.placeholder.com/40";
+                const issueTypeText = {
+                  WrongTime: "Sai thời gian",
+                  WrongFace: "Sai khuôn mặt",
+                  MissingRecord: "Thiếu bản ghi",
+                  Other: "Khác",
+                }[report.issue_type];
+                let statusClass = "";
+                let statusText = "";
+                switch (report.status) {
+                  case "Pending":
+                    statusClass = "bg-warning";
+                    statusText = "Chờ xử lý";
+                    break;
+                  case "Reviewed":
+                    statusClass = "bg-info";
+                    statusText = "Đã xem";
+                    break;
+                  case "Resolved":
+                    statusClass = "bg-success";
+                    statusText = "Đã giải quyết";
+                    break;
+                }
+                const createdAt = new Date(report.created_at).toLocaleString(
+                  "vi-VN"
+                );
+                return `
+                            <tr>
+                                <td>${report.report_id}</td>
+                                <td>${report.employee_name} (${report.employee_id})</td>
+                                <td>${report.department_name}</td>
+                                <td>${report.attendance_date}</td>
+                                <td>${issueTypeText}</td>
+                                <td>${report.description || ""}</td>
+                                <td><span class="badge ${statusClass}">${statusText}</span></td>
+                                <td>${createdAt}</td>
+                                <td>
+                                    ${
+                                      report.status === "Pending"
+                                        ? `
+                                            <button class="btn btn-sm btn-primary mark-reviewed-btn" data-report-id="${
+                                              report.report_id
+                                            }">
+                                                <i class="fas fa-eye me-1"></i>Đánh dấu đã xem
+                                            </button>
+                                            <button class="btn btn-sm btn-success mark-resolved-btn" data-report-id="${
+                                              report.report_id
+                                            }">
+                                                <i class="fas fa-check me-1"></i>Đã giải quyết
+                                            </button>
+                                            <button class="btn btn-sm btn-warning" onclick="editReport(${
+                                              report.report_id
+                                            }, '${report.employee_id}', '${
+                                            report.attendance_date
+                                          }', '${report.issue_type}', '${
+                                            report.description || ""
+                                          }')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteReport(${
+                                              report.report_id
+                                            })">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        `
+                                        : report.status === "Reviewed"
+                                        ? `
+                                            <button class="btn btn-sm btn-success mark-resolved-btn" data-report-id="${
+                                              report.report_id
+                                            }">
+                                                <i class="fas fa-check me-1"></i>Đã giải quyết
+                                            </button>
+                                            <button class="btn btn-sm btn-warning" onclick="editReport(${
+                                              report.report_id
+                                            }, '${report.employee_id}', '${
+                                            report.attendance_date
+                                          }', '${report.issue_type}', '${
+                                            report.description || ""
+                                          }')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteReport(${
+                                              report.report_id
+                                            })">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        `
+                                        : `
+                                            <button class="btn btn-sm btn-warning" onclick="editReport(${
+                                              report.report_id
+                                            }, '${report.employee_id}', '${
+                                            report.attendance_date
+                                          }', '${report.issue_type}', '${
+                                            report.description || ""
+                                          }')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteReport(${
+                                              report.report_id
+                                            })">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        `
+                                    }
+                                </td>
+                            </tr>
+                        `;
+              })
+              .join("");
+            $(".mark-reviewed-btn").click(function () {
+              const reportId = $(this).data("report-id");
+              updateReportStatus(reportId, "Reviewed", $(this));
+            });
+            $(".mark-resolved-btn").click(function () {
+              const reportId = $(this).data("report-id");
+              updateReportStatus(reportId, "Resolved", $(this));
+            });
+          }
+        });
+      };
+
+      // Thêm báo cáo
+      document
+        .getElementById("addReportForm")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+          const report = {
+            employee_id: document.getElementById("report_employee_id").value,
+            attendance_date: document.getElementById("attendance_date").value,
+            issue_type: document.getElementById("issue_type").value,
+            description: document.getElementById("description").value || null,
+          };
+          sendAjaxRequest("/attendance-reports", "POST", report, () => {
+            fetchReports();
+            bootstrap.Modal.getInstance(
+              document.getElementById("addReportModal")
+            ).hide();
+            document.getElementById("addReportForm").reset();
+            alert("✅ Thêm báo cáo chấm công thành công!");
+          });
+        });
+
+      // Sửa báo cáo
+      const editReport = (
+        id,
+        employee_id,
+        attendance_date,
+        issue_type,
+        description
+      ) => {
+        document.getElementById("edit_report_id").value = id;
+        document.getElementById("edit_report_employee_id").value = employee_id;
+        document.getElementById("edit_attendance_date").value = attendance_date;
+        document.getElementById("edit_issue_type").value = issue_type;
+        document.getElementById("edit_description").value = description;
+        new bootstrap.Modal(document.getElementById("editReportModal")).show();
+      };
+
+      document
+        .getElementById("editReportForm")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+          const report = {
+            employee_id: document.getElementById("edit_report_employee_id")
+              .value,
+            attendance_date: document.getElementById("edit_attendance_date")
+              .value,
+            issue_type: document.getElementById("edit_issue_type").value,
+            description:
+              document.getElementById("edit_description").value || null,
+          };
+          sendAjaxRequest(
+            `/attendance-reports/${
+              document.getElementById("edit_report_id").value
+            }`,
+            "PUT",
+            report,
+            () => {
+              fetchReports();
+              bootstrap.Modal.getInstance(
+                document.getElementById("editReportModal")
+              ).hide();
+              alert("✅ Cập nhật báo cáo chấm công thành công!");
+            }
+          );
+        });
+
+      // Xóa báo cáo
+      const deleteReport = (id) => {
+        if (confirm("Bạn có chắc muốn xóa báo cáo này?")) {
+          sendAjaxRequest(`/attendance-reports/${id}`, "DELETE", null, () => {
+            fetchReports();
+            alert("✅ Xóa báo cáo chấm công thành công!");
+          });
+        }
+      };
+
+      // Cập nhật trạng thái báo cáo
+      const updateReportStatus = (reportId, status, button) => {
+        const originalText = button.html();
+        button
+          .prop("disabled", true)
+          .html(
+            '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...'
+          );
+        sendAjaxRequest(
+          `/attendance-reports/${reportId}`,
+          "PUT",
+          { status },
+          () => {
+            fetchReports();
+            alert("✅ Cập nhật trạng thái thành công!");
+          },
+          () => {
+            button.prop("disabled", false).html(originalText);
+          }
+        );
+      };
+
+      // Xóa bộ lọc
+      const resetFilters = () => {
+        document.getElementById("filter_attendance_date").value = "";
+        document.getElementById("filter_employee_id").value = "";
+        document.getElementById("filter_status").value = "";
+        document.getElementById("filter_department_id").value = "";
+        fetchReports();
+      };
+
+      // Khởi tạo
+      const init = () => {
+        console.log("Initializing with SecretKey:", secretKey);
+        sendAjaxRequest("/employees", "GET", null, (response) => {
+          employees = response.data || [];
+          console.log("Employees loaded:", employees);
+          fetchEmployees(document.getElementById("report_employee_id"));
+          fetchEmployees(document.getElementById("edit_report_employee_id"));
+          sendAjaxRequest("/departments", "GET", null, (response) => {
+            departments = response.data || [];
+            console.log("Departments loaded:", departments);
+            fetchDepartments();
+            fetchReports();
+          });
+        });
+      };
+
+      init();
+    </script>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 import authService from '../services/authService.js';
 
-const login = async (req, res, next, db) => {
+const login = async (req, res, db) => {
     try {
         const { accountType, username, password } = req.body;
 

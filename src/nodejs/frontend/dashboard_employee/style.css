@@ -1,0 +1,198 @@
+:root {
+    --primary-color: #1A4185;
+    --secondary-color: #FFC470;
+    --accent-color: #BD2C13;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+}
+
+.navbar {
+    background-color: var(--primary-color) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    font-weight: 500;
+    font-size: 13.7px;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.badge-enough {
+    background-color: #28a745;
+}
+
+.badge-lack {
+    background-color: #dc3545;
+}
+
+.badge-late {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-early {
+    background-color: #17a2b8;
+}
+
+.alert {
+    border-radius: 10px;
+    display: none;
+}
+
+.footer {
+    background-color: var(--dark-color);
+    color: white;
+    padding: 1.5rem 0;
+    margin-top: 3rem;
+}
+
+
+
+
+.welcome-section {
+    background: linear-gradient(135deg,
+            var(--primary-color) 0%,
+            #2a5ca5 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-section h1 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.welcome-section p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    height: 100%;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.card-text {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border: none;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    border-radius: 10px;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    border-radius: 10px;
+    color: #212529;
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.stats-section {
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background-color: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.footer {
+    background-color: var(--dark-color);
+    color: white;
+    padding: 1.5rem 0;
+    margin-top: 3rem;
+}

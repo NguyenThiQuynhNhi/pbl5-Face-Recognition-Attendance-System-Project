@@ -1,58 +1,28 @@
-const getAdmins = (db) => {
-    return new Promise((resolve, reject) => {
-        const query = 'SELECT * FROM admins';
-        db.query(query, (err, results) => {
-            if (err) return reject(new Error('Lỗi server!'));
-            resolve(results);
-        });
-    });
+const getAdmins = async (db, role) => {
+    const query = role ? "SELECT * FROM admins WHERE role = ?" : "SELECT * FROM admins";
+    const [rows] = await db.query(query, role ? [role] : []);
+    return rows;
 };
 
-const addAdmin = (db, body) => {
-    const { username, password, full_name, role, email } = body;
-    return new Promise((resolve, reject) => {
-        const query = 'INSERT INTO admins (username, password, full_name, role, email) VALUES (?, ?, ?, ?, ?)';
-        db.query(query, [username, password, full_name, role, email], (err) => {
-            if (err) return reject(new Error('Lỗi server!'));
-            resolve({ message: 'Thêm admin thành công!' });
-        });
-    });
+const getAdminById = async (db, admin_id) => {
+    const query = "SELECT * FROM admins WHERE admin_id = ?";
+    const [rows] = await db.query(query, [admin_id]);
+    return rows[0] || null; 
 };
 
-const updateAdmin = (db, admin_id, body) => {
-    const { username, password, full_name, role, email } = body;
-    return new Promise((resolve, reject) => {
-        // Nếu có mật khẩu mới thì cập nhật cả mật khẩu
-        if (password) {
-            const query = 'UPDATE admins SET username = ?, password = ?, full_name = ?, role = ?, email = ? WHERE admin_id = ?';
-            db.query(query, [username, password, full_name, role, email, admin_id], (err) => {
-                if (err) return reject(new Error('Lỗi server!'));
-                resolve({ message: 'Cập nhật admin thành công!' });
-            });
-        } else {
-            // Nếu không có mật khẩu mới thì chỉ cập nhật các thông tin khác
-            const query = 'UPDATE admins SET username = ?, full_name = ?, role = ?, email = ? WHERE admin_id = ?';
-            db.query(query, [username, full_name, role, email, admin_id], (err) => {
-                if (err) return reject(new Error('Lỗi server!'));
-                resolve({ message: 'Cập nhật admin thành công!' });
-            });
-        }
-    });
+const addAdmin = (db, admin) => {
+    const query = "INSERT INTO admins (username, password, full_name, role, email) VALUES (?, ?, ?, ?, ?)";
+    db.query(query, [admin.username, admin.password, admin.full_name, admin.role, admin.email]);
+};
+
+const updateAdmin = (db, admin_id, admin) => {
+    const query = "UPDATE admins SET username = ?, password = ?, full_name = ?, role = ?, email = ? WHERE admin_id = ?";
+    db.query(query, [admin.username, admin.password, admin.full_name, admin.role, admin.email, admin_id]);
 };
 
 const deleteAdmin = (db, admin_id) => {
-    return new Promise((resolve, reject) => {
-        const query = 'DELETE FROM admins WHERE admin_id = ?';
-        db.query(query, [admin_id], (err) => {
-            if (err) return reject(new Error('Lỗi server!'));
-            resolve({ message: 'Xóa admin thành công!' });
-        });
-    });
+    const query = "DELETE FROM admins WHERE admin_id = ?";
+    db.query(query, [admin_id]);
 };
 
-export default {
-    getAdmins,
-    addAdmin,
-    updateAdmin,
-    deleteAdmin,
-};
+export default { getAdmins, getAdminById, addAdmin, updateAdmin, deleteAdmin };

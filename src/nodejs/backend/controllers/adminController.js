@@ -1,62 +1,28 @@
-import adminService from '../services/adminService.js';
+import adminService from "../services/adminService.js";
 
 const getAdmins = async (req, res, next, db) => {
-    try {
-        const admins = await adminService.getAdmins(db);
-        return res.status(200).json({ data: admins });
-    } catch (error) {
-        next(error);
-    }
+    const admins = await adminService.getAdmins(db, req.query.role);
+    res.status(200).json({ success: true, data: admins });
 };
 
 const getAdminById = async (req, res, next, db) => {
-    try {
-        const admin_id = parseInt(req.params.admin_id);
-        const admin = await adminService.getAdminById(db, admin_id);
-        if (!admin) {
-            return res.status(404).json({ message: "Không tìm thấy tài khoản admin!" });
-        }
-        return res.status(200).json({ data: admin });
-    } catch (error) {
-        next(error);
-    }
+    const admin = await adminService.getAdminById(db, req.params.admin_id);
+    res.status(200).json({ success: true, data: admin });
 };
 
-const addAdmin = async (req, res, next, db) => {
-    try {
-        const body = req.body;
-        const result = await adminService.addAdmin(db, body);
-        return res.status(201).json({ data: result });
-    } catch (error) {
-        next(error);
-    }
+const addAdmin = (req, res, next, db) => {
+    adminService.addAdmin(db, req.body);
+    res.status(201).json({ success: true, message: "Thêm tài khoản admin thành công!" });
 };
 
-const updateAdmin = async (req, res, next, db) => {
-    try {
-        const admin_id = parseInt(req.params.admin_id);
-        const body = req.body;
-        const result = await adminService.updateAdmin(db, admin_id, body);
-        return res.status(200).json({ data: result });
-    } catch (error) {
-        next(error);
-    }
+const updateAdmin = (req, res, next, db) => {
+    adminService.updateAdmin(db, req.params.admin_id, req.body);
+    res.status(200).json({ success: true, message: "Cập nhật tài khoản admin thành công!" });
 };
 
-const deleteAdmin = async (req, res, next, db) => {
-    try {
-        const admin_id = parseInt(req.params.admin_id);
-        const result = await adminService.deleteAdmin(db, admin_id);
-        return res.status(200).json({ data: result });
-    } catch (error) {
-        next(error);
-    }
+const deleteAdmin = (req, res, next, db) => {
+    adminService.deleteAdmin(db, req.params.admin_id);
+    res.status(200).json({ success: true, message: "Xóa tài khoản admin thành công!" });
 };
 
-export default {
-    getAdmins,
-    getAdminById,
-    addAdmin,
-    updateAdmin,
-    deleteAdmin,
-};
+export default { getAdmins, getAdminById, addAdmin, updateAdmin, deleteAdmin };

@@ -1,69 +1,28 @@
-import departmentService from '../services/departmentService.js';
+import departmentService from "../services/departmentService.js";
 
 const getDepartments = async (req, res, next, db) => {
-    try {
-        const departments = await departmentService.getDepartments(db);
-        return res.status(200).json({ data: departments });
-    } catch (error) {
-        next(error);
-    }
+    const departments = await departmentService.getDepartments(db, req.query.department_id);
+    res.status(200).json({ success: true, data: departments });
 };
 
 const getDepartmentById = async (req, res, next, db) => {
-    try {
-        const department_id = req.params.department_id;
-        const department = await departmentService.getDepartmentById(db, department_id);
-        if (!department) {
-            return res.status(404).json({ message: "Không tìm thấy phòng ban!" });
-        }
-        return res.status(200).json({ data: department });
-    } catch (error) {
-        next(error);
-    }
+    const department = await departmentService.getDepartmentById(db, req.params.department_id);
+    res.status(200).json({ success: true, data: department });
+}
+
+const addDepartment = (req, res, next, db) => {
+    departmentService.addDepartment(db, req.body);
+    res.status(201).json({ success: true, message: "Thêm phòng ban thành công!" });
 };
 
-const addDepartment = async (req, res, next, db) => {
-    try {
-        const result = await departmentService.addDepartment(db, req.body);
-        return res.status(201).json({ data: result });
-    } catch (error) {
-        if (error.message) {
-            return res.status(400).json({ message: error.message });
-        }
-        next(error);
-    }
+const updateDepartment = (req, res, next, db) => {
+    departmentService.updateDepartment(db, req.params.department_id, req.body);
+    res.status(200).json({ success: true, message: "Cập nhật phòng ban thành công!" });
 };
 
-const updateDepartment = async (req, res, next, db) => {
-    try {
-        const department_id = req.params.department_id;
-        const result = await departmentService.updateDepartment(db, department_id, req.body);
-        return res.status(200).json({ data: result });
-    } catch (error) {
-        if (error.message) {
-            return res.status(400).json({ message: error.message });
-        }
-        next(error);
-    }
+const deleteDepartment = (req, res, next, db) => {
+    departmentService.deleteDepartment(db, req.params.department_id);
+    res.status(200).json({ success: true, message: "Xóa phòng ban thành công!" });
 };
 
-const deleteDepartment = async (req, res, next, db) => {
-    try {
-        const department_id = req.params.department_id;
-        const result = await departmentService.deleteDepartment(db, department_id);
-        return res.status(200).json({ data: result });
-    } catch (error) {
-        if (error.message) {
-            return res.status(400).json({ message: error.message });
-        }
-        next(error);
-    }
-};
-
-export default {
-    getDepartments,
-    getDepartmentById,
-    addDepartment,
-    updateDepartment,
-    deleteDepartment,
-};
+export default { getDepartments, getDepartmentById , addDepartment, updateDepartment, deleteDepartment };

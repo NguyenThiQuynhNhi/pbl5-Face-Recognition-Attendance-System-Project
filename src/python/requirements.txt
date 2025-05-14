@@ -1,5 +1,13 @@
-openpyxl
-pandas
+tensorflow
+keras
+scikit-learn
+opencv-python
+h5py
 matplotlib
-pyodbc
-cv2
+Pillow
+requests
+psutil
+imageio
+ultralytics
+imutils
+cvzone

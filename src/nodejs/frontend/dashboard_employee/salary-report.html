@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head технолог: <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Báo Cáo Lương</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">
+          <i class="fas fa-home me-1"></i>ABC
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="profile.html"
+                ><i class="fas fa-user me-1"></i>Thông Tin Cá Nhân</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="attendance.html"
+                ><i class="fas fa-calendar-check me-1"></i>Lịch Sử Chấm Công</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="attendance-reports.html"
+                ><i class="fas fa-file-alt me-1"></i>Lịch Sử Báo Cáo Chấm
+                Công</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="leave-requests.html"
+                ><i class="fas fa-calendar-times me-1"></i>Đơn Xin Nghỉ Phép</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="absence-reports.html"
+                ><i class="fas fa-calendar-times me-1"></i>Lịch Sử Nghỉ Không
+                Phép</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="salary-report.html"
+                ><i class="fas fa-money-check-alt me-1"></i>Báo Cáo Lương</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-danger" href="#" id="logoutBtn"
+                ><i class="fas fa-sign-out-alt me-1"></i>Đăng Xuất</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- Main Content -->
+    <div class="container my-5">
+      <h2 class="text-center mb-4">Báo Cáo Lương</h2>
+      <div class="card">
+        <div class="card-body">
+          <div
+            class="alert alert-danger"
+            id="errorMsg"
+            role="alert"
+            style="display: none"
+          >
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span id="errorText"></span>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <select id="monthSelect" class="form-select">
+                <option value="1">Tháng 1</option>
+                <option value="2">Tháng 2</option>
+                <option value="3">Tháng 3</option>
+                <option value="4">Tháng 4</option>
+                <option value="5">Tháng 5</option>
+                <option value="6">Tháng 6</option>
+                <option value="7">Tháng 7</option>
+                <option value="8">Tháng 8</option>
+                <option value="9">Tháng 9</option>
+                <option value="10">Tháng 10</option>
+                <option value="11">Tháng 11</option>
+                <option value="12">Tháng 12</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <select id="yearSelect" class="form-select">
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <button id="loadReportBtn" class="btn btn-primary w-100">
+                Xem Báo Cáo
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Tháng/Năm</th>
+                  <th>Lương Cơ Bản</th>
+                  <th>Giờ Phạt</th>
+                  <th>Lương Thực Nhận</th>
+                </tr>
+              </thead>
+              <tbody id="salaryTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container text-center">
+        <p class="mb-0">
+          © 2023 Hệ Thống Quản Lý Nhân Viên. Tất cả quyền được bảo lưu.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Script -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      // Kiểm tra secretKey
+      const secretKey = localStorage.getItem("secretKey");
+      if (!secretKey) {
+        window.location.href = "../auth/login.html";
+      }
+
+      // Xử lý đăng xuất
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", function (event) {
+          event.preventDefault();
+          localStorage.removeItem("secretKey");
+          window.location.href = "../auth/login.html";
+        });
+
+      // Load salary report
+      function loadSalaryReport() {
+        const month = $("#monthSelect").val();
+        const year = $("#yearSelect").val();
+        $.ajax({
+          url: `http://localhost:5000/employee/salary-report?month=${month}&year=${year}`,
+          method: "GET",
+          headers: { "secret-key": secretKey },
+          success: function (response) {
+            const report = response.data;
+            const tbody = $("#salaryTableBody");
+            tbody.empty();
+
+            if (!report) {
+              tbody.append(
+                '<tr><td colspan="4" class="text-center">Không có dữ liệu báo cáo lương</td></tr>'
+              );
+              return;
+            }
+
+            const monthYear = `${report.month}/${report.year}`;
+            const baseSalary = report.base_salary.toLocaleString("vi-VN");
+            const lateHours = report.total_late_hours;
+            const finalSalary = report.monthly_salary.toLocaleString("vi-VN");
+
+            const row = `
+              <tr>
+                <td>${monthYear}</td>
+                <td>${baseSalary}</td>
+                <td>${lateHours}</td>
+                <td>${finalSalary}</td>
+              </tr>
+            `;
+            tbody.append(row);
+          },
+          error: function (xhr) {
+            if (xhr.status === 401) {
+              localStorage.removeItem("secretKey");
+              window.location.href = "../auth/login.html";
+            } else {
+              $("#errorMsg").show();
+              $("#errorText").text(
+                "Lỗi tải báo cáo lương, vui lòng thử lại!"
+              );
+            }
+          },
+        });
+      }
+
+      // Load report when button clicked
+      $("#loadReportBtn").click(loadSalaryReport);
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

@@ -1,229 +1,368 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lịch Sử Chấm Công - Hệ Thống Chấm Công</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lịch Sử Chấm Công</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./style.css" />
     <style>
-        :root {
-            --primary-color: #1A4185;
-            --secondary-color: #FFC470;
-            --accent-color: #BD2C13;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-        }
-        
-        .navbar {
-            background-color: var(--primary-color) !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-        
-        .nav-link {
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            margin: 0 0.2rem;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-        
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-        
-        .table {
-            background-color: white;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .table th {
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: 600;
-        }
-        
-        .table td {
-            vertical-align: middle;
-        }
-        
-        .badge {
-            font-size: 0.9rem;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-        }
-        
-        .badge-enough { background-color: #28a745; }
-        .badge-lack { background-color: #dc3545; }
-        .badge-late { background-color: #ffc107; color: #212529; }
-        .badge-early { background-color: #17a2b8; }
-        
-        .alert {
-            border-radius: 10px;
-            display: none;
-        }
-        
-        .footer {
-            background-color: var(--dark-color);
-            color: white;
-            padding: 1.5rem 0;
-            margin-top: 3rem;
-        }
+      .proof-img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 4px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-user-clock me-2"></i>Employee Dashboard
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i>Trang Chủ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="profile.html"><i class="fas fa-user me-1"></i>Thông Tin Cá Nhân</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="attendance.html"><i class="fas fa-calendar-check me-1"></i>Lịch Sử Chấm Công</a></li>
-                    <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-1"></i>Đăng Xuất</a></li>
-                </ul>
-            </div>
+      <div class="container">
+        <a class="navbar-brand" href="index.html">
+          <i class="fas fa-home me-1"></i>ABC
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="profile.html"
+                ><i class="fas fa-user me-1"></i>Thông Tin Cá Nhân</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="attendance.html"
+                ><i class="fas fa-calendar-check me-1"></i>Lịch Sử Chấm Công</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="attendance-reports.html"
+                ><i class="fas fa-file-alt me-1"></i>Lịch Sử Báo Cáo Chấm
+                Công</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="leave-requests.html"
+                ><i class="fas fa-calendar-times me-1"></i>Đơn Xin Nghỉ Phép</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="absence-reports.html"
+                ><i class="fas fa-calendar-times me-1"></i>Lịch Sử Nghỉ Không
+                Phép</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="salary-report.html"
+                ><i class="fas fa-money-check-alt me-1"></i>Báo Cáo Lương</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-danger" href="#" id="logoutBtn"
+                ><i class="fas fa-sign-out-alt me-1"></i>Đăng Xuất</a
+              >
+            </li>
+          </ul>
         </div>
+      </div>
     </nav>
 
     <!-- Main Content -->
     <div class="container my-5">
-        <h2 class="text-center mb-4">Lịch Sử Chấm Công</h2>
-        <div class="card">
-            <div class="card-body">
-                <div class="alert alert-danger" id="errorMsg" role="alert" style="display: none;">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    <span id="errorText"></span>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Thời Gian</th>
-                                <th>Vào/Ra</th>
-                                <th>Trạng Thái</th>
-                            </tr>
-                        </thead>
-                        <tbody id="attendanceTableBody"></tbody>
-                    </table>
-                </div>
+      <h2 class="text-center mb-4">Lịch Sử Chấm Công</h2>
+      <div class="card">
+        <div class="card-body">
+          <div
+            class="alert alert-danger"
+            id="errorMsg"
+            role="alert"
+            style="display: none"
+          >
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span id="errorText"></span>
+          </div>
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <input
+                type="number"
+                class="form-control"
+                id="filter_year"
+                placeholder="Năm"
+                min="2000"
+                max="2100"
+              />
             </div>
+            <div class="col-md-3">
+              <select class="form-control" id="filter_month">
+                <option value="">Chọn tháng</option>
+                <option value="1">Tháng 1</option>
+                <option value="2">Tháng 2</option>
+                <option value="3">Tháng 3</option>
+                <option value="4">Tháng 4</option>
+                <option value="5">Tháng 5</option>
+                <option value="6">Tháng 6</option>
+                <option value="7">Tháng 7</option>
+                <option value="8">Tháng 8</option>
+                <option value="9">Tháng 9</option>
+                <option value="10">Tháng 10</option>
+                <option value="11">Tháng 11</option>
+                <option value="12">Tháng 12</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <button class="btn btn-primary" onclick="loadAttendance()">
+                Lọc
+              </button>
+              <button class="btn btn-secondary" onclick="resetFilters()">
+                Xóa bộ lọc
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Ngày</th>
+                  <th>Giờ Vào</th>
+                  <th>Giờ Ra</th>
+                  <th>Trạng Thái</th>
+                  <th>Giờ Muộn</th>
+                  <th>Ảnh Chứng Minh</th>
+                  <th>Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTableBody"></tbody>
+            </table>
+          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Modal Báo Cáo -->
+    <div class="modal fade" id="reportModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Báo Cáo Sai Sót Chấm Công</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="reportForm">
+              <input type="hidden" id="report_attendance_id" />
+              <input type="hidden" id="report_attendance_date" />
+              <div class="mb-3">
+                <label for="issue_type" class="form-label">Loại Vấn Đề</label>
+                <select class="form-control" id="issue_type" required>
+                  <option value="WrongTime">Sai thời gian</option>
+                  <option value="WrongFace">Sai khuôn mặt</option>
+                  <option value="MissingRecord">Thiếu bản ghi</option>
+                  <option value="Other">Khác</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="description" class="form-label">Mô Tả</label>
+                <textarea
+                  class="form-control"
+                  id="description"
+                  rows="4"
+                  required
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Gửi Báo Cáo</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Xem Ảnh -->
+    <div class="modal fade" id="photoModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Ảnh Chứng Minh</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body text-center">
+            <img id="photoPreview" src="" class="img-fluid" alt="Ảnh chứng minh" />
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container text-center">
-            <p class="mb-0">© 2023 Hệ Thống Quản Lý Nhân Viên. Tất cả quyền được bảo lưu.</p>
-        </div>
+      <div class="container text-center">
+        <p class="mb-0">
+          © 2023 Hệ Thống Quản Lý Nhân Viên. Tất cả quyền được bảo lưu.
+        </p>
+      </div>
     </footer>
 
     <!-- Script -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // Kiểm tra secretKey
-        const secretKey = localStorage.getItem('secretKey');
-        if (!secretKey) {
-            window.location.href = "../auth/login.html";
-        }
+      // Kiểm tra secretKey
+      const secretKey = localStorage.getItem('secretKey');
+      if (!secretKey) {
+        window.location.href = "../auth/login.html";
+      }
 
-        // Xử lý đăng xuất
-        document.getElementById("logoutBtn").addEventListener("click", function(event) {
-            event.preventDefault();
-            localStorage.removeItem("secretKey");
-            window.location.href = "../auth/login.html";
-        });
+      // Xử lý đăng xuất
+      $('#logoutBtn').click((event) => {
+        event.preventDefault();
+        localStorage.removeItem('secretKey');
+        window.location.href = "../auth/login.html";
+      });
 
-        // Load attendance history
-        function loadAttendance() {
-            const match = secretKey.match(/^secret_([^_]+)_(.+)$/);
-            if (!match) {
+      // Hàm gửi AJAX request
+      const sendAjaxRequest = (url, method, data) => {
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            url: `http://localhost:5000/companyABC${url}`,
+            method,
+            headers: { 'secret-key': secretKey },
+            contentType: data ? 'application/json' : undefined,
+            data: data ? JSON.stringify(data) : null,
+            success: (response) => resolve(response),
+            error: (xhr) => {
+              if (xhr.status === 401) {
                 localStorage.removeItem('secretKey');
                 window.location.href = "../auth/login.html";
-                return;
+              }
+              reject(xhr);
             }
-            const employeeId = match[1];
+          });
+        });
+      };
 
-            $.ajax({
-                url: `http://localhost:5000/attendance?employee_id=${employeeId}`,
-                method: 'GET',
-                headers: { 'secret-key': secretKey },
-                success: function(response) {
-                    const records = response.data;
-                    const tbody = $('#attendanceTableBody');
-                    tbody.empty();
+      // Load attendance history
+      async function loadAttendance() {
+        const year = $('#filter_year').val();
+        const month = $('#filter_month').val();
+        const query = [];
+        if (year) query.push(`year=${year}`);
+        if (month) query.push(`month=${month}`);
+        const url = `/employee/attendance${query.length ? '?' + query.join('&') : ''}`;
 
-                    if (records.length === 0) {
-                        tbody.append('<tr><td colspan="3" class="text-center">Không có dữ liệu chấm công</td></tr>');
-                        return;
-                    }
+        try {
+          const response = await sendAjaxRequest(url, 'GET');
+          const records = response.data || [];
+          const tbody = $('#attendanceTableBody').empty();
 
-                    records.forEach(record => {
-                        const dateTime = new Date(record.date_n_time).toLocaleString('vi-VN');
-                        const inOut = record.in_out === 'In' ? 'Vào' : 'Ra';
-                        let statusClass = '';
-                        let statusText = '';
-                        switch (record.status) {
-                            case 'Enough': statusClass = 'badge-enough'; statusText = 'Đủ'; break;
-                            case 'Lack': statusClass = 'badge-lack'; statusText = 'Thiếu'; break;
-                            case 'Late': statusClass = 'badge-late'; statusText = 'Muộn'; break;
-                            case 'Early': statusClass = 'badge-early'; statusText = 'Sớm'; break;
-                        }
+          if (records.length === 0) {
+            tbody.append(
+              '<tr><td colspan="7" class="text-center">Không có dữ liệu chấm công</td></tr>'
+            );
+            return;
+          }
 
-                        const row = `
-                            <tr>
-                                <td>${dateTime}</td>
-                                <td>${inOut}</td>
-                                <td><span class="badge ${statusClass}">${statusText}</span></td>
-                            </tr>
-                        `;
-                        tbody.append(row);
-                    });
-                },
-                error: function(xhr) {
-                    if (xhr.status === 401) {
-                        localStorage.removeItem('secretKey');
-                        window.location.href = "../auth/login.html";
-                    } else {
-                        $('#errorMsg').show();
-                        $('#errorText').text('Lỗi tải lịch sử chấm công, vui lòng thử lại!');
-                    }
-                }
-            });
+          records.forEach((record) => {
+            const date = new Date(record.attendance_date).toLocaleDateString('vi-VN');
+            const timeIn = record.time_in ? record.time_in.slice(0, 5) : '-';
+            const timeOut = record.time_out ? record.time_out.slice(0, 5) : '-';
+            const statusText = record.status === 'Enough' ? 'Đủ' : 'Thiếu';
+            const statusClass = record.status === 'Enough' ? 'bg-success' : 'bg-danger';
+            const lateHours = record.late_hours || 0;
+            const photoIn = record.photo_proof_in
+              ? `<img src="http://localhost:5000${record.photo_proof_in}" class="proof-img" onclick="showPhoto('http://localhost:5000${record.photo_proof_in}')" alt="Ảnh vào" />`
+              : '-';
+            const photoOut = record.photo_proof_out
+              ? `<img src="http://localhost:5000${record.photo_proof_out}" class="proof-img" onclick="showPhoto('http://localhost:5000${record.photo_proof_out}')" alt="Ảnh ra" />`
+              : '-';
+
+            const row = `
+              <tr>
+                <td>${date}</td>
+                <td>${timeIn}</td>
+                <td>${timeOut}</td>
+                <td><span class="badge ${statusClass}">${statusText}</span></td>
+                <td>${lateHours}</td>
+                <td>${photoIn} ${photoOut}</td>
+                <td>
+                  <button class="btn btn-sm btn-warning" onclick="openReportModal(${record.attendance_id}, '${record.attendance_date}')">
+                    <i class="fas fa-flag"></i> Báo Cáo
+                  </button>
+                </td>
+              </tr>
+            `;
+            tbody.append(row);
+          });
+        } catch {
+          $('#errorMsg').show();
+          $('#errorText').text('Lỗi tải lịch sử chấm công, vui lòng thử lại!');
         }
+      }
 
-        // Load attendance when page loads
+      // Xử lý báo cáo sai sót
+      function openReportModal(attendanceId, attendanceDate) {
+        $('#report_attendance_id').val(attendanceId);
+        $('#report_attendance_date').val(attendanceDate);
+        $('#issue_type').val('WrongTime');
+        $('#description').val('');
+        new bootstrap.Modal($('#reportModal')).show();
+      }
+
+      $('#reportForm').submit(async (event) => {
+        event.preventDefault();
+        const report = {
+          attendance_date: $('#report_attendance_date').val(),
+          issue_type: $('#issue_type').val(),
+          description: $('#description').val()
+        };
+
+        try {
+          await sendAjaxRequest('/employee/attendance-reports', 'POST', report);
+          bootstrap.Modal.getInstance($('#reportModal')).hide();
+          $('#reportForm')[0].reset();
+          alert('✅ Gửi báo cáo thành công!');
+        } catch {
+          $('#errorMsg').show();
+          $('#errorText').text('Lỗi gửi báo cáo, vui lòng thử lại!');
+        }
+      });
+
+      // Xem ảnh chứng minh
+      function showPhoto(src) {
+        $('#photoPreview').attr('src', src);
+        new bootstrap.Modal($('#photoModal')).show();
+      }
+
+      // Xóa bộ lọc
+      function resetFilters() {
+        $('#filter_year').val('');
+        $('#filter_month').val('');
         loadAttendance();
+      }
+
+      // Load attendance when page loads
+      loadAttendance();
     </script>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+  </body>
 </html>

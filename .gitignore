@@ -2,3 +2,12 @@
 .env
 /node_modules
 /.vscode
+/public/uploads/employees/
+/src/python/data
+/src/python/src/Dataset/FaceData/processed/
+/src/python/src/Dataset/FaceData/raw/
+/src/python/test_spoofing/Dataset/all/
+/src/python/test_spoofing/Dataset/DataCollect/
+/src/python/test_spoofing/Dataset/Fake/
+/src/python/test_spoofing/Dataset/Real/
+/src/python/test_spoofing/Dataset/SplitData/

@@ -161,7 +161,7 @@
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
 
             $.ajax({
-                url: 'http://localhost:5000/auth/login',
+                url: 'http://localhost:5000/companyABC/login',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ accountType, username, password }),

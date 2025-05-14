@@ -1,80 +1,167 @@
-export const validateLogin = (req, res, next) => {
-    const { accountType, username, password } = req.body;
-    if (!accountType || !username || !password) {
-        return res.status(400).json({ message: 'Thiếu thông tin đăng nhập' });
-    }
-    if (!['admin', 'employee'].includes(accountType)) {
-        return res.status(400).json({ message: 'Loại tài khoản không hợp lệ' });
-    }
-    next();
-};
+import { body, param, validationResult } from "express-validator";
 
-export const validateAdmin = (req, res, next) => {
-    // Nếu là thêm mới (POST) thì yêu cầu đầy đủ thông tin
-    if (req.method === 'POST') {
-        const { username, password, full_name, role, email } = req.body;
-        if (!username || !password || !full_name || !role || !email) {
-            return res.status(400).json({ message: "⛔ Thiếu thông tin admin!" });
-        }
-    } else if (req.method === 'PUT') {
-        // Nếu là cập nhật thì không yêu cầu password
-        const { username, full_name, role, email } = req.body;
-        if (!username || !full_name || !role || !email) {
-            return res.status(400).json({ message: "⛔ Thiếu thông tin admin!" });
-        }
+// Middleware để xử lý lỗi validate
+const handleValidationErrors = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
     }
     next();
 };
 
-export const validateEmployee = (req, res, next) => {
-    const { employee_id, employee_name, department_id, email, phone, face_image_dir } = req.body;
-    // Nếu là thêm mới (POST) thì mới validate đầy đủ
-    if (req.method === 'POST') {
-        const { employee_id, employee_name, department_id, email } = req.body;
-        if (!employee_id || !employee_name || !department_id || !email) {
-            return res.status(400).json({ message: "⛔ Thiếu thông tin nhân viên!" });
-        }
-    }
-    // Nếu là cập nhật (PUT) thì bỏ qua validation
-    next();
-};
+// Validate dữ liệu đăng nhập
+const validateLogin = [
+    body("username").notEmpty().withMessage("Tên đăng nhập không được để trống!"),
+    body("password").notEmpty().withMessage("Mật khẩu không được để trống!"),
+    handleValidationErrors,
+];
 
-export const validateAttendance = (req, res, next) => {
-    const { employee_id, date_n_time, in_out } = req.body;
-    if (!employee_id || !date_n_time || !in_out) {
-        return res.status(400).json({ message: "⛔ Thiếu thông tin chấm công!" });
-    }
-    next();
-};
+// Validate dữ liệu phòng ban
+const validateDepartment = [
+    body("department_id")
+        .notEmpty()
+        .withMessage("Mã phòng ban không được để trống!")
+        .isLength({ max: 10 })
+        .withMessage("Mã phòng ban không được dài quá 10 ký tự!"),
+    body("department_name")
+        .notEmpty()
+        .withMessage("Tên phòng ban không được để trống!")
+        .isLength({ max: 100 })
+        .withMessage("Tên phòng ban không được dài quá 100 ký tự!"),
+    body("dept_description")
+        .optional()
+        .isString()
+        .withMessage("Mô tả phòng ban phải là chuỗi!"),
+    handleValidationErrors,
+];
 
-export const validateDepartment = (req, res, next) => {
-    const { department_id, department_name, dept_description } = req.body;
+// Validate dữ liệu nhân viên
+const validateEmployee = [
+    body("employee_id")
+        .notEmpty()
+        .withMessage("Mã nhân viên không được để trống!")
+        .isLength({ max: 20 })
+        .withMessage("Mã nhân viên không được dài quá 20 ký tự!"),
+    body("employee_name")
+        .notEmpty()
+        .withMessage("Tên nhân viên không được để trống!")
+        .isLength({ max: 100 })
+        .withMessage("Tên nhân viên không được dài quá 100 ký tự!"),
+    body("employee_username")
+        .notEmpty()
+        .withMessage("Tên đăng nhập không được để trống!")
+        .isLength({ max: 100 })
+        .withMessage("Tên đăng nhập không được dài quá 100 ký tự!"),
+    body("employee_password")
+        .notEmpty()
+        .withMessage("Mật khẩu không được để trống!")
+        .isLength({ max: 100 })
+        .withMessage("Mật khẩu không được dài quá 100 ký tự!"),
+    body("department_id")
+        .notEmpty()
+        .withMessage("Mã phòng ban không được để trống!")
+        .isLength({ max: 10 })
+        .withMessage("Mã phòng ban không được dài quá 10 ký tự!"),
+    body("email")
+        .optional()
+        .isEmail()
+        .withMessage("Email không hợp lệ!")
+        .isLength({ max: 100 })
+        .withMessage("Email không được dài quá 100 ký tự!"),
+    body("phone")
+        .optional()
+        .isLength({ max: 15 })
+        .withMessage("Số điện thoại không được dài quá 15 ký tự!"),
+    body("face_image_dir")
+        .optional()
+        .isLength({ max: 255 })
+        .withMessage("Đường dẫn hình ảnh không được dài quá 255 ký tự!"),
+    body("base_salary")
+        .isNumeric()
+        .withMessage("Lương cơ bản phải là số!")
+        .custom((value) => value >= 0)
+        .withMessage("Lương cơ bản không được âm!"),
+    handleValidationErrors,
+];
 
-    // Kiểm tra các trường bắt buộc
-    if (!department_id || !department_name) {
-        return res.status(400).json({ message: "⛔ Thiếu thông tin phòng ban!" });
-    }
+// Validate dữ liệu tài khoản admin
+const validateAdmin = [
+    body("username")
+        .notEmpty()
+        .withMessage("Tên đăng nhập không được để trống!")
+        .isLength({ max: 50 })
+        .withMessage("Tên đăng nhập không được dài quá 50 ký tự!"),
+    body("password")
+        .notEmpty()
+        .withMessage("Mật khẩu không được để trống!")
+        .isLength({ max: 255 })
+        .withMessage("Mật khẩu không được dài quá 255 ký tự!"),
+    body("full_name")
+        .notEmpty()
+        .withMessage("Họ tên không được để trống!")
+        .isLength({ max: 100 })
+        .withMessage("Họ tên không được dài quá 100 ký tự!"),
+    body("role")
+        .isIn(["SuperAdmin", "HR"])
+        .withMessage("Vai trò phải là SuperAdmin hoặc HR!"),
+    body("email")
+        .isEmail()
+        .withMessage("Email không hợp lệ!")
+        .isLength({ max: 100 })
+        .withMessage("Email không được dài quá 100 ký tự!"),
+    handleValidationErrors,
+];
 
-    // Kiểm tra định dạng department_id
-    if (!/^[A-Z]{2,5}$/.test(department_id)) {
-        return res.status(400).json({ 
-            message: "⛔ Mã phòng ban không hợp lệ! Mã phải từ 2-5 ký tự chữ in hoa." 
-        });
-    }
+// Validate dữ liệu chấm công
+const validateAttendance = [
+    body("employee_id")
+        .notEmpty()
+        .withMessage("Mã nhân viên không được để trống!")
+        .isLength({ max: 20 })
+        .withMessage("Mã nhân viên không được dài quá 20 ký tự!"),
+    body("attendance_date")
+        .notEmpty()
+        .withMessage("Ngày chấm công không được để trống!")
+        .isDate()
+        .withMessage("Ngày chấm công phải là định dạng ngày hợp lệ!"),
+    body("time_in")
+        .optional()
+        .matches(/^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/)
+        .withMessage("Giờ vào làm phải có định dạng HH:MM:SS!"),
+    body("time_out")
+        .optional()
+        .matches(/^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/)
+        .withMessage("Giờ ra làm phải có định dạng HH:MM:SS!"),
+    handleValidationErrors,
+];
 
-    // Kiểm tra độ dài department_name
-    if (department_name.length < 3 || department_name.length > 50) {
-        return res.status(400).json({ 
-            message: "⛔ Tên phòng ban phải từ 3-50 ký tự!" 
-        });
-    }
+// Validate dữ liệu đơn xin nghỉ phép
+const validateLeaveRequest = [
+    body("start_date")
+        .notEmpty()
+        .withMessage("Ngày bắt đầu nghỉ không được để trống!")
+        .isDate()
+        .withMessage("Ngày bắt đầu nghỉ phải là định dạng ngày hợp lệ!"),
+    body("end_date")
+        .notEmpty()
+        .withMessage("Ngày kết thúc nghỉ không được để trống!")
+        .isDate()
+        .withMessage("Ngày kết thúc nghỉ phải là định dạng ngày hợp lệ!")
+        .custom((value, { req }) => new Date(value) >= new Date(req.body.start_date))
+        .withMessage("Ngày kết thúc nghỉ phải lớn hơn hoặc bằng ngày bắt đầu nghỉ!"),
+    body("reason")
+        .notEmpty()
+        .withMessage("Lý do nghỉ không được để trống!")
+        .isString()
+        .withMessage("Lý do nghỉ phải là chuỗi!"),
+    handleValidationErrors,
+];
 
-    // Kiểm tra độ dài dept_description nếu có
-    if (dept_description && dept_description.length > 200) {
-        return res.status(400).json({ 
-            message: "⛔ Mô tả phòng ban không được vượt quá 200 ký tự!" 
-        });
-    }
-
-    next();
+export {
+    validateLogin,
+    validateDepartment,
+    validateEmployee,
+    validateAdmin,
+    validateAttendance,
+    validateLeaveRequest,
 };
