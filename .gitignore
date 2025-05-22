@@ -11,8 +11,8 @@
 /src/python/data/proofs/*
 !/src/python/data/proofs/.gitkeep
 
-/src/python/Models/best.pt
-/src/python/Models/facemodel.pkl
+/src/python/Models/*
+!/src/python/Models/.gitkeep
 
 /src/python/src/Dataset/FaceData/processed/*
 !/src/python/src/Dataset/FaceData/processed/.gitkeep
