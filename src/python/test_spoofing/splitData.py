@@ -6,73 +6,57 @@ from itertools import islice
 outputFolderPath = "Dataset/SplitData"
 inputFolderPath = "Dataset/all"
 splitRatio = {"train": 0.7, "val": 0.2, "test": 0.1}
-classes = ["fake","real"]
+classes = ["fake", "real"]
 
-try:
+# -------- Xóa thư mục cũ nếu có --------
+if os.path.exists(outputFolderPath):
     shutil.rmtree(outputFolderPath)
-except OSError as e:
-    os.mkdir(outputFolderPath)
 
-# --------  Directories to Create -----------
-os.makedirs(f"{outputFolderPath}/train/images", exist_ok=True)
-os.makedirs(f"{outputFolderPath}/train/labels", exist_ok=True)
-os.makedirs(f"{outputFolderPath}/val/images", exist_ok=True)
-os.makedirs(f"{outputFolderPath}/val/labels", exist_ok=True)
-os.makedirs(f"{outputFolderPath}/test/images", exist_ok=True)
-os.makedirs(f"{outputFolderPath}/test/labels", exist_ok=True)
+# -------- Tạo lại các thư mục cần thiết --------
+for phase in ["train", "val", "test"]:
+    os.makedirs(f"{outputFolderPath}/{phase}/images", exist_ok=True)
+    os.makedirs(f"{outputFolderPath}/{phase}/labels", exist_ok=True)
 
-# --------  Get the Names  -----------
+# -------- Lấy danh sách file gốc --------
 listNames = os.listdir(inputFolderPath)
+uniqueNames = list(set([name.split('.')[0] for name in listNames]))
 
-uniqueNames = []
-for name in listNames:
-    uniqueNames.append(name.split('.')[0])
-uniqueNames = list(set(uniqueNames))
-
-# --------  Shuffle -----------
+# -------- Xáo trộn và chia dữ liệu --------
 random.shuffle(uniqueNames)
-
-# --------  Find the number of images for each folder -----------
 lenData = len(uniqueNames)
 lenTrain = int(lenData * splitRatio['train'])
 lenVal = int(lenData * splitRatio['val'])
-lenTest = int(lenData * splitRatio['test'])
+lenTest = lenData - lenTrain - lenVal  # đảm bảo tổng bằng lenData
 
-# --------  Put remaining images in Training -----------
-if lenData != lenTrain + lenTest + lenVal:
-    remaining = lenData - (lenTrain + lenTest + lenVal)
-    lenTrain += remaining
-
-# --------  Split the list -----------
+# -------- Chia danh sách --------
 lengthToSplit = [lenTrain, lenVal, lenTest]
 Input = iter(uniqueNames)
-Output = [list(islice(Input, elem)) for elem in lengthToSplit]
-print(f'Total Images:{lenData} \nSplit: {len(Output[0])} {len(Output[1])} {len(Output[2])}')
+Output = [list(islice(Input, n)) for n in lengthToSplit]
 
-# --------  Copy the files  -----------
+print(f'Total Images: {lenData} \nSplit: {len(Output[0])} train, {len(Output[1])} val, {len(Output[2])} test')
 
-sequence = ['train', 'val', 'test']
-for i,out in enumerate(Output):
-    for fileName in out:
-        shutil.copy(f'{inputFolderPath}/{fileName}.jpg', f'{outputFolderPath}/{sequence[i]}/images/{fileName}.jpg')
-        shutil.copy(f'{inputFolderPath}/{fileName}.txt', f'{outputFolderPath}/{sequence[i]}/labels/{fileName}.txt')
+# -------- Copy ảnh và nhãn --------
+phases = ["train", "val", "test"]
+for i, phaseNames in enumerate(Output):
+    for name in phaseNames:
+        shutil.copy(f"{inputFolderPath}/{name}.jpg", f"{outputFolderPath}/{phases[i]}/images/{name}.jpg")
+        shutil.copy(f"{inputFolderPath}/{name}.txt", f"{outputFolderPath}/{phases[i]}/labels/{name}.txt")
 
 print("Split Process Completed...")
 
+# -------- Tạo file data.yaml --------
+abs_output_path = os.path.abspath(outputFolderPath).replace("\\", "/")
 
-# -------- Creating Data.yaml file  -----------
+dataYaml = f"""path: {abs_output_path}
+train: {abs_output_path}/train/images
+val: {abs_output_path}/val/images
+test: {abs_output_path}/test/images
 
-dataYaml = f'path: ../Data\n\
-train: ../train/images\n\
-val: ../val/images\n\
-test: ../test/images\n\
-\n\
-nc: {len(classes)}\n\
-names: {classes}'
+nc: {len(classes)}
+names: {classes}
+"""
 
+with open(f"{outputFolderPath}/data.yaml", 'w', encoding='utf-8') as f:
+    f.write(dataYaml)
 
-f = open(f"{outputFolderPath}/data.yaml", 'a')
-f.write(dataYaml)
-f.close()
-
-print("Data.yaml file Created...")
+print("✅ File data.yaml đã được tạo chuẩn.")

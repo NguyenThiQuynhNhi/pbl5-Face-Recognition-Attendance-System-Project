@@ -40,7 +40,7 @@ CREATE TABLE attendance (
     attendance_date DATE NOT NULL,
     time_in TIME, -- Chỉ lưu giờ để dễ tính toán
     time_out TIME,
-    status ENUM('Enough', 'Lack') DEFAULT 'Enough',
+    status ENUM('Enough', 'Lack', 'Pending','Alert') DEFAULT 'Pending',
     late_hours INT DEFAULT 0, -- Số giờ bị phạt (số nguyên)
     photo_proof_in VARCHAR(255),
     photo_proof_out VARCHAR(255),
@@ -137,3 +137,6 @@ INSERT INTO absence_reports (employee_id, absence_date, created_at) VALUES
 ('HCNQB', '2025-04-24', '2025-04-24 17:00:00'),
 ('NSNTK', '2025-04-25', '2025-04-25 17:00:00'),
 ('TCDBHN', '2025-04-26', '2025-04-26 17:00:00');
+
+
+

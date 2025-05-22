@@ -1,105 +1,89 @@
+import os
 from time import time
-
 import cv2
 import cvzone
 from cvzone.FaceDetectionModule import FaceDetector
 
 ####################################
-classID = 1  # 0 is fake and 1 is real
-outputFolderPath = 'Dataset/DataCollect'
+classID = 0  # 0 is fake, 1 is real
 confidence = 0.8
-save = True
-blurThreshold = 35  
-
+blurThreshold = 35
 debug = False
 offsetPercentageW = 10
 offsetPercentageH = 20
 camWidth, camHeight = 640, 480
 floatingPoint = 6
+maxImages = 100  # Số lượng ảnh cần thu thập
 
+# ------ Output folder --------
+baseFolders = ["Dataset/All", "Dataset/Real"] if classID == 1 else ["Dataset/All", "Dataset/Fake"]
+for folder in baseFolders:
+    os.makedirs(folder, exist_ok=True)
 
 cap = cv2.VideoCapture(0)
 cap.set(3, camWidth)
 cap.set(4, camHeight)
 
 detector = FaceDetector()
-while True:
+
+savedCount = 0  # Biến đếm số ảnh đã lưu
+
+while savedCount < maxImages:
     success, img = cap.read()
     imgOut = img.copy()
     img, bboxs = detector.findFaces(img, draw=False)
 
-    listBlur = [] 
-    listInfo = [] 
+    listBlur = []
+    listInfo = []
+
     if bboxs:
         for bbox in bboxs:
             x, y, w, h = bbox["bbox"]
             score = bbox["score"][0]
-            # print(x, y, w, h)
 
-            # ------  Check the score --------
             if score > confidence:
-
-                # ------  Adding an offset to the face Detected --------
                 offsetW = (offsetPercentageW / 100) * w
-                x = int(x - offsetW)
-                w = int(w + offsetW * 2)
+                x = max(0, int(x - offsetW))
+                w = max(0, int(w + offsetW * 2))
+
                 offsetH = (offsetPercentageH / 100) * h
-                y = int(y - offsetH * 3)
-                h = int(h + offsetH * 3.5)
+                y = max(0, int(y - offsetH * 3))
+                h = max(0, int(h + offsetH * 3.5))
 
-                # ------  To avoid values below 0 --------
-                if x < 0: x = 0
-                if y < 0: y = 0
-                if w < 0: w = 0
-                if h < 0: h = 0
-
-                # ------  Find Blurriness --------
                 imgFace = img[y:y + h, x:x + w]
                 cv2.imshow("Face", imgFace)
-                blurValue = int(cv2.Laplacian(imgFace, cv2.CV_64F).var())
-                if blurValue > blurThreshold:
-                    listBlur.append(True)
-                else:
-                    listBlur.append(False)
 
-                # ------  Normalize Values  --------
+                blurValue = int(cv2.Laplacian(imgFace, cv2.CV_64F).var())
+                listBlur.append(blurValue > blurThreshold)
+
                 ih, iw, _ = img.shape
                 xc, yc = x + w / 2, y + h / 2
 
-                xcn, ycn = round(xc / iw, floatingPoint), round(yc / ih, floatingPoint)
-                wn, hn = round(w / iw, floatingPoint), round(h / ih, floatingPoint)
-                # print(xcn, ycn, wn, hn)
-
-                # ------  To avoid values above 1 --------
-                if xcn > 1: xcn = 1
-                if ycn > 1: ycn = 1
-                if wn > 1: wn = 1
-                if hn > 1: hn = 1
+                xcn = min(1, round(xc / iw, floatingPoint))
+                ycn = min(1, round(yc / ih, floatingPoint))
+                wn = min(1, round(w / iw, floatingPoint))
+                hn = min(1, round(h / ih, floatingPoint))
 
                 listInfo.append(f"{classID} {xcn} {ycn} {wn} {hn}\n")
 
-                # ------  Drawing --------
                 cv2.rectangle(imgOut, (x, y, w, h), (255, 0, 0), 3)
-                cvzone.putTextRect(imgOut, f'Score: {int(score * 100)}% Blur: {blurValue}', (x, y - 0),
+                cvzone.putTextRect(imgOut, f'Score: {int(score * 100)}% Blur: {blurValue}', (x, y - 10),
                                    scale=2, thickness=3)
-                if debug:
-                    cv2.rectangle(img, (x, y, w, h), (255, 0, 0), 3)
-                    cvzone.putTextRect(img, f'Score: {int(score * 100)}% Blur: {blurValue}', (x, y - 0),
-                                       scale=2, thickness=3)
 
-        # ------  To Save --------
-        if save:
-            if all(listBlur) and listBlur != []:
-                # ------  Save Image  --------
-                timeNow = time()
-                timeNow = str(timeNow).split('.')
-                timeNow = timeNow[0] + timeNow[1]
-                cv2.imwrite(f"{outputFolderPath}/{timeNow}.jpg", img)
-                # ------  Save Label Text File  --------
-                for info in listInfo:
-                    f = open(f"{outputFolderPath}/{timeNow}.txt", 'a')
-                    f.write(info)
-                    f.close()
+    # ------ Save if all faces clear --------
+    if listBlur and all(listBlur):
+        timeNow = str(time()).replace(".", "")
+        for folder in baseFolders:
+            cv2.imwrite(f"{folder}/{timeNow}.jpg", img)
+            with open(f"{folder}/{timeNow}.txt", 'a') as f:
+                f.writelines(listInfo)
+        savedCount += 1
+        print(f"[INFO] Đã lưu {savedCount}/{maxImages} ảnh.")
 
     cv2.imshow("Image", imgOut)
     cv2.waitKey(1)
+
+# ------ Kết thúc --------
+print("[DONE] Thu thập dữ liệu hoàn tất.")
+cap.release()
+cv2.destroyAllWindows()

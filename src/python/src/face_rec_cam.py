@@ -42,34 +42,31 @@ def calculate_attendance_status(time_in, time_out):
     Returns: (status, late_hours)
     """
     if not time_in or not time_out:
-        return 'Lack', 0
+        return 'pending', 0
 
-    # Convert times to datetime objects for easier calculation
     time_in = datetime.datetime.strptime(time_in, '%H:%M:%S')
     time_out = datetime.datetime.strptime(time_out, '%H:%M:%S')
     
-    # Standard working hours
     start_time = datetime.datetime.strptime('08:00:00', '%H:%M:%S')
     end_time = datetime.datetime.strptime('17:00:00', '%H:%M:%S')
     
-    # Calculate late minutes
-    late_minutes = 0
+    late_hours = 0
+    
+    if (time_in < start_time and time_out < start_time) or \
+       (time_in > end_time and time_out > end_time) or \
+       (time_in > end_time):
+        return 'alert', late_hours
+    
     if time_in > start_time:
         late_minutes = (time_in - start_time).total_seconds() / 60
+        late_hours += math.ceil(late_minutes / 10)
     
-    # Calculate early leave minutes
-    early_leave_minutes = 0
     if time_out < end_time:
         early_leave_minutes = (end_time - time_out).total_seconds() / 60
+        late_hours += 1 + math.floor(early_leave_minutes / 60)
     
-    # Calculate total working hours
     working_hours = (time_out - time_in).total_seconds() / 3600
-    
-    # Calculate late hours (rounded up)
-    late_hours = math.ceil(late_minutes / 60)
-    
-    # Determine status
-    if working_hours >= 9 and early_leave_minutes == 0:
+    if working_hours >= 9 and late_hours == 0:
         return 'Enough', late_hours
     else:
         return 'Lack', late_hours
@@ -88,12 +85,10 @@ def main():
     VIDEO_PATH = args.path
     FACENET_MODEL_PATH = os.path.join(MODELS_PATH, '20180402-114759.pb')
 
-    # Load The Custom Classifier
     with open(CLASSIFIER_PATH, 'rb') as file:
         model, class_names = pickle.load(file)
     print("Custom Classifier, Successfully loaded")
 
-    # Create a mapping of employee IDs to names for display purposes
     connection = mysql.connector.connect(
         host="localhost",
         user="root",
@@ -102,34 +97,28 @@ def main():
     )
     cursor = connection.cursor()
     cursor.execute("SELECT employee_id, employee_name FROM employees")
-    # Create case-insensitive mapping by converting IDs to uppercase
     employee_names = {id.upper(): name for id, name in cursor.fetchall()}
     cursor.close()
     connection.close()
 
-    # Load YOLO model for anti-spoofing
     spoofing_model = YOLO(os.path.join(MODELS_PATH, "best.pt"))
-    spoofing_confidence = 0.7  # Tăng ngưỡng tin cậy lên 0.7
+    spoofing_confidence = 0.7
     classNames = ["fake", "real"]
 
-    # Auto-check functionality
     last_check_time = 0
-    check_interval = 3  # Giảm interval xuống 3 giây
+    check_interval = 3
     last_recognized_employee = None
     last_recognized_time = 0
-    cooldown_period = 30  # 30 seconds cooldown before recognizing the same person again
+    cooldown_period = 30
 
     with tf.Graph().as_default():
-        # Configure GPU if available
         gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.6)
         sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
 
         with sess.as_default():
-            # Load the FaceNet model
             print('Loading feature extraction model')
             facenet.load_model(FACENET_MODEL_PATH)
 
-            # Get input and output tensors
             images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
             embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
             phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
@@ -148,12 +137,10 @@ def main():
                 frame = imutils.resize(frame, width=600)
                 frame = cv2.flip(frame, 1)
 
-                # Auto check face every 3 seconds
                 current_time = time.time()
                 if current_time - last_check_time >= check_interval:
                     last_check_time = current_time
                     
-                    # Anti-spoofing check using YOLO
                     results = spoofing_model(frame, stream=True, verbose=False)
                     is_real = False
                     detected_spoofing = False
@@ -172,8 +159,10 @@ def main():
                                     is_real = True
                                     color = (0, 255, 0)
                                 else:
+                                    # detected **not** a typo in the code, it's meant to be here
                                     detected_spoofing = True
                                     color = (0, 0, 255)
+                                    print(f"🚫 Phát hiện giả mạo: Không thể chấm công!")
 
                                 cvzone.cornerRect(frame, (x1, y1, w, h), colorC=color, colorR=color)
                                 cvzone.putTextRect(frame, f'{classNames[cls].upper()} {int(conf * 100)}%',
@@ -181,7 +170,6 @@ def main():
                                                    colorB=color)
 
                     if is_real and not detected_spoofing:
-                        # Proceed with face recognition
                         bounding_boxes, _ = align.detect_face.detect_face(frame, MINSIZE, pnet, rnet, onet, THRESHOLD, FACTOR)
                         faces_found = bounding_boxes.shape[0]
 
@@ -195,7 +183,6 @@ def main():
                                 bb[i][3] = det[i][3]
                                 
                                 if (bb[i][3] - bb[i][1]) / frame.shape[0] > 0.25:
-                                    # Tăng kích thước ảnh khuôn mặt để cải thiện độ chính xác
                                     cropped = frame[bb[i][1]:bb[i][3], bb[i][0]:bb[i][2], :]
                                     scaled = cv2.resize(cropped, (INPUT_IMAGE_SIZE, INPUT_IMAGE_SIZE),
                                                         interpolation=cv2.INTER_CUBIC)
@@ -210,34 +197,28 @@ def main():
                                         np.arange(len(best_class_indices)), best_class_indices]
                                     best_name = class_names[best_class_indices[0]]
 
-                                    # Giảm ngưỡng nhận diện xuống 0.6 để tăng độ nhạy
                                     if best_class_probabilities > 0.6:
-                                        # Get employee ID directly from face recognition and convert to uppercase
                                         employee_id = best_name.upper()
                                         
-                                        # Verify if this is a valid employee ID
                                         if employee_id not in employee_names:
-                                            print(f"Warning: Employee ID '{employee_id}' not found in database")
+                                            print(f"🚫 Người chấm công không phải nhân viên công ty: {employee_id}")
                                             continue
                                             
                                         employee_name = employee_names[employee_id]
                                         
-                                        # Check cooldown period
                                         if (last_recognized_employee == employee_id and 
                                             current_time - last_recognized_time < cooldown_period):
+                                            print(f"⏳ Đang trong thời gian chờ: {employee_id} (còn {cooldown_period - (current_time - last_recognized_time):.1f} giây)")
                                             continue
 
-                                        # Update last recognized employee and time
                                         last_recognized_employee = employee_id
                                         last_recognized_time = current_time
 
-                                        # Process attendance
                                         now = datetime.datetime.now()
                                         sql_datetime = now.strftime('%Y-%m-%d %H:%M:%S')
                                         today = now.strftime('%Y-%m-%d')
                                         timestamp = now.strftime('%Y%m%d_%H%M%S')
 
-                                        # Save attendance photo
                                         year = now.strftime('%Y')
                                         month = now.strftime('%m')
                                         day = now.strftime('%d')
@@ -253,38 +234,56 @@ def main():
                                         cv2.imwrite(photo_path, frame_bgr)
                                         photo_proof = f"/{year}/{month}/{day}/{photo_filename}"
 
-                                        # Database connection
-                                        connection = mysql.connector.connect(
-                                            host="localhost",
-                                            user="root",
-                                            password="",
-                                            database="employee_management"
-                                        )
-                                        cursor = connection.cursor()
-                                        
-                                        # Check existing attendance record
-                                        cursor.execute(f"SELECT * FROM attendance WHERE employee_id='{employee_id}' AND DATE(attendance_date) = '{today}'")
-                                        result = cursor.fetchall()
+                                        try:
+                                            connection = mysql.connector.connect(
+                                                host="localhost",
+                                                user="root",
+                                                password="",
+                                                database="employee_management"
+                                            )
+                                            cursor = connection.cursor()
+                                            cursor.execute(f"SELECT * FROM attendance WHERE employee_id='{employee_id}' AND DATE(attendance_date) = '{today}'")
+                                            result = cursor.fetchall()
 
-                                        if not result:
-                                            # First check-in of the day
-                                            cursor.execute(f"INSERT INTO attendance (employee_id, attendance_date, time_in, status, photo_proof_in) VALUES ('{employee_id}', '{today}', '{sql_datetime}', 'Enough', '{photo_proof}')")
-                                            print(f"✅ Đã chấm công vào làm cho nhân viên: {employee_name}")
-                                        else:
-                                            # Check-out
-                                            last_record = result[-1]
-                                            if last_record[3] == 'In':
-                                                # Calculate attendance status
-                                                time_in = last_record[2].strftime('%H:%M:%S')
-                                                time_out = now.strftime('%H:%M:%S')
-                                                status, late_hours = calculate_attendance_status(time_in, time_out)
-                                                
-                                                cursor.execute(f"UPDATE attendance SET time_out = '{sql_datetime}', status = '{status}', late_hours = {late_hours}, photo_proof_out = '{photo_proof}' WHERE employee_id = '{employee_id}' AND DATE(attendance_date) = '{today}'")
-                                                print(f"✅ Đã chấm công ra về cho nhân viên: {employee_name}")
+                                            if result:
+                                                last_record = result[-1]
+                                                status = last_record[5]  # Cột status
+                                                # Kiểm tra nếu đã check-in và check-out (trạng thái không còn là 'pending')
+                                                if status.lower() != 'pending':
+                                                    print(f"⚠️ Bạn đã quét đủ lượt vào và ra, nếu có sai sót hãy báo cáo ở trang cá nhân cho nhân viên: {employee_name}")
+                                                    cursor.close()
+                                                    connection.close()
+                                                    continue
 
-                                        connection.commit()
-                                        cursor.close()
-                                        connection.close()
+                                            if not result:
+                                                cursor.execute(f"INSERT INTO attendance (employee_id, attendance_date, time_in, status, late_hours, photo_proof_in) VALUES ('{employee_id}', '{today}', '{sql_datetime}', 'pending', 0, '{photo_proof}')")
+                                                print(f"✅ Đã chấm công vào làm cho nhân viên: {employee_name} vào lúc: {sql_datetime}")
+                                            else:
+                                                status = last_record[5]  # Cột status là cột thứ 6 (chỉ số 5)
+                                                if status.lower() == 'pending':
+                                                    # Xử lý time_in là timedelta
+                                                    time_in_timedelta = last_record[3]  # Cột time_in là cột thứ 4 (chỉ số 3)
+                                                    total_seconds = int(time_in_timedelta.total_seconds())
+                                                    hours = total_seconds // 3600
+                                                    minutes = (total_seconds % 3600) // 60
+                                                    seconds = total_seconds % 60
+                                                    time_in = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+                                                    time_out = now.strftime('%H:%M:%S')
+                                                    status, late_hours = calculate_attendance_status(time_in, time_out)
+                                                    cursor.execute(f"UPDATE attendance SET time_out = '{sql_datetime}', status = '{status}', late_hours = {late_hours}, photo_proof_out = '{photo_proof}' WHERE employee_id = '{employee_id}' AND DATE(attendance_date) = '{today}'")
+                                                    print(f"✅ Đã chấm công ra về cho nhân viên: {employee_name} vào lúc: {sql_datetime}")
+                                                else:
+                                                    print(f"🚫 Không thể chấm công ra về: Trạng thái không phải 'pending' (hiện tại: {status})")
+
+                                            connection.commit()
+                                        except mysql.connector.Error as err:
+                                            print(f"🚫 Lỗi kết nối database: {err}")
+                                        finally:
+                                            if cursor:
+                                                cursor.close()
+                                            if connection:
+                                                connection.close()
 
                 cv2.imshow('Face Recognition', frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
