@@ -11,7 +11,7 @@ const updateLeaveRequestStatus = (req, res, next, db) => {
 };
 
 const createLeaveRequest = (req, res, next, db) => {
-    leaveService.createLeaveRequest(db, req.user.id, req.body);
+    leaveService.createLeaveRequest(db, req.user.employee_id, req.body);
     res.status(201).json({ success: true, message: "Gửi đơn xin nghỉ thành công!" });
 };
 
@@ -20,4 +20,15 @@ const getEmployeeLeaveRequests = async (req, res, next, db) => {
     res.status(200).json({ success: true, data: leaveRequests });
 };
 
-export default { getLeaveRequests, updateLeaveRequestStatus, createLeaveRequest, getEmployeeLeaveRequests };
+const deleteLeaveRequest = (req, res, next, db) => {
+    leaveService.deleteLeaveRequest(db, req.params.request_id);
+    res.status(200).json({ success: true, message: "Xóa đơn xin nghỉ phép thành công!" });
+};
+
+export default { 
+    getLeaveRequests, 
+    updateLeaveRequestStatus, 
+    createLeaveRequest, 
+    getEmployeeLeaveRequests,
+    deleteLeaveRequest 
+};

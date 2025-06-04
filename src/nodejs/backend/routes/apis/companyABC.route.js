@@ -8,7 +8,10 @@ const router = (db) => {
     const mainRouter = express.Router();
 
     // Route đăng nhập
-    mainRouter.post('/login', validateLogin, (req, res, next) => authController.login(req, res, db));
+    mainRouter.post('/login', validateLogin, (req, res, next) => authController.login(req, res, next, db));
+    mainRouter.post('/forget-password', (req, res, next) => authController.forgetPassword(req, res, next, db));
+    mainRouter.post('/reset-password', (req, res, next) => authController.resetPassword(req, res, next, db));
+
 
     // Route cho admin
     mainRouter.use("/admin", adminRouter(db));

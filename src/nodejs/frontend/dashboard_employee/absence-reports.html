@@ -49,8 +49,7 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" href="leave-requests.html"
-                ><i class="fas fa-calendar-times me-1"></i>Lịch Sử Đơn Xin Nghỉ
-                Phép</a
+                ><i class="fas fa-calendar-times me-1"></i>Đơn Xin Nghỉ Phép</a
               >
             </li>
             <li class="nav-item">
@@ -189,43 +188,67 @@
 
       // Load absence reports history
       async function loadAbsenceReports() {
-        const year = $("#filter_year").val();
-        const month = $("#filter_month").val();
+        let year = $("#filter_year").val();
+        let month = $("#filter_month").val();
+        const errorMsg = $("#errorMsg");
+        const errorText = $("#errorText");
+        const tbody = $("#absenceReportsTableBody").empty();
         const query = [];
+
+        // Tự động điền năm và tháng hiện tại nếu thiếu hoặc chưa nhập gì
+        if (!year || !month || (year && !month) || (!year && month)) {
+          const now = new Date();
+          year = now.getFullYear(); // 2025
+          month = now.getMonth() + 1; // Tháng hiện tại (6)
+          // Cập nhật giá trị vào ô input để người dùng thấy
+          $("#filter_year").val(year);
+          $("#filter_month").val(month);
+        }
+
+        // Thêm tham số lọc nếu có year và month
         if (year) query.push(`year=${year}`);
         if (month) query.push(`month=${month}`);
-        const url = `/employee/absence-reports${query.length ? "?" + query.join("&") : ""}`;
+
+        const url = `/employee/absence-reports${
+          query.length ? "?" + query.join("&") : ""
+        }`;
 
         try {
           const response = await sendAjaxRequest(url, "GET");
           const reports = response.data || [];
-          const tbody = $("#absenceReportsTableBody").empty();
+          tbody.empty();
 
           if (reports.length === 0) {
             tbody.append(
-              '<tr><td colspan="4" class="text-center">Không có báo cáo nghỉ không phép</td></tr>'
+              '<tr><td colspan="3" class="text-center">Không có báo cáo nghỉ không phép</td></tr>'
             );
             return;
           }
 
           reports.forEach((report) => {
-            const absenceDate = new Date(report.absence_date).toLocaleDateString("vi-VN");
+            const absenceDate = new Date(
+              report.absence_date
+            ).toLocaleDateString("vi-VN");
             const reason = "Nghỉ không phép";
-            const createdAt = new Date(report.created_at).toLocaleString("vi-VN");
+            const createdAt = new Date(report.created_at).toLocaleString(
+              "vi-VN"
+            );
 
             const row = `
-              <tr>
-                <td>${absenceDate}</td>
-                <td>${reason}</td>
-                <td>${createdAt}</td>
-              </tr>
-            `;
+          <tr>
+            <td>${absenceDate}</td>
+            <td>${reason}</td>
+            <td>${createdAt}</td>
+          </tr>
+        `;
             tbody.append(row);
           });
-        } catch {
-          $("#errorMsg").show();
-          $("#errorText").text(
-            "Lỗi tải lịch sử nghỉ không phép, vui lòng thử lại!"
+        } catch (xhr) {
+          tbody.empty();
+          errorMsg.show();
+          errorText.text(
+            xhr.responseJSON?.message ||
+              "Lỗi tải lịch sử nghỉ không phép, vui lòng thử lại!"
           );
         }
       }
@@ -237,8 +260,10 @@
         loadAbsenceReports();
       }
 
-      // Load absence reports when page loads
-      loadAbsenceReports();
+      // Gọi loadAbsenceReports khi trang tải
+      $(document).ready(() => {
+        loadAbsenceReports();
+      });
     </script>
 
     <!-- Bootstrap JS -->

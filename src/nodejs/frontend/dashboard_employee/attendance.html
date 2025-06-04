@@ -42,40 +42,31 @@
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
               <a class="nav-link" href="profile.html"
-                ><i class="fas fa-user me-1"></i>Thông Tin Cá Nhân</a
-              >
+                ><i class="fas fa-user me-1"></i>Thông Tin Cá Nhân</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="attendance.html"
-                ><i class="fas fa-calendar-check me-1"></i>Lịch Sử Chấm Công</a
-              >
+                ><i class="fas fa-calendar-check me-1"></i>Lịch Sử Chấm Công</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="attendance-reports.html"
-                ><i class="fas fa-file-alt me-1"></i>Lịch Sử Báo Cáo Chấm
-                Công</a
-              >
+                ><i class="fas fa-file-alt me-1"></i>Lịch Sử Báo Cáo Chấm Công</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="leave-requests.html"
-                ><i class="fas fa-calendar-times me-1"></i>Đơn Xin Nghỉ Phép</a
-              >
+                ><i class="fas fa-calendar-times me-1"></i>Đơn Xin Nghỉ Phép</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="absence-reports.html"
-                ><i class="fas fa-calendar-times me-1"></i>Lịch Sử Nghỉ Không
-                Phép</a
-              >
+                ><i class="fas fa-calendar-times me-1"></i>Lịch Sử Nghỉ Không Phép</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="salary-report.html"
-                ><i class="fas fa-money-check-alt me-1"></i>Báo Cáo Lương</a
-              >
+                ><i class="fas fa-money-check-alt me-1"></i>Báo Cáo Lương</a>
             </li>
             <li class="nav-item">
               <a class="nav-link text-danger" href="#" id="logoutBtn"
-                ><i class="fas fa-sign-out-alt me-1"></i>Đăng Xuất</a
-              >
+                ><i class="fas fa-sign-out-alt me-1"></i>Đăng Xuất</a>
             </li>
           </ul>
         </div>
@@ -95,6 +86,15 @@
           >
             <i class="fas fa-exclamation-circle me-2"></i>
             <span id="errorText"></span>
+          </div>
+          <div
+            class="alert alert-success"
+            id="successMsg"
+            role="alert"
+            style="display: none"
+          >
+            <i class="fas fa-check-circle me-2"></i>
+            <span id="successText"></span>
           </div>
           <div class="row mb-4">
             <div class="col-md-3">
@@ -124,12 +124,28 @@
                 <option value="12">Tháng 12</option>
               </select>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
+              <select class="form-control" id="filter_status">
+                <option value="">Chọn trạng thái</option>
+                <option value="Enough">Đủ</option>
+                <option value="Lack">Thiếu</option>
+                <option value="Pending">Chờ xử lý</option>
+                <option value="Alert">Cảnh báo</option>
+              </select>
+            </div>
+            <div class="col-md-3">
               <button class="btn btn-primary" onclick="loadAttendance()">
                 Lọc
               </button>
               <button class="btn btn-secondary" onclick="resetFilters()">
                 Xóa bộ lọc
+              </button>
+              <button
+                class="btn btn-success"
+                data-bs-toggle="modal"
+                data-bs-target="#missingRecordModal"
+              >
+                <i class="fas fa-plus me-1"></i>Báo Cáo
               </button>
             </div>
           </div>
@@ -174,7 +190,6 @@
                 <select class="form-control" id="issue_type" required>
                   <option value="WrongTime">Sai thời gian</option>
                   <option value="WrongFace">Sai khuôn mặt</option>
-                  <option value="MissingRecord">Thiếu bản ghi</option>
                   <option value="Other">Khác</option>
                 </select>
               </div>
@@ -183,6 +198,47 @@
                 <textarea
                   class="form-control"
                   id="description"
+                  rows="4"
+                  required
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Gửi Báo Cáo</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Báo Cáo Thiếu Bản Ghi -->
+    <div class="modal fade" id="missingRecordModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Báo Cáo Thiếu Bản Ghi Chấm Công</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="missingRecordForm">
+              <div class="mb-3">
+                <label for="missing_date" class="form-label">Ngày Thiếu</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="missing_date"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="missing_description" class="form-label"
+                  >Mô Tả</label
+                >
+                <textarea
+                  class="form-control"
+                  id="missing_description"
                   rows="4"
                   required
                 ></textarea>
@@ -207,7 +263,12 @@
             ></button>
           </div>
           <div class="modal-body text-center">
-            <img id="photoPreview" src="" class="img-fluid" alt="Ảnh chứng minh" />
+            <img
+              id="photoPreview"
+              src=""
+              class="img-fluid"
+              alt="Ảnh chứng minh"
+            />
           </div>
         </div>
       </div>
@@ -261,17 +322,49 @@
 
       // Load attendance history
       async function loadAttendance() {
-        const year = $('#filter_year').val();
-        const month = $('#filter_month').val();
+        let year = $('#filter_year').val();
+        let month = $('#filter_month').val();
+        const status = $('#filter_status').val();
+        const errorMsg = $('#errorMsg');
+        const errorText = $('#errorText');
+        const tbody = $('#attendanceTableBody').empty();
         const query = [];
-        if (year) query.push(`year=${year}`);
-        if (month) query.push(`month=${month}`);
+
+        // Tự động lọc theo ngày hiện tại nếu chưa nhập gì
+        const now = new Date();
+        const currentDate = now.toISOString().split('T')[0]; // 2025-06-01
+        const currentYear = now.getFullYear(); // 2025
+        const currentMonth = now.getMonth() + 1; // 6
+
+        // Nếu không có bộ lọc, mặc định hiển thị dữ liệu của ngày hiện tại
+        if (!year && !month && !status) {
+          query.push(`attendance_date=${currentDate}`);
+          // Cập nhật ô input để hiển thị ngày hiện tại
+          $('#filter_year').val(currentYear);
+          $('#filter_month').val(currentMonth);
+        } else {
+          // Nếu có bộ lọc, ưu tiên bộ lọc của người dùng
+          if (year && month) {
+            query.push(`month=${year}-${month.padStart(2, "0")}`);
+          } else if ((year && !month) || (!year && month)) {
+            // Nếu thiếu một trong hai, điền tự động
+            year = year || currentYear;
+            month = month || currentMonth;
+            $('#filter_year').val(year);
+            $('#filter_month').val(month);
+            query.push(`month=${year}-${month.padStart(2, "0")}`);
+          }
+          if (status) {
+            query.push(`status=${status}`);
+          }
+        }
+
         const url = `/employee/attendance${query.length ? '?' + query.join('&') : ''}`;
 
         try {
           const response = await sendAjaxRequest(url, 'GET');
           const records = response.data || [];
-          const tbody = $('#attendanceTableBody').empty();
+          tbody.empty();
 
           if (records.length === 0) {
             tbody.append(
@@ -284,16 +377,25 @@
             const date = new Date(record.attendance_date).toLocaleDateString('vi-VN');
             const timeIn = record.time_in ? record.time_in.slice(0, 5) : '-';
             const timeOut = record.time_out ? record.time_out.slice(0, 5) : '-';
-            const statusText = record.status === 'Enough' ? 'Đủ' : 'Thiếu';
-            const statusClass = record.status === 'Enough' ? 'bg-success' : 'bg-danger';
+            const statusText = {
+              Enough: 'Đủ',
+              Lack: 'Thiếu',
+              Pending: 'Chờ xử lý',
+              Alert: 'Cảnh báo'
+            }[record.status];
+            const statusClass = {
+              Enough: 'bg-success',
+              Lack: 'bg-danger',
+              Pending: 'bg-warning',
+              Alert: 'bg-danger'
+            }[record.status];
             const lateHours = record.late_hours || 0;
-            const photoIn = record.photo_proof_in
+            const photoIn =record.photo_proof_in
               ? `<img src="http://localhost:5000${record.photo_proof_in}" class="proof-img" onclick="showPhoto('http://localhost:5000${record.photo_proof_in}')" alt="Ảnh vào" />`
               : '-';
             const photoOut = record.photo_proof_out
               ? `<img src="http://localhost:5000${record.photo_proof_out}" class="proof-img" onclick="showPhoto('http://localhost:5000${record.photo_proof_out}')" alt="Ảnh ra" />`
               : '-';
-
             const row = `
               <tr>
                 <td>${date}</td>
@@ -311,9 +413,12 @@
             `;
             tbody.append(row);
           });
-        } catch {
-          $('#errorMsg').show();
-          $('#errorText').text('Lỗi tải lịch sử chấm công, vui lòng thử lại!');
+        } catch (xhr) {
+          tbody.empty();
+          errorMsg.show();
+          errorText.text(
+            xhr.responseJSON?.message || 'Lỗi tải lịch sử chấm công, vui lòng thử lại!'
+          );
         }
       }
 
@@ -338,10 +443,44 @@
           await sendAjaxRequest('/employee/attendance-reports', 'POST', report);
           bootstrap.Modal.getInstance($('#reportModal')).hide();
           $('#reportForm')[0].reset();
-          alert('✅ Gửi báo cáo thành công!');
+          $('#successMsg').show();
+          $('#successText').text('Gửi báo cáo thành công!');
+          setTimeout(() => $('#successMsg').hide(), 3000);
         } catch {
           $('#errorMsg').show();
           $('#errorText').text('Lỗi gửi báo cáo, vui lòng thử lại!');
+        }
+      });
+
+      // Xử lý báo cáo thiếu bản ghi
+      $('#missingRecordForm').submit(async (event) => {
+        event.preventDefault();
+        const report = {
+          attendance_date: $('#missing_date').val(),
+          issue_type: 'MissingRecord',
+          description: $('#missing_description').val()
+        };
+
+        const submitBtn = $('#missingRecordForm button[type="submit"]');
+        const originalBtnText = submitBtn.html();
+        submitBtn.prop('disabled', true);
+        submitBtn.html(
+          '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...'
+        );
+
+        try {
+          await sendAjaxRequest('/employee/attendance-reports', 'POST', report);
+          bootstrap.Modal.getInstance($('#missingRecordModal')).hide();
+          $('#missingRecordForm')[0].reset();
+          $('#successMsg').show();
+          $('#successText').text('Gửi báo cáo thiếu bản ghi thành công!');
+          setTimeout(() => $('#successMsg').hide(), 3000);
+        } catch {
+          $('#errorMsg').show();
+          $('#errorText').text('Lỗi gửi báo cáo, vui lòng thử lại!');
+        } finally {
+          submitBtn.prop('disabled', false);
+          submitBtn.html(originalBtnText);
         }
       });
 
@@ -355,11 +494,14 @@
       function resetFilters() {
         $('#filter_year').val('');
         $('#filter_month').val('');
+        $('#filter_status').val('');
         loadAttendance();
       }
 
       // Load attendance when page loads
-      loadAttendance();
+      $(document).ready(() => {
+        loadAttendance();
+      });
     </script>
 
     <!-- Bootstrap JS -->

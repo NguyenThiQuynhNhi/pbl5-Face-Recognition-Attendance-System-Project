@@ -6,6 +6,7 @@ import fileUpload from 'express-fileupload';
 import fs from 'fs';
 import routes from './src/nodejs/backend/routes/index.js';
 import path from 'path';
+import absenceScheduler from './src/nodejs/backend/scheduler/absenceScheduler.js';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,7 +16,7 @@ dotenv.config();
 const app = express();
 
 // Tạo thư mục uploads nếu chưa tồn tại
-const uploadsDir = path.join(__dirname, 'public/uploads/employees');
+const uploadsDir = path.join(__dirname, 'public/uploads');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -36,7 +37,7 @@ app.use(fileUpload({
     },
 }));
 
-// Dùng async IIFE để chờ khởi tạo db
+
 (async () => {
     try {
         const db = await mysql.createConnection({
@@ -45,10 +46,11 @@ app.use(fileUpload({
             password: "",
             database: "employee_management",
         });
-
+        
         console.log("✅ Kết nối MySQL thành công!");
+        
+        absenceScheduler.startAbsenceScheduler(db);
 
-        // Khai báo routes sau khi có db
         app.use('/', routes(db));
 
         const Port = process.env.Port || 5000;

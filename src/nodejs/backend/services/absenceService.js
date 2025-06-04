@@ -19,14 +19,12 @@ const getAbsenceReports = async (db, filters) => {
         query += " AND e.department_id = ?";
         params.push(filters.department_id);
     }
-    console.log('Query:', query, 'Params:', params);
     const [rows] = await db.query(query, params);
-    console.log('Absence reports rows:', rows);
     return rows;
 };
 
-const getAbsenceReportsByEmployee = async (db, employee_id) => {
-    const query = `
+const getAbsenceReportsByEmployee = async (db, employee_id, filters = {}) => {
+    let query = `
         SELECT ar.*, e.employee_name, d.department_name
         FROM absence_reports ar
         JOIN employees e ON ar.employee_id = e.employee_id
@@ -34,8 +32,25 @@ const getAbsenceReportsByEmployee = async (db, employee_id) => {
         WHERE ar.employee_id = ?
     `;
     const params = [employee_id];
+    if (filters.year && filters.month) {
+        query += " AND YEAR(ar.absence_date) = ? AND MONTH(ar.absence_date) = ?";
+        params.push(filters.year, filters.month);
+    }
     const [rows] = await db.query(query, params);
     return rows;
-}
+};
 
-export default { getAbsenceReports, getAbsenceReportsByEmployee };
+const recordAbsence = async (db, employee_id, absence_date) => {
+    try {
+        await db.query(
+            'INSERT INTO absence_reports (employee_id, absence_date) VALUES (?, ?)',
+            [employee_id, absence_date]
+        );
+        console.log(`Recorded absence for ${employee_id} on ${absence_date}`);
+    } catch (error) {
+        console.error(`Error recording absence for ${employee_id} on ${absence_date}:`, error);
+        throw error; 
+    }
+};
+
+export default { getAbsenceReports, getAbsenceReportsByEmployee, recordAbsence };

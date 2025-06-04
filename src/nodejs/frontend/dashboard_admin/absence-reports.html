@@ -136,7 +136,7 @@
           <table class="table table-striped">
             <thead>
               <tr>
-                <th>ID Báo Cáo</th>
+                <th>ID</th>
                 <th>Nhân Viên</th>
                 <th>Phòng Ban</th>
                 <th>Ngày Nghỉ</th>
@@ -389,14 +389,28 @@
                   ? `http://localhost:5000${emp.face_image_dir}`
                   : "https://via.placeholder.com/40";
                 const createdAt = new Date(record.created_at).toLocaleString(
-                  "vi-VN"
+                  "vi-VN",
+                  {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  }
                 );
                 return `
                             <tr>
                                 <td>${record.report_id}</td>
                                 <td>${record.employee_name} (${record.employee_id})</td>
                                 <td>${record.department_name}</td>
-                                <td>${record.absence_date}</td>
+                                <td>${new Date(
+                                        record.absence_date
+                                      ).toLocaleDateString("vi-VN", {
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "numeric",
+                                      })}</td>
                                 <td>${createdAt}</td>
                                 <td>
                                     <button class="btn btn-warning btn-sm" onclick="editAbsenceReport(${record.report_id}, '${record.employee_id}', '${record.absence_date}')"><i class="fas fa-edit"></i></button>

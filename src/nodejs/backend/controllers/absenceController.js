@@ -6,8 +6,8 @@ const getAbsenceReports = async (req, res, next, db) => {
 };
 
 const getAbsenceReportsByEmployee = async (req, res, next, db) => {
-    const absenceReports = await absenceService.getAbsenceReportsByEmployee(db,  req.user.employee_id);
+    const absenceReports = await absenceService.getAbsenceReportsByEmployee(db, req.user.employee_id, req.query);
     res.status(200).json({ success: true, data: absenceReports });
-}
+};
 
 export default { getAbsenceReports, getAbsenceReportsByEmployee };

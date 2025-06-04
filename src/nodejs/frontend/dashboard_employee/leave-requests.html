@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Lịch Sử Đơn Xin Phép</title>
+    <title>Lịch Sử Đơn Xin Nghỉ Phép</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -43,19 +43,17 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" href="attendance-reports.html"
-                ><i class="fas fa-file-alt me-1"></i>Lịch Sử Báo Cáo Chấm
-                Công</a
+                ><i class="fas fa-file-alt me-1"></i>Lịch Sử Báo Cáo Chấm Công</a
               >
             </li>
             <li class="nav-item">
               <a class="nav-link" href="leave-requests.html"
-                ><i class="fas fa-calendar-times me-1"></i>Lịch Sử Đơn Xin Nghỉ Phép</a
+                ><i class="fas fa-calendar-times me-1"></i>Đơn Xin Nghỉ Phép</a
               >
             </li>
             <li class="nav-item">
               <a class="nav-link" href="absence-reports.html"
-                ><i class="fas fa-calendar-times me-1"></i>Lịch Sử Nghỉ Không
-                Phép</a
+                ><i class="fas fa-calendar-times me-1"></i>Lịch Sử Nghỉ Không Phép</a
               >
             </li>
             <li class="nav-item">
@@ -86,6 +84,15 @@
           >
             <i class="fas fa-exclamation-circle me-2"></i>
             <span id="errorText"></span>
+          </div>
+          <div
+            class="alert alert-success"
+            id="successMsg"
+            role="alert"
+            style="display: none"
+          >
+            <i class="fas fa-check-circle me-2"></i>
+            <span id="successText"></span>
           </div>
           <div class="row mb-4">
             <div class="col-md-3">
@@ -122,6 +129,13 @@
               <button class="btn btn-secondary" onclick="resetFilters()">
                 Xóa bộ lọc
               </button>
+              <button
+                class="btn btn-success"
+                data-bs-toggle="modal"
+                data-bs-target="#createLeaveRequestModal"
+              >
+                <i class="fas fa-plus me-1"></i>Xin nghỉ phép
+              </button>
             </div>
           </div>
           <div class="table-responsive">
@@ -136,6 +150,56 @@
               </thead>
               <tbody id="leaveRequestsTableBody"></tbody>
             </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for creating leave request -->
+    <div
+      class="modal fade"
+      id="createLeaveRequestModal"
+      tabindex="-1"
+      aria-labelledby="createLeaveRequestModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="createLeaveRequestModalLabel">
+              Tạo Đơn Xin Nghỉ Phép
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="createLeaveRequestForm">
+              <div class="mb-3">
+                <label for="leaveDate" class="form-label">Ngày nghỉ</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="leaveDate"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="reason" class="form-label">Lý do</label>
+                <textarea
+                  class="form-control"
+                  id="reason"
+                  rows="4"
+                  required
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i>Gửi đơn
+              </button>
+            </form>
           </div>
         </div>
       </div>
@@ -189,27 +253,48 @@
 
       // Load leave requests history
       async function loadLeaveRequests() {
-        const year = $("#filter_year").val();
-        const month = $("#filter_month").val();
+        let year = $("#filter_year").val();
+        let month = $("#filter_month").val();
+        const errorMsg = $("#errorMsg");
+        const errorText = $("#errorText");
+        const tbody = $("#leaveRequestsTableBody").empty();
         const query = [];
-        if (year) query.push(`year=${year}`);
-        if (month) query.push(`month=${month}`);
-        const url = `/employee/leave-requests${query.length ? "?" + query.join("&") : ""}`;
+
+        // Tự động điền năm và tháng hiện tại nếu thiếu
+        if ((year && !month) || (!year && month)) {
+          const now = new Date();
+          year = now.getFullYear(); // 2025
+          month = now.getMonth() + 1; // Tháng hiện tại (6)
+          // Cập nhật giá trị vào ô input để người dùng thấy
+          $("#filter_year").val(year);
+          $("#filter_month").val(month);
+        }
+
+        // Thêm tham số lọc nếu có year và month
+        if (year && month) {
+          query.push(`month=${year}-${month.padStart(2, "0")}`);
+        }
+
+        const url = `/employee/leave-requests${
+          query.length ? "?" + query.join("&") : ""
+        }`;
 
         try {
           const response = await sendAjaxRequest(url, "GET");
           const requests = response.data || [];
-          const tbody = $("#leaveRequestsTableBody").empty();
+          tbody.empty();
 
           if (requests.length === 0) {
             tbody.append(
-              '<tr><td colspan="5" class="text-center">Không có đơn xin phép</td></tr>'
+              '<tr><td colspan="4" class="text-center">Không có đơn xin phép</td></tr>'
             );
             return;
           }
 
           requests.forEach((request) => {
-            const leaveDate = new Date(request.leave_date).toLocaleDateString("vi-VN");
+            const leaveDate = new Date(request.leave_date).toLocaleDateString(
+              "vi-VN"
+            );
             const reason = request.reason || "-";
             const statusText = {
               Pending: "Chờ xử lý",
@@ -221,23 +306,67 @@
               Approved: "bg-success",
               Rejected: "bg-danger",
             }[request.status];
-            const createdAt = new Date(request.created_at).toLocaleString("vi-VN");
+            const createdAt = new Date(request.created_at).toLocaleString(
+              "vi-VN"
+            );
 
             const row = `
-              <tr>
-                <td>${leaveDate}</td>
-                <td>${reason}</td>
-                <td><span class="badge ${statusClass}">${statusText}</span></td>
-                <td>${createdAt}</td>
-              </tr>
-            `;
+          <tr>
+            <td>${leaveDate}</td>
+            <td>${reason}</td>
+            <td><span class="badge ${statusClass}">${statusText}</span></td>
+            <td>${createdAt}</td>
+          </tr>
+        `;
             tbody.append(row);
           });
-        } catch {
-          $("#errorMsg").show();
-          $("#errorText").text("Lỗi tải lịch sử đơn xin phép, vui lòng thử lại!");
+        } catch (xhr) {
+          tbody.empty();
+          errorMsg.show();
+          errorText.text(
+            xhr.responseJSON?.message ||
+              "Lỗi tải lịch sử đơn xin phép, vui lòng thử lại!"
+          );
         }
       }
+
+      // Xử lý tạo đơn xin nghỉ phép
+      $("#createLeaveRequestForm").submit(async (event) => {
+        event.preventDefault();
+
+        const leaveDate = $("#leaveDate").val();
+        const reason = $("#reason").val().trim();
+        const successMsg = $("#successMsg");
+        const errorMsg = $("#errorMsg");
+        const successText = $("#successText");
+        const errorText = $("#errorText");
+
+        const submitBtn = $("#createLeaveRequestForm button[type='submit']");
+        const originalBtnText = submitBtn.html();
+        submitBtn.prop("disabled", true);
+        submitBtn.html(
+          '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...'
+        );
+
+        try {
+          await sendAjaxRequest("/employee/leave-requests", "POST", {
+            leave_date: leaveDate,
+            reason,
+          });
+          successMsg.show();
+          successText.text("Gửi đơn xin nghỉ thành công!");
+          setTimeout(() => successMsg.hide(), 3000);
+          $("#createLeaveRequestForm")[0].reset();
+          $("#createLeaveRequestModal").modal("hide");
+          loadLeaveRequests();
+        } catch {
+          errorMsg.show();
+          errorText.text("Lỗi gửi đơn xin nghỉ, vui lòng thử lại!");
+        } finally {
+          submitBtn.prop("disabled", false);
+          submitBtn.html(originalBtnText);
+        }
+      });
 
       // Xóa bộ lọc
       function resetFilters() {
@@ -246,10 +375,17 @@
         loadLeaveRequests();
       }
 
-      // Load leave requests when page loads
-      loadLeaveRequests();
+      // Tự động điền năm hiện tại khi trang tải và gọi loadLeaveRequests
+      $(document).ready(() => {
+        const currentYear = new Date().getFullYear();
+        $("#filter_year").val(currentYear);
+        loadLeaveRequests();
+      });
+      // Gọi loadLeaveRequests khi trang tải
+      $(document).ready(() => {
+        loadLeaveRequests();
+      });
     </script>
-
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>

@@ -86,11 +86,6 @@
                     <button class="btn btn-primary" onclick="fetchLeaveRequests()">Lọc</button>
                     <button class="btn btn-secondary" onclick="resetFilters()">Xóa bộ lọc</button>
                 </div>
-                <div class="col-md-6 text-end">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addLeaveRequestModal">
-                        <i class="fas fa-plus me-1"></i>Thêm Đơn Nghỉ Phép
-                    </button>
-                </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-striped">
@@ -99,12 +94,10 @@
                             <th>ID</th>
                             <th>Nhân Viên</th>
                             <th>Phòng Ban</th>
-                            <th>Ngày Bắt Đầu</th>
-                            <th>Ngày Kết Thúc</th>
+                            <th>Ngày Nghỉ</th>
                             <th>Lý Do</th>
                             <th>Trạng Thái</th>
                             <th>Ngày Gửi</th>
-                            <th>Thao Tác</th>
                         </tr>
                     </thead>
                     <tbody id="leaveRequestsTableBody"></tbody>
@@ -114,73 +107,6 @@
                 <i class="fas fa-calendar-times fa-3x"></i>
                 <h3>Chưa có đơn xin nghỉ phép</h3>
                 <p>Không có dữ liệu phù hợp với bộ lọc.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Thêm Đơn -->
-    <div class="modal fade" id="addLeaveRequestModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Thêm Đơn Xin Nghỉ Phép</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addLeaveRequestForm">
-                        <div class="mb-3">
-                            <label for="request_employee_id" class="form-label">Nhân Viên</label>
-                            <select class="form-control" id="request_employee_id" required></select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="start_date" class="form-label">Ngày Bắt Đầu</label>
-                            <input type="date" class="form-control" id="start_date" required />
-                        </div>
-                        <div class="mb-3">
-                            <label for="end_date" class="form-label">Ngày Kết Thúc</label>
-                            <input type="date" class="form-control" id="end_date" required />
-                        </div>
-                        <div class="mb-3">
-                            <label for="reason" class="form-label">Lý Do</label>
-                            <textarea class="form-control" id="reason" rows="4"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Thêm</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Sửa Đơn -->
-    <div class="modal fade" id="editLeaveRequestModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Sửa Đơn Xin Nghỉ Phép</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editLeaveRequestForm">
-                        <input type="hidden" id="edit_request_id" />
-                        <div class="mb-3">
-                            <label for="edit_request_employee_id" class="form-label">Nhân Viên</label>
-                            <select class="form-control" id="edit_request_employee_id" required></select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_start_date" class="form-label">Ngày Bắt Đầu</label>
-                            <input type="date" class="form-control" id="edit_start_date" required />
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_end_date" class="form-label">Ngày Kết Thúc</label>
-                            <input type="date" class="form-control" id="edit_end_date" required />
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_reason" class="form-label">Lý Do</label>
-                            <textarea class="form-control" id="edit_reason" rows="4"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Cập Nhật</button>
-                    </form>
-                </div>
             </div>
         </div>
     </div>
@@ -230,11 +156,8 @@
         let departments = [];
 
         // Tải danh sách nhân viên
-        const fetchEmployees = (selectElement) => {
+        const fetchEmployees = () => {
             if (employees.length > 0) {
-                selectElement.innerHTML = employees.map(emp => 
-                    `<option value="${emp.employee_id}">${emp.employee_name} (${emp.employee_id})</option>`
-                ).join('');
                 document.getElementById('filter_employee_id').innerHTML = 
                     `<option value="">Tất cả nhân viên</option>` + 
                     employees.map(emp => 
@@ -245,9 +168,6 @@
             sendAjaxRequest('/employees', 'GET', null, (response) => {
                 employees = response.data || [];
                 console.log('Employees loaded:', employees);
-                selectElement.innerHTML = employees.map(emp => 
-                    `<option value="${emp.employee_id}">${emp.employee_name} (${emp.employee_id})</option>`
-                ).join('');
                 document.getElementById('filter_employee_id').innerHTML = 
                     `<option value="">Tất cả nhân viên</option>` + 
                     employees.map(emp => 
@@ -280,7 +200,7 @@
         // Tải danh sách đơn nghỉ phép
         const fetchLeaveRequests = () => {
             const filters = {
-                start_date: document.getElementById('filter_start_date').value,
+                leave_date: document.getElementById('filter_start_date').value,
                 employee_id: document.getElementById('filter_employee_id').value,
                 status: document.getElementById('filter_status').value,
                 department_id: document.getElementById('filter_department_id').value
@@ -320,18 +240,30 @@
                                 statusText = 'Từ chối';
                                 break;
                         }
-                        const createdAt = new Date(request.created_at).toLocaleString('vi-VN');
+                        const createdAt = new Date(request.created_at).toLocaleString(
+                            "vi-VN",
+                            {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                second: "2-digit",
+                            }
+                        );
                         return `
                             <tr>
                                 <td>${request.request_id}</td>
                                 <td>${request.employee_name} (${request.employee_id})</td>
                                 <td>${request.department_name}</td>
-                                <td>${request.start_date}</td>
-                                <td>${request.end_date}</td>
+                                <td>${new Date(request.leave_date).toLocaleDateString("vi-VN", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                })}</td>
                                 <td>${request.reason || ''}</td>
-                                <td><span class="badge ${statusClass}">${statusText}</span></td>
-                                <td>${createdAt}</td>
                                 <td>
+                                    <span class="badge ${statusClass}">${statusText}</span>
                                     ${
                                         request.status === 'Pending' ? `
                                             <button class="btn btn-sm btn-success approve-btn" data-request-id="${request.request_id}">
@@ -340,22 +272,10 @@
                                             <button class="btn btn-sm btn-danger reject-btn" data-request-id="${request.request_id}">
                                                 <i class="fas fa-times me-1"></i>Từ chối
                                             </button>
-                                            <button class="btn btn-sm btn-warning" onclick="editLeaveRequest(${request.request_id}, '${request.employee_id}', '${request.start_date}', '${request.end_date}', '${request.reason || ''}')">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteLeaveRequest(${request.request_id})">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        ` : `
-                                            <button class="btn btn-sm btn-warning" onclick="editLeaveRequest(${request.request_id}, '${request.employee_id}', '${request.start_date}', '${request.end_date}', '${request.reason || ''}')">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteLeaveRequest(${request.request_id})">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        `
+                                        ` : ''
                                     }
                                 </td>
+                                <td>${createdAt}</td>
                             </tr>
                         `;
                     }).join('');
@@ -369,58 +289,6 @@
                     });
                 }
             });
-        };
-
-        // Thêm đơn nghỉ phép
-        document.getElementById('addLeaveRequestForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const request = {
-                employee_id: document.getElementById('request_employee_id').value,
-                start_date: document.getElementById('start_date').value,
-                end_date: document.getElementById('end_date').value,
-                reason: document.getElementById('reason').value || null
-            };
-            sendAjaxRequest('/leave-requests', 'POST', request, () => {
-                fetchLeaveRequests();
-                bootstrap.Modal.getInstance(document.getElementById('addLeaveRequestModal')).hide();
-                document.getElementById('addLeaveRequestForm').reset();
-                alert('✅ Thêm đơn xin nghỉ phép thành công!');
-            });
-        });
-
-        // Sửa đơn nghỉ phép
-        const editLeaveRequest = (id, employee_id, start_date, end_date, reason) => {
-            document.getElementById('edit_request_id').value = id;
-            document.getElementById('edit_request_employee_id').value = employee_id;
-            document.getElementById('edit_start_date').value = start_date;
-            document.getElementById('edit_end_date').value = end_date;
-            document.getElementById('edit_reason').value = reason;
-            new bootstrap.Modal(document.getElementById('editLeaveRequestModal')).show();
-        };
-
-        document.getElementById('editLeaveRequestForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const request = {
-                employee_id: document.getElementById('edit_request_employee_id').value,
-                start_date: document.getElementById('edit_start_date').value,
-                end_date: document.getElementById('edit_end_date').value,
-                reason: document.getElementById('edit_reason').value || null
-            };
-            sendAjaxRequest(`/leave-requests/${document.getElementById('edit_request_id').value}`, 'PUT', request, () => {
-                fetchLeaveRequests();
-                bootstrap.Modal.getInstance(document.getElementById('editLeaveRequestModal')).hide();
-                alert('✅ Cập nhật đơn xin nghỉ phép thành công!');
-            });
-        });
-
-        // Xóa đơn nghỉ phép
-        const deleteLeaveRequest = (id) => {
-            if (confirm('Bạn có chắc muốn xóa đơn này?')) {
-                sendAjaxRequest(`/leave-requests/${id}`, 'DELETE', null, () => {
-                    fetchLeaveRequests();
-                    alert('✅ Xóa đơn xin nghỉ phép thành công!');
-                });
-            }
         };
 
         // Cập nhật trạng thái đơn
@@ -452,8 +320,7 @@
             sendAjaxRequest('/employees', 'GET', null, (response) => {
                 employees = response.data || [];
                 console.log('Employees loaded:', employees);
-                fetchEmployees(document.getElementById('request_employee_id'));
-                fetchEmployees(document.getElementById('edit_request_employee_id'));
+                fetchEmployees();
                 sendAjaxRequest('/departments', 'GET', null, (response) => {
                     departments = response.data || [];
                     console.log('Departments loaded:', departments);

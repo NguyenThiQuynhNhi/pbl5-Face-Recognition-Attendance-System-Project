@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="./style.css" />
     <style>
         .employee-img, .proof-img {
+            cursor: pointer;
             width: 40px;
             height: 40px;
             object-fit: cover;
@@ -16,6 +17,7 @@
             margin-right: 8px;
         }
         .empty-state {
+            margin: 30px auto;
             text-align: center;
             padding: 20px;
         }
@@ -77,34 +79,42 @@
         <!-- Section Chấm Công -->
         <div class="section" id="attendanceSection">
             <div class="row mb-4">
-                <div class="col-md-3">
-                    <input type="date" class="form-control" id="filter_attendance_date" placeholder="Ngày chấm công" />
+                <div class="col-md-2">
+                    <label for="filter_start_date" class="form-label">Từ Ngày</label>
+                    <input type="date" class="form-control" id="filter_start_date" />
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    <label for="filter_end_date" class="form-label">Đến Ngày</label>
+                    <input type="date" class="form-control" id="filter_end_date" />
+                </div>
+                <div class="col-md-2">
+                    <label for="filter_employee_id" class="form-label">Nhân Viên</label>
                     <select class="form-control" id="filter_employee_id">
                         <option value="">Tất cả nhân viên</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    <label for="filter_status" class="form-label">Trạng Thái</label>
                     <select class="form-control" id="filter_status">
                         <option value="">Tất cả trạng thái</option>
                         <option value="Enough">Đủ</option>
                         <option value="Lack">Thiếu</option>
+                        <option value="Pending">Đang chờ</option>
+                        <option value="Alert">Cảnh báo</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    <label for="filter_department_id" class="form-label">Phòng Ban</label>
                     <select class="form-control" id="filter_department_id">
                         <option value="">Tất cả phòng ban</option>
                     </select>
                 </div>
             </div>
             <div class="row mb-4">
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <button class="btn btn-primary" onclick="fetchAttendance()">Lọc</button>
                     <button class="btn btn-secondary" onclick="resetFilters()">Xóa bộ lọc</button>
-                </div>
-                <div class="col-md-6 text-end">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAttendanceModal">
+                    <button class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#addAttendanceModal">
                         <i class="fas fa-plus me-1"></i>Thêm Bản Ghi Chấm Công
                     </button>
                 </div>
@@ -128,8 +138,7 @@
                     <tbody id="attendanceTableBody"></tbody>
                 </table>
             </div>
-            <div id="emptyState" class="
-            class="empty-state" style="display: none;">
+            <div id="emptyState" class="empty-state" style="display: none;">
                 <i class="fas fa-calendar-check fa-3x"></i>
                 <h3>Chưa có bản ghi chấm công</h3>
                 <p>Không có dữ liệu phù hợp với bộ lọc.</p>
@@ -162,6 +171,14 @@
                         <div class="mb-3">
                             <label for="time_out" class="form-label">Giờ Ra</label>
                             <input type="time" class="form-control" id="time_out" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="photo_proof_in" class="form-label">Ảnh Giờ Vào</label>
+                            <input type="file" class="form-control" id="photo_proof_in" accept="image/*" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="photo_proof_out" class="form-label">Ảnh Giờ Ra</label>
+                            <input type="file" class="form-control" id="photo_proof_out" accept="image/*" />
                         </div>
                         <button type="submit" class="btn btn-primary">Thêm</button>
                     </form>
@@ -197,8 +214,31 @@
                             <label for="edit_time_out" class="form-label">Giờ Ra</label>
                             <input type="time" class="form-control" id="edit_time_out" />
                         </div>
+                        <div class="mb-3">
+                            <label for="edit_photo_proof_in" class="form-label">Ảnh Giờ Vào</label>
+                            <input type="file" class="form-control" id="edit_photo_proof_in" accept="image/*" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_photo_proof_out" class="form-label">Ảnh Giờ Ra</label>
+                            <input type="file" class="form-control" id="edit_photo_proof_out" accept="image/*" />
+                        </div>
                         <button type="submit" class="btn btn-primary">Cập Nhật</button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal hiển thị ảnh -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">Xem Ảnh</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalImage" src="" alt="Proof Image" style="max-width: 100%; max-height: 500px;">
                 </div>
             </div>
         </div>
@@ -226,10 +266,10 @@
                 url: `http://localhost:5000/companyABC/admin${url}`,
                 method: method,
                 headers: { 'secret-key': secretKey },
-                data: data ? JSON.stringify(data) : null,
-                contentType: data ? 'application/json' : undefined,
+                data: data ? (data instanceof FormData ? data : JSON.stringify(data)) : null,
+                contentType: data instanceof FormData ? false : 'application/json',
+                processData: data instanceof FormData ? false : true,
                 success: (response) => {
-                    console.log(`[SUCCESS] ${method} ${url}:`, response);
                     successCallback(response);
                 },
                 error: (xhr) => {
@@ -263,7 +303,6 @@
             }
             sendAjaxRequest('/employees', 'GET', null, (response) => {
                 employees = response.data || [];
-                console.log('Employees loaded:', employees);
                 selectElement.innerHTML = employees.map(emp => 
                     `<option value="${emp.employee_id}">${emp.employee_name} (${emp.employee_id})</option>`
                 ).join('');
@@ -287,7 +326,6 @@
             }
             sendAjaxRequest('/departments', 'GET', null, (response) => {
                 departments = response.data || [];
-                console.log('Departments loaded:', departments);
                 document.getElementById('filter_department_id').innerHTML = 
                     `<option value="">Tất cả phòng ban</option>` + 
                     departments.map(dept => 
@@ -296,10 +334,17 @@
             });
         };
 
+        // Hiển thị ảnh trong modal
+        const showImage = (imageSrc) => {
+            document.getElementById('modalImage').src = imageSrc;
+            new bootstrap.Modal(document.getElementById('imageModal')).show();
+        };
+
         // Tải danh sách chấm công
         const fetchAttendance = () => {
             const filters = {
-                attendance_date: document.getElementById('filter_attendance_date').value,
+                start_date: document.getElementById('filter_start_date').value,
+                end_date: document.getElementById('filter_end_date').value,
                 employee_id: document.getElementById('filter_employee_id').value,
                 status: document.getElementById('filter_status').value,
                 department_id: document.getElementById('filter_department_id').value
@@ -309,10 +354,8 @@
                 .map(key => `${key}=${encodeURIComponent(filters[key])}`)
                 .join('&');
             const url = `/attendance${query ? '?' + query : ''}`;
-            console.log('Fetching attendance with URL:', url);
             sendAjaxRequest(url, 'GET', null, (response) => {
                 const records = response.data || [];
-                console.log('Attendance records:', records);
                 const tbody = document.getElementById('attendanceTableBody');
                 const emptyState = document.getElementById('emptyState');
                 if (records.length === 0) {
@@ -323,22 +366,21 @@
                     tbody.innerHTML = records.map(record => {
                         const emp = employees.find(e => e.employee_id === record.employee_id) || { employee_name: record.employee_id, face_image_dir: '' };
                         const dept = departments.find(d => d.department_id === emp.department_id) || { department_name: emp.department_id || '' };
-                        const imageSrc = emp.face_image_dir ? `http://localhost:5000${emp.face_image_dir}` : 'https://via.placeholder.com/40';
                         const proofInSrc = record.photo_proof_in ? `http://localhost:5000${record.photo_proof_in}` : 'https://via.placeholder.com/40';
                         const proofOutSrc = record.photo_proof_out ? `http://localhost:5000${record.photo_proof_out}` : 'https://via.placeholder.com/40';
                         return `
                             <tr>
                                 <td>${emp.employee_name} (${record.employee_id})</td>
                                 <td>${dept.department_name}</td>
-                                <td>${record.attendance_date}</td>
+                                <td>${new Date(record.attendance_date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                                 <td>${record.time_in || ''}</td>
                                 <td>${record.time_out || ''}</td>
                                 <td>${record.status}</td>
                                 <td>${record.late_hours}</td>
-                                <td><img src="${proofInSrc}" class="proof-img" alt="Proof Time In"></td>
-                                <td><img src="${proofOutSrc}" class="proof-img" alt="Proof Time Out"></td>
+                                <td><img src="${proofInSrc}" class="proof-img" alt="Proof Time In" onclick="showImage('${proofInSrc}')"></td>
+                                <td><img src="${proofOutSrc}" class="proof-img" alt="Proof Time Out" onclick="showImage('${proofOutSrc}')"></td>
                                 <td>
-                                    <button class="btn btn-warning btn-sm" onclick="editAttendance(${record.attendance_id}, '${record.employee_id}', '${record.attendance_date}', '${record.time_in || ''}', '${record.time_out || ''}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-warning btn-sm" onclick="editAttendance(${record.attendance_id}, '${record.employee_id}', '${record.attendance_date}', '${record.time_in || ''}', '${record.time_out || ''}', '${record.photo_proof_in || ''}', '${record.photo_proof_out || ''}')"><i class="fas fa-edit"></i></button>
                                     <button class="btn btn-danger btn-sm" onclick="deleteAttendance(${record.attendance_id})"><i class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
@@ -351,13 +393,14 @@
         // Thêm bản ghi chấm công
         document.getElementById('addAttendanceForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const attendance = {
-                employee_id: document.getElementById('attendance_employee_id').value,
-                attendance_date: document.getElementById('attendance_date').value,
-                time_in: document.getElementById('time_in').value || null,
-                time_out: document.getElementById('time_out').value || null
-            };
-            sendAjaxRequest('/attendance', 'POST', attendance, () => {
+            const formData = new FormData();
+            formData.append('employee_id', document.getElementById('attendance_employee_id').value);
+            formData.append('attendance_date', document.getElementById('attendance_date').value);
+            formData.append('time_in', document.getElementById('time_in').value || null);
+            formData.append('time_out', document.getElementById('time_out').value || null);
+            formData.append('photo_proof_in', document.getElementById('photo_proof_in').files[0]);
+            formData.append('photo_proof_out', document.getElementById('photo_proof_out').files[0]);
+            sendAjaxRequest('/attendance', 'POST', formData, () => {
                 fetchAttendance();
                 bootstrap.Modal.getInstance(document.getElementById('addAttendanceModal')).hide();
                 document.getElementById('addAttendanceForm').reset();
@@ -366,7 +409,8 @@
         });
 
         // Sửa bản ghi chấm công
-        const editAttendance = (id, employee_id, date, time_in, time_out) => {
+        const editAttendance = (id, employee_id, date, time_in, time_out, photo_proof_in, photo_proof_out) => {
+            fetchEmployees(document.getElementById('edit_attendance_employee_id'));
             document.getElementById('edit_attendance_id').value = id;
             document.getElementById('edit_attendance_employee_id').value = employee_id;
             document.getElementById('edit_attendance_date').value = date;
@@ -377,13 +421,14 @@
 
         document.getElementById('editAttendanceForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const attendance = {
-                employee_id: document.getElementById('edit_attendance_employee_id').value,
-                attendance_date: document.getElementById('edit_attendance_date').value,
-                time_in: document.getElementById('edit_time_in').value || null,
-                time_out: document.getElementById('edit_time_out').value || null
-            };
-            sendAjaxRequest(`/attendance/${document.getElementById('edit_attendance_id').value}`, 'PUT', attendance, () => {
+            const formData = new FormData();
+            formData.append('employee_id', document.getElementById('edit_attendance_employee_id').value);
+            formData.append('attendance_date', document.getElementById('edit_attendance_date').value);
+            formData.append('time_in', document.getElementById('edit_time_in').value || null);
+            formData.append('time_out', document.getElementById('edit_time_out').value || null);
+            formData.append('photo_proof_in', document.getElementById('edit_photo_proof_in').files[0]);
+            formData.append('photo_proof_out', document.getElementById('edit_photo_proof_out').files[0]);
+            sendAjaxRequest(`/attendance/${document.getElementById('edit_attendance_id').value}`, 'PUT', formData, () => {
                 fetchAttendance();
                 bootstrap.Modal.getInstance(document.getElementById('editAttendanceModal')).hide();
                 alert('✅ Cập nhật bản ghi chấm công thành công!');
@@ -402,7 +447,8 @@
 
         // Xóa bộ lọc
         const resetFilters = () => {
-            document.getElementById('filter_attendance_date').value = '';
+            document.getElementById('filter_start_date').value = '';
+            document.getElementById('filter_end_date').value = '';
             document.getElementById('filter_employee_id').value = '';
             document.getElementById('filter_status').value = '';
             document.getElementById('filter_department_id').value = '';
@@ -411,15 +457,12 @@
 
         // Khởi tạo
         const init = () => {
-            console.log('Initializing with SecretKey:', secretKey);
             sendAjaxRequest('/employees', 'GET', null, (response) => {
                 employees = response.data || [];
-                console.log('Employees loaded:', employees);
                 fetchEmployees(document.getElementById('attendance_employee_id'));
                 fetchEmployees(document.getElementById('edit_attendance_employee_id'));
                 sendAjaxRequest('/departments', 'GET', null, (response) => {
                     departments = response.data || [];
-                    console.log('Departments loaded:', departments);
                     fetchDepartments();
                     fetchAttendance();
                 });

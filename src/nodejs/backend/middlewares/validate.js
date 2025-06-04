@@ -18,11 +18,6 @@ const validateLogin = [
 
 // Validate dữ liệu phòng ban
 const validateDepartment = [
-    body("department_id")
-        .notEmpty()
-        .withMessage("Mã phòng ban không được để trống!")
-        .isLength({ max: 10 })
-        .withMessage("Mã phòng ban không được dài quá 10 ký tự!"),
     body("department_name")
         .notEmpty()
         .withMessage("Tên phòng ban không được để trống!")
@@ -37,11 +32,6 @@ const validateDepartment = [
 
 // Validate dữ liệu nhân viên
 const validateEmployee = [
-    body("employee_id")
-        .notEmpty()
-        .withMessage("Mã nhân viên không được để trống!")
-        .isLength({ max: 20 })
-        .withMessage("Mã nhân viên không được dài quá 20 ký tự!"),
     body("employee_name")
         .notEmpty()
         .withMessage("Tên nhân viên không được để trống!")
@@ -137,18 +127,11 @@ const validateAttendance = [
 
 // Validate dữ liệu đơn xin nghỉ phép
 const validateLeaveRequest = [
-    body("start_date")
+    body("leave_date")
         .notEmpty()
         .withMessage("Ngày bắt đầu nghỉ không được để trống!")
         .isDate()
         .withMessage("Ngày bắt đầu nghỉ phải là định dạng ngày hợp lệ!"),
-    body("end_date")
-        .notEmpty()
-        .withMessage("Ngày kết thúc nghỉ không được để trống!")
-        .isDate()
-        .withMessage("Ngày kết thúc nghỉ phải là định dạng ngày hợp lệ!")
-        .custom((value, { req }) => new Date(value) >= new Date(req.body.start_date))
-        .withMessage("Ngày kết thúc nghỉ phải lớn hơn hoặc bằng ngày bắt đầu nghỉ!"),
     body("reason")
         .notEmpty()
         .withMessage("Lý do nghỉ không được để trống!")

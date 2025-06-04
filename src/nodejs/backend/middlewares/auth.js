@@ -9,8 +9,8 @@ const authenticate = (req, res, next) => {
         return res.status(401).json({ message: "⛔ Secret key không hợp lệ!" });
     }
 
-    const id = match[1]; // admin_id hoặc employee_id
-    const type = match[2]; // role (cho admin) hoặc 'employee' (cho employee)
+    const id = match[1]; 
+    const type = match[2]; 
 
     if (type === 'employee') {
         req.user = { employee_id: id, type: 'employee' };

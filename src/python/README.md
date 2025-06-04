@@ -8,10 +8,10 @@
   - python capture.py
 
   Tiền xử lý dữ liệu cắt khuôn mặt từ ảnh gốc:
-  - python src/align_dataset_mtcnn.py  Dataset/FaceData/raw Dataset/FaceData/processed --image_size 160 --margin 32 --random_order --gpu_memory_fraction 0.25
+  - python align_dataset_mtcnn.py  Dataset/FaceData/raw Dataset/FaceData/processed --image_size 160 --margin 32 --random_order --gpu_memory_fraction 0.25
 
   Train model nhận diện khuôn mặt:
-  - python src/classifier.py TRAIN Dataset/FaceData/processed Models/20180402-114759.pb Models/facemodel.pkl --batch_size 1000
+  - python classifier.py TRAIN Dataset/FaceData/processed Models/20180402-114759.pb Models/facemodel.pkl --batch_size 1000
 
   Chaỵ chương trình nhâ diện khuôn mặt:
   - python src/face_rec_cam.py
